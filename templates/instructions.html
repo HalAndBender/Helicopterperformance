@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>Instructions</title>
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+      body {
+          margin: 20 auto;
+          position: relative;
+
+      }
+      .content {
+          margin: auto;
+          margin-top: 25px;
+          margin-left: 25px;
+          margin-right: 25px;
+          width: 900;
+      }
+    </style>
+
+    <style>
+    h3 {text-align: center;}
+    </style>
+
+   </head>
+   <div class="content">
+   <body>
+        <b>Instructions:</b> </br>
+        The app is intented to be used for pilots flying the AW139 helicopter under normal operating conditions near sea level.<br>
+        It was created with reference to: Agusta Westland AW139 Rotorcraft Flying Manual, rev.20, pg. 9-126, "Hover Ceiling out of ground effect 2.5 minute power OEI".<br>
+        </br>
+        <b>Accurate calculation can only be provided for the following input ranges:</b> <br>
+        <table style="width:90%">
+            <tr><td style="font-size:3">Dry Operating Mass</td><td style="font-size:3">(4400, 5500)</td></tr>
+            <tr><td style="font-size:3">Fuel at site</td><td style="font-size:3">(   0, 1200)</td></tr>
+            <tr><td style="font-size:3">Hover Height above MSL</td><td style="font-size:3">(   0,  500)</td></tr>
+            <tr><td style="font-size:3">QNH</td><td style="font-size:3">( 970, 1050)</td ></tr>
+            <tr><td style="font-size:3">Temperature</td><td style="font-size:3">( -10,   40)</td></tr>
+            <tr><td style="font-size:3">Headwind</td><td style="font-size:3">(   0,   40)</td></tr>
+            <tr><td style="font-size:3">Performance Benefit</td><td style="font-size:3">(   0,   100)</td></tr>
+        </table>
+        </br>
+        After submission, please allow about 10 to 15 seconds for the results to be rendered.<br>
+        A table with the results will be printed and reference lines (red) will be drawn on top of the performance chart provided by the manufacturer.<br>
+        </br>
+      <p><a href="{{ url_for('index') }}">back to Start page</a></p>
+    </form>
+   </body>
+</html>

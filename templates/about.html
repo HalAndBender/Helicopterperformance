@@ -2,10 +2,40 @@
 <html lang="en" dir="ltr">
    <head>
       <meta charset="utf-8">
-      <title>About Flask</title>
+      <title>About</title>
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+      body {
+          margin: 20 auto;
+          position: relative;
+
+      }
+      .content {
+          margin: auto;
+          margin-top: 25px;
+          margin-left: 25px;
+          margin-right: 25px;
+          width: 900;
+      }
+    </style>
+
+    <style>
+    h3 {text-align: center;}
+    </style>
+
    </head>
    <body>
-      <h1> About App </h1>
-      <p> This app is under development. </p>
+       <div class="content">
+      <b>About:</b> </br>
+      </br>
+      <p> This website is currently under development by Stephan Goldberg. <br>
+      It is free to use for anyone and it does not collect any data. </p>
+      </br>
+      <p><a href="{{ url_for('index') }}">back to Start page</a></p>
+    </form>
    </body>
 </html>
+

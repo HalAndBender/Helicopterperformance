@@ -48,6 +48,29 @@ def index():
     """ Displays the index page accessible at '/' """
     return render_template('index.html')
 
+@app.route('/about', methods=['GET', 'POST'])
+def about():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('about.html')
+
+@app.route('/instructions', methods=['GET', 'POST'])
+def instructions():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('instructions.html')
 
 
 

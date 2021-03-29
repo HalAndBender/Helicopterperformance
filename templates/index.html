@@ -35,7 +35,7 @@
    <!-- <p class="h6" style="text-align:center">...under development, results not accurate...</p> -->
     <p class="h3" style="text-align:center" >AW139 Payload Calculator</p>
     <p style="text-align:center">This application calculates the maximum payload and mass of the AW139 helicopter that allows maintaining an out of ground effect hover for 2.5 minutes in case of a single engine failure.
-    Please follow the instructions below.<br/>
+    Please find the instruction link below.<br/>
     </p>
     <form method="post" action="{{ url_for('operation_result') }}" id="calculator_form">
         <div class="form-group">
@@ -76,27 +76,11 @@
         <input class="btn btn-primary" type="submit" value="Calculate"/>
         <br/>
         <br/>
-        <p>
-        <b>Instructions:</b> <br/>
-        The application will display the desired result and generate reference lines (red) on top of the performance chart provided by the manufacturer.
-        Please allow about 15 seconds for the downloadable chart to be rendered at the bottom of this page.<br>
-        Accurate calculation can only be provided for the following input ranges: <br>
-        <table style="width:90%">
-            <tr><td style="font-size:3">Dry Operating Mass</td><td style="font-size:3">(4400, 5500)</td></tr>
-            <tr><td style="font-size:3">Fuel at site</td><td style="font-size:3">(   0, 1200)</td></tr>
-            <tr><td style="font-size:3">Hover Height above MSL</td><td style="font-size:3">(   0,  500)</td></tr>
-            <tr><td style="font-size:3">QNH</td><td style="font-size:3">( 970, 1050)</td ></tr>
-            <tr><td style="font-size:3">Temperature</td><td style="font-size:3">( -10,   40)</td></tr>
-            <tr><td style="font-size:3">Headwind</td><td style="font-size:3">(   0,   40)</td></tr>
-            <tr><td style="font-size:3">Performance Benefit</td><td style="font-size:3">(   0,   100)</td></tr>
-        </table>
-        <br/>
-        <br/>
         <b>Disclaimer:</b><br/>
-        Calculations performed by this application must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the results presented here is provided.<br/>
+        Calculations performed by this application must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the results is provided.<br/>
         <br/>
-        This app was created by Stephan Goldberg with reference to: Agusta Westland AW139 Rotorcraft Flying Manual, rev.20, pg. 9-126, "Hover Ceiling out of ground effect 2.5 minute power OEI".<br/>
-        </p>
+        <p><a href="{{ url_for('instructions') }}">Instructions</a></p>
+        <p><a href="{{ url_for('about') }}">About</a></p>
 
 
 
