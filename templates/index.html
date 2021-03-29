@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payload Calculator</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='calculator.css') }}"/>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+      body {
+          margin: 20 auto;
+          position: relative;
+
+      }
+      .content {
+          margin: auto;
+          margin-top: 25px;
+          margin-left: 25px;
+          margin-right: 25px;
+          width: 900;
+      }
+    </style>
+
+    <style>
+    h3 {text-align: center;}
+    </style>
+
+</head>
+<body>
+    <div class="content">
+   <!-- <p class="h6" style="text-align:center">...under development, results not accurate...</p> -->
+    <p class="h3" style="text-align:center" >AW139 Payload Calculator</p>
+    <p style="text-align:center">This application calculates the maximum payload and mass of the AW139 helicopter that allows maintaining an out of ground effect hover for 2.5 minutes in case of a single engine failure.
+    Please follow the instructions below.<br/>
+    </p>
+    <form method="post" action="{{ url_for('operation_result') }}" id="calculator_form">
+        <div class="form-group">
+            <label for="DOM">Dry Operating Mass (kg):</label>
+            <input class="form-control input-sm" type="text" name="DOM" id="DOM" value="{{DOM_SV}}">
+        </div>
+
+        <div class="form-group">
+            <label for="fuel_at_hho">Fuel at site (kg):</label>
+            <input class="form-control input-sm" type="text" name="fuel_at_hho" id="fuel_at_hho" value="{{fuel_at_hho_SV}}">
+        </div>
+
+        <div class="form-group">
+            <label for="hover_height">Hover Height above MSL (ft):</label>
+            <input class="form-control input-sm" type="text" name="hover_height" id="hover_height" value="{{hover_height_SV}}">
+        </div>
+
+        <div class="form-group">
+            <label for="QNH">QNH (mb):</label>
+            <input class="form-control input-sm" type="text" name="QNH" id="QNH" value="{{QNH_SV}}">
+        </div>
+
+        <div class="form-group">
+            <label for="temp">Temperature (C):</label>
+            <input class="form-control input-sm" type="text" name="temp" id="temp" value="{{temp_SV}}">
+        </div>
+
+        <div class="form-group">
+            <label for="wind">Headwind (kt):</label>
+            <input class="form-control input-sm" type="text" name="wind" id="wind" value="{{wind_SV}}">
+        </div>
+
+        <div class="form-group">
+            <label for="perf_benefit">Wind Benefit (%):</label>
+            <input class="form-control input-sm" type="text" name="perf_benefit" id="perf_benefit" value="{{perf_benefit_SV}}">
+        </div>
+
+        <input class="btn btn-primary" type="submit" value="Calculate"/>
+        <br/>
+        <br/>
+        <p>
+        <b>Instructions:</b> <br/>
+        The application will display the desired result and generate reference lines (red) on top of the performance chart provided by the manufacturer.
+        Please allow about 15 seconds for the downloadable chart to be rendered at the bottom of this page.<br>
+        Accurate calculation can only be provided for the following input ranges: <br>
+        <table style="width:90%">
+            <tr><td style="font-size:3">Dry Operating Mass</td><td style="font-size:3">(4400, 5500)</td></tr>
+            <tr><td style="font-size:3">Fuel at site</td><td style="font-size:3">(   0, 1200)</td></tr>
+            <tr><td style="font-size:3">Hover Height above MSL</td><td style="font-size:3">(   0,  500)</td></tr>
+            <tr><td style="font-size:3">QNH</td><td style="font-size:3">( 970, 1050)</td ></tr>
+            <tr><td style="font-size:3">Temperature</td><td style="font-size:3">( -10,   40)</td></tr>
+            <tr><td style="font-size:3">Headwind</td><td style="font-size:3">(   0,   40)</td></tr>
+            <tr><td style="font-size:3">Performance Benefit</td><td style="font-size:3">(   0,   100)</td></tr>
+        </table>
+        <br/>
+        <br/>
+        <b>Disclaimer:</b><br/>
+        Calculations performed by this application must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the results presented here is provided.<br/>
+        <br/>
+        This app was created by Stephan Goldberg with reference to: Agusta Westland AW139 Rotorcraft Flying Manual, rev.20, pg. 9-126, "Hover Ceiling out of ground effect 2.5 minute power OEI".<br/>
+        </p>
+
+
+
+    </form>
+    {% if calculation_success == True %}
+        <h4 style="color:red;font-size:4vw;">Result:</h4>
+        <table style="width:100%">
+            <tr><td style="font-size:4vw">Pressure Altitude:</td><td style="color:red;font-size:4vw;">{{result_PA}} ft</td></tr>
+            <tr><td style="font-size:4vw">Max. Mass, zero wind:</td><td style="color:red;font-size:4vw;">{{result_no_wind}} kg</td></tr>
+            <tr><td style="font-size:4vw">Max. Mass, full wind:</td><td style="color:red;font-size:4vw;">{{result_wind}} kg</td></tr>
+            <tr><td style="font-size:4vw">Max. limited Wind-benefit Mass:</td><td style="color:red;font-size:4vw;">{{result_performance_limited}} kg</td></tr>
+            <tr><td style="font-size:4vw">Max. Useful Load:</td><td style="color:red;font-size:4vw;">{{result_useful_load}} kg</td></tr>
+            <tr><td style="font-size:4vw">Max. Payload: </td><td style="color:red;font-size:4vw;">{{result_payload}} kg</td></tr>
+        </table>
+        <br/>
+        <img id="output_image" src="{{ url_for('static', filename=result_png)}}" />
+        <p><a href="{{ url_for('static', filename=result_png) }}">show high-resolution image</a></p>
+        <br/>
+
+    {% endif %}
+    {% if calculation_success == False %}
+        <br/>
+        <p>{{error}}</p>
+        <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
+    {% endif %}
+
+    {% if calculation_only_success == True %}
+        <h4 style="color:red;font-size:4vw;">Result:</h4>
+        <table style="width:100%">
+            <tr><td style="font-size:4vw">Pressure Altitude:</td><td style="color:red;font-size:4vw;">{{result_PA}} ft</td></tr>
+            <tr><td style="font-size:4vw">Max. Mass, zero wind:</td><td style="color:red;font-size:4vw;">{{result_no_wind}} kg</td></tr>
+            <tr><td style="font-size:4vw">Max. Mass, full wind:</td><td style="color:red;font-size:4vw;">{{result_wind}} kg</td></tr>
+            <tr><td style="font-size:4vw">Max. limited Wind-benefit Mass:</td><td style="color:red;font-size:4vw;">{{result_performance_limited}} kg</td></tr>
+            <tr><td style="font-size:4vw">Max. Useful Load:</td><td style="color:red;font-size:4vw;">{{result_useful_load}} kg</td></tr>
+            <tr><td style="font-size:4vw">Max. Payload: </td><td style="color:red;font-size:4vw;">{{result_payload}} kg</td></tr>
+        </table>
+        <br/>
+
+    {% endif %}
+    {% if calculation_only_success == False %}
+        <br/>
+        <p>{{error}}</p>
+        <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let img = document.getElementById('output_image');
+            img.style.height = '600px';
+            img.style.width = '466px';
+
+        }, false);
+    </script>
+    </div>
+</body>
+</html>
