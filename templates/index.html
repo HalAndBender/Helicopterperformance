@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Required meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payload Calculator</title>
+    <title>AW139 OEI OGE Payload Calculator</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='calculator.css') }}"/>
 
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
     <style>
       body {
           margin: 20 auto;
@@ -29,48 +36,57 @@
     h3 {text-align: center;}
     </style>
 
+
+
+
 </head>
 <body>
     <div class="content">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
    <!-- <p class="h6" style="text-align:center">...under development, results not accurate...</p> -->
-    <p class="h3" style="text-align:center" >AW139 Payload Calculator</p>
+    <p class="h3" style="text-align:center" >AW139 OEI OGE Payload Calculator</p>
     <p style="text-align:center">This application calculates the maximum payload and mass of the AW139 helicopter that allows maintaining an out of ground effect hover for 2.5 minutes in case of a single engine failure.
-    Please find the instruction link below.<br/>
+    Please find the instructions <a href="{{ url_for('instructions') }}">here</a>.
     </p>
     <form method="post" action="{{ url_for('operation_result') }}" id="calculator_form">
         <div class="form-group">
             <label for="DOM">Dry Operating Mass (kg):</label>
-            <input class="form-control input-sm" type="text" name="DOM" id="DOM" value="{{DOM_SV}}">
+            <input class="form-control input-sm" type="text" name="DOM" id="DOM" value="{{DOM_SV}}" placeholder="4400 to 5500">
         </div>
 
         <div class="form-group">
             <label for="fuel_at_hho">Fuel at site (kg):</label>
-            <input class="form-control input-sm" type="text" name="fuel_at_hho" id="fuel_at_hho" value="{{fuel_at_hho_SV}}">
+            <input class="form-control input-sm" type="text" name="fuel_at_hho" id="fuel_at_hho" value="{{fuel_at_hho_SV}}" placeholder="0 to 1200" >
         </div>
 
         <div class="form-group">
             <label for="hover_height">Hover Height above MSL (ft):</label>
-            <input class="form-control input-sm" type="text" name="hover_height" id="hover_height" value="{{hover_height_SV}}">
+            <input class="form-control input-sm" type="text" name="hover_height" id="hover_height" value="{{hover_height_SV}}" placeholder="0 to 500">
         </div>
 
         <div class="form-group">
             <label for="QNH">QNH (mb):</label>
-            <input class="form-control input-sm" type="text" name="QNH" id="QNH" value="{{QNH_SV}}">
+            <input class="form-control input-sm" type="text" name="QNH" id="QNH" value="{{QNH_SV}}" placeholder="970 to 1050">
         </div>
 
         <div class="form-group">
             <label for="temp">Temperature (C):</label>
-            <input class="form-control input-sm" type="text" name="temp" id="temp" value="{{temp_SV}}">
+            <input class="form-control input-sm" type="text" name="temp" id="temp" value="{{temp_SV}}" placeholder="-10 to 40">
         </div>
 
         <div class="form-group">
             <label for="wind">Headwind (kt):</label>
-            <input class="form-control input-sm" type="text" name="wind" id="wind" value="{{wind_SV}}">
+            <input class="form-control input-sm" type="text" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 40">
         </div>
 
         <div class="form-group">
             <label for="perf_benefit">Wind Benefit (%):</label>
-            <input class="form-control input-sm" type="text" name="perf_benefit" id="perf_benefit" value="{{perf_benefit_SV}}">
+            <input class="form-control input-sm" type="text" name="perf_benefit" id="perf_benefit" value="{{perf_benefit_SV}}" placeholder="0 to 100">
         </div>
 
         <input class="btn btn-primary" type="submit" value="Calculate"/>
@@ -79,8 +95,8 @@
         <b>Disclaimer:</b><br/>
         Calculations performed by this application must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the results is provided.<br/>
         <br/>
-        <p><a href="{{ url_for('instructions') }}">Instructions</a></p>
         <p><a href="{{ url_for('about') }}">About</a></p>
+
 
 
 
@@ -97,7 +113,8 @@
         </table>
         <br/>
         <img id="output_image" src="{{ url_for('static', filename=result_png)}}" />
-        <p><a href="{{ url_for('static', filename=result_png) }}">show high-resolution image</a></p>
+        <br/>
+        <p><a href="{{ url_for('static', filename=result_png) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p>
         <br/>
 
     {% endif %}

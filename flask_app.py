@@ -316,7 +316,7 @@ def operation_result():
         d.text((5800,8300),str(result_payload) + ' kg' ,fontcolor,font=font)
 
         # # to create an output image
-        new_graph_name = "Payload " + str(time) + ".png"
+        new_graph_name = "Payload " + str(time) + " UTC.png"
 
         for filename in os.listdir('/home/gaviation/mysite/static/images/'):
             if filename.startswith('Payload'):  # not to remove other images
