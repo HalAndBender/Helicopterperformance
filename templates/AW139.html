@@ -12,7 +12,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <style>
       body {
-          margin: 20 auto;
+          margin:  auto;
           position: relative;
 
       }
@@ -21,7 +21,7 @@
           margin-top: 25px;
           margin-left: 25px;
           margin-right: 25px;
-          width: 900;
+          width: auto;
       }
     </style>
 
@@ -48,6 +48,7 @@
             <li class="nav-item">
         <a class="nav-link" href="{{ url_for('about') }}">About</a>
       </li>
+    </ul>
       <!--li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Dropdown
@@ -69,26 +70,65 @@
     </form-->
   </div>
 </nav>
-</head>
-   <div class="content">
-   <body>
-       <b>About:</b> </br>
-        This site is free to use for anyone. It  does not collect any data. <br>
-        This site is intended to help helicopter pilots and operators quickly assess and compare the performance limitations of their helicopters near seal level.</br>
-        </br>
-        <b>Instructions:</b> </br>
-        The calculations require the input of various environmental and operational conditions, such as wind, QNH, height above sea level, etc.
-        The range of the allowed input values are displayed in the input fields themselves.
-        Reasonably accurate calculations can only be achieved within the ranges displayed.
-        The calculations are based on the information provided in the Rotorcraft Flying Manuals from the helicopter manufacturer. </br>
-        </br>
-        <b>Disclaimer:</b><br/>
-        Calculations performed by this application must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the results is provided.<br/>
-        <br/>
-        <b>Under development:</b> </br>
-        The site was launched in April 2021 and is currently under development. In the future we hope to be able to offer performance calculations for a variety of helicopters and conditions.
-      </div>
-    </form>
-   </body>
-</html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
 
+<style>
+img {
+  border: 5px solid #555;
+    display: block;
+  margin-left: auto;
+  margin-right: auto;
+    margin-top: 50px;
+}
+figure {
+  display: inline-block;
+}
+
+figcaption {
+    text-align: center;
+}
+
+.img-with-text {
+    text-align: center;
+    width: [width of img];
+}
+
+.img-with-text img {
+    display: block;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+</style>
+</head>
+<body>
+
+
+<body>
+<div class="bd-example" align="middle">
+
+<!--img src="{{ url_for('static', filename='AW139_OGE_OEI.jpg' ) }}" alt="AW139 OGE OEI"-->
+<!--img src="static\images\AW139_OGE_OEI.jpg" alt="AW139 OGE OEI"-->
+
+
+<!--a href="{{ url_for('AW139_OGE_OEI') }}">
+<img border="0" alt="AW139 OGE OEI" src="{{ url_for('static', filename='AW139_OGE_OEI.jpg' ) }}" width="200" height="300" title="AW 139 OGE OEI">
+</a-->
+
+<div class="img-with-text">
+    <a href="{{ url_for('AW139_OGE_OEI') }}">
+    <img border="0" alt="AW139 OGE OEI" src="{{ url_for('static', filename='AW139_OGE_OEI.jpg' ) }}" width="200" height="300" title="AW 139 OGE OEI">
+    </a>
+    <p>AW139 Hover Ceiling</br>
+    Out of Ground Effect</br>
+    2.5 Minute OEI</p>
+</div>
+
+
+</div>
+</body>
+
+<!--p><a href="{{ url_for('AW139_OGE_OEI') }}">AW139 hover ceiling out of ground effect 2.5 minute power OEI</a></p-->
+</body>
+</html>

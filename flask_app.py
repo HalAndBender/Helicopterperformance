@@ -8,6 +8,8 @@ import os
 app = Flask(__name__) # Creating our Flask Instance
 app.secret_key = "randomly543tert443434"
 
+path_pycharm = ""
+path_pythonanywhere = "/home/gaviation/mysite/"
 
 # linear function parameters
 # function 0 - left side upper chart
@@ -72,6 +74,43 @@ def instructions():
     # show the form, it wasn't submitted
     return render_template('instructions.html')
 
+
+@app.route('/AW139', methods=['GET', 'POST'])
+def AW139():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139.html')
+
+@app.route('/AW139_OGE_OEI', methods=['GET', 'POST'])
+def AW139_OGE_OEI():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_OGE_OEI.html')
+
+
+@app.route('/AW169', methods=['GET', 'POST'])
+def AW169():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW169.html')
 
 
 @app.route('/operation_result/', methods=['POST', 'GET'])
@@ -330,7 +369,7 @@ def operation_result():
 
         # returning the template (Flask-part)
         return render_template(
-            'index.html',
+            'AW139_OGE_OEI.html',
             QNH = QNH,
             QNH_SV = session['QNH_SV'],
 

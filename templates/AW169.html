@@ -16,6 +16,10 @@
           position: relative;
 
       }
+      img {
+              width: 100%;
+              height: auto;
+      }
       .content {
           margin: auto;
           margin-top: 25px;
@@ -70,25 +74,7 @@
   </div>
 </nav>
 </head>
-   <div class="content">
-   <body>
-       <b>About:</b> </br>
-        This site is free to use for anyone. It  does not collect any data. <br>
-        This site is intended to help helicopter pilots and operators quickly assess and compare the performance limitations of their helicopters near seal level.</br>
-        </br>
-        <b>Instructions:</b> </br>
-        The calculations require the input of various environmental and operational conditions, such as wind, QNH, height above sea level, etc.
-        The range of the allowed input values are displayed in the input fields themselves.
-        Reasonably accurate calculations can only be achieved within the ranges displayed.
-        The calculations are based on the information provided in the Rotorcraft Flying Manuals from the helicopter manufacturer. </br>
-        </br>
-        <b>Disclaimer:</b><br/>
-        Calculations performed by this application must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the results is provided.<br/>
-        <br/>
-        <b>Under development:</b> </br>
-        The site was launched in April 2021 and is currently under development. In the future we hope to be able to offer performance calculations for a variety of helicopters and conditions.
-      </div>
-    </form>
-   </body>
+<body>
+<img border="0" alt="Under Construction" src="{{ url_for('static', filename='Under_Construction.jpg' ) }}" title="Under Construction">
+</body>
 </html>
-
