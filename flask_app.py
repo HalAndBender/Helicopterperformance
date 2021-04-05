@@ -11,39 +11,7 @@ app.secret_key = "randomly543tert443434"
 path_pycharm = ""
 path_pythonanywhere = "/home/gaviation/mysite/"
 
-# linear function parameters
-# function 0 - left side upper chart
-x_1,y_1 = 2364,5684           # about 2000ft PA on 30C line
-x_2,y_2 = 2956, 6290          # about 200ft PA on 30C line
-m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
-b_0 = -m_0*x_1 + y_1          #intercept
-b_0 = b_0 - (30 +273.15)*43.1 #finding the intercept of the -273C line, 43.1 pixel shift
-# function 0 - left side upper chart
-x_1,y_1 = 3011,5685            # about 2000ft PA on 10C line
-x_2,y_2 = 3265,6676            # about -1000ft PA on 10C line
-m_1 = (y_1 - y_2)/(x_1 - x_2)  #slope
-b_1 = -m_1*x_1 + y_1           #intercept
-b_1 = b_1 - (10 +273.15)*31    #finding the intercept of the -273C line
-# function 2:   0-5kts (lower chart)
-x_1, y_1 = 1317,6716          # (0,0)
-x_2, y_2 = 1449,6878          # (4480,5)
-m_2 = (y_1 - y_2)/(x_1 - x_2) # slope
-b_2 = -m_2*x_1 + y_1          # intercept
-# function 3: 5-10knts
-x_1, y_1 = 1449,6878          # (4480,5)
-x_2, y_2 = 1702,7044          # (4635,10)
-m_3 = (y_1 - y_2)/(x_1 - x_2) # slope
-b_3 = -m_3*x_1 + y_1          # intercept
-# function 4: 25-30kts
-x_1, y_1 = 3456,7538          # (5705,25)
-x_2, y_2 = 4219,7702          # (6169,30)
-m_4 = (y_1 - y_2)/(x_1 - x_2) # slope
-b_4 = -m_4*x_1 + y_1          # intercept
-# function 5: 30-40kts
-x_1, y_1 = 4219,7702          # (6169,30)
-x_2, y_2 = 5231,8034          # (6785,40)
-m_5 = (y_1 - y_2)/(x_1 - x_2) # slope
-b_5 = -m_5*x_1 + y_1          # intercept
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -99,6 +67,17 @@ def AW139_OGE_OEI():
     # show the form, it wasn't submitted
     return render_template('AW139_OGE_OEI.html')
 
+@app.route('/AW139_height_loss', methods=['GET', 'POST'])
+def AW139_height_loss():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_height_loss.html')
 
 @app.route('/AW169', methods=['GET', 'POST'])
 def AW169():
@@ -116,6 +95,40 @@ def AW169():
 @app.route('/operation_result/', methods=['POST', 'GET'])
 def operation_result():
     """Route where we send calculator form input"""
+
+    # linear function parameters
+    # function 0 - left side upper chart
+    x_1,y_1 = 2364,5684           # about 2000ft PA on 30C line
+    x_2,y_2 = 2956, 6290          # about 200ft PA on 30C line
+    m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
+    b_0 = -m_0*x_1 + y_1          #intercept
+    b_0 = b_0 - (30 +273.15)*43.1 #finding the intercept of the -273C line, 43.1 pixel shift
+    # function 0 - left side upper chart
+    x_1,y_1 = 3011,5685            # about 2000ft PA on 10C line
+    x_2,y_2 = 3265,6676            # about -1000ft PA on 10C line
+    m_1 = (y_1 - y_2)/(x_1 - x_2)  #slope
+    b_1 = -m_1*x_1 + y_1           #intercept
+    b_1 = b_1 - (10 +273.15)*31    #finding the intercept of the -273C line
+    # function 2:   0-5kts (lower chart)
+    x_1, y_1 = 1317,6716          # (0,0)
+    x_2, y_2 = 1449,6878          # (4480,5)
+    m_2 = (y_1 - y_2)/(x_1 - x_2) # slope
+    b_2 = -m_2*x_1 + y_1          # intercept
+    # function 3: 5-10knts
+    x_1, y_1 = 1449,6878          # (4480,5)
+    x_2, y_2 = 1702,7044          # (4635,10)
+    m_3 = (y_1 - y_2)/(x_1 - x_2) # slope
+    b_3 = -m_3*x_1 + y_1          # intercept
+    # function 4: 25-30kts
+    x_1, y_1 = 3456,7538          # (5705,25)
+    x_2, y_2 = 4219,7702          # (6169,30)
+    m_4 = (y_1 - y_2)/(x_1 - x_2) # slope
+    b_4 = -m_4*x_1 + y_1          # intercept
+    # function 5: 30-40kts
+    x_1, y_1 = 4219,7702          # (6169,30)
+    x_2, y_2 = 5231,8034          # (6785,40)
+    m_5 = (y_1 - y_2)/(x_1 - x_2) # slope
+    b_5 = -m_5*x_1 + y_1          # intercept
 
     error = None
     result = None
@@ -299,7 +312,7 @@ def operation_result():
             dot_list.append(x_y)
         d.line(dot_list, fill=line_color, width=15)
 
-
+        # generate the image
         # printing the text on the image:
         font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 130)
 
