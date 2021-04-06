@@ -5,17 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Helicopter Performance - Home</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='calculator.css') }}"/>
 
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <!-- Own CSS -->
+    <!--link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/-->
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 
 
@@ -24,8 +20,10 @@
 
     <style>
       body {
-          margin: auto;
-          position: relative;
+            margin: auto;
+            position: relative;
+            background-color: black;
+            color: white;
 
       }
       .content {
@@ -36,35 +34,35 @@
           width: auto;
       }
       img {
-  border: 5px solid #555;
-    display: block;
-  margin-left: auto;
-  margin-right: auto;
-    margin-top: 50px;
-}
-figure {
-  display: inline-block;
-}
+          border: 5px solid #555;
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          margin-top: 50px;
+        }
+        figure {
+          display: inline-block;
+        }
 
-figcaption {
-    text-align: center;
-}
+        figcaption {
+          text-align: center;
+        }
 
-.img-with-text {
-    text-align: center;
-    width: [width of img];
-}
+        .img-with-text {
+            text-align: center;
+            width: [width of img];
+        }
 
-.img-with-text img {
-    display: block;
-    margin: 0 auto;
-    margin-top: 50px;
-}
+        .img-with-text img {
+            display: block;
+            margin: 0 auto;
+            margin-top: 5px;
+        }
+
+    h3 {
+            text-align: center;}
     </style>
 
-    <style>
-    h3 {text-align: center;}
-    </style>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-info">
   <a class="navbar-brand" href="#">HelicopterPerformance.com</a>
@@ -114,14 +112,24 @@ figcaption {
 </head>
 <body>
     <div class="content">
-    <p style="font-size:25px; text-align:center"><b>Assess the performance of your helicopter: </b></p>
+    <p style="font-size:25px; text-align:center"><b>Assess the performance of your helicopter.</br>
+    </br>
+    Select your type here:</b></p>
     </div>
 <div class="img-with-text">
+    <p><b>AW139</b></p>
     <a href="{{ url_for('AW139') }}">
     <img border="0" alt="AW139" src="{{ url_for('static', filename='616_Bangladesh_Air_Force_AW139_MSAR._(cropped).jpg' ) }}" width="300" height="200" title="AW139 ">
     </a>
-    <p><b>AW139</b></p>
     <p style="font-size:9px;">Image by <a href="https://www.flickr.com/people/130382521@N04">Shadman Samee</a>, licenced under <a href="https://creativecommons.org/licenses/by-sa/2.0/deed.en">CC BY-SA 2.0</a> </p>
 </div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
 </body>
 </html>
