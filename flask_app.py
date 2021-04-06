@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
+from datetime import datetime
 import os
 
 
@@ -55,29 +56,8 @@ def AW139():
     # show the form, it wasn't submitted
     return render_template('AW139.html')
 
-@app.route('/AW139_OGE_OEI', methods=['GET', 'POST'])
-def AW139_OGE_OEI():
-    if request.method == 'POST':
-        # do stuff when the form is submitted
 
-        # redirect to end the POST handling
-        # the redirect can be to the same route or somewhere else
-        return redirect(url_for('index.html'))
 
-    # show the form, it wasn't submitted
-    return render_template('AW139_OGE_OEI.html')
-
-@app.route('/AW139_height_loss', methods=['GET', 'POST'])
-def AW139_height_loss():
-    if request.method == 'POST':
-        # do stuff when the form is submitted
-
-        # redirect to end the POST handling
-        # the redirect can be to the same route or somewhere else
-        return redirect(url_for('index.html'))
-
-    # show the form, it wasn't submitted
-    return render_template('AW139_height_loss.html')
 
 @app.route('/AW169', methods=['GET', 'POST'])
 def AW169():
@@ -91,6 +71,17 @@ def AW169():
     # show the form, it wasn't submitted
     return render_template('AW169.html')
 
+@app.route('/AW139_OGE_OEI', methods=['GET', 'POST'])
+def AW139_OGE_OEI():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_OGE_OEI.html')
 
 @app.route('/operation_result/', methods=['POST', 'GET'])
 def operation_result():
@@ -370,6 +361,7 @@ def operation_result():
         # # to create an output image
         new_graph_name = "Payload " + str(time) + " UTC.png"
 
+        # removing previously generated images
         for filename in os.listdir('/home/gaviation/mysite/static/images/'):
             if filename.startswith('Payload'):  # not to remove other images
                 os.remove('/home/gaviation/mysite/static/images/' + filename)
@@ -439,6 +431,249 @@ def operation_result():
             wind = wind,
             perf_benefit = perf_benefit,
             fuel_at_hho = fuel_at_hho,
+            result="Bad Input",
+            calculation_success = False,
+            error = "Cannot perform numeric operations with provided input"
+        )
+
+@app.route('/AW139_dropdown_6800', methods=['GET', 'POST'])
+def AW139_dropdown_6800():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_dropdown_6800.html')
+
+@app.route('/AW139_dropdown_6800_result/', methods=['POST', 'GET'])
+def AW139_dropdown_6800_result():
+
+    error = None
+    result = None
+
+    # paths
+    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 80)
+    im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW139_dropdown_6800.png")
+
+
+    # request.form looks for:
+    # html tags with matching "name= "
+    QNH_input = request.form['QNH']
+    session['QNH_SV'] = QNH_input
+
+    gross_mass_input = request.form['gross_mass']
+    session['gross_mass_SV'] = gross_mass_input
+
+    hover_height_input = request.form['hover_height']
+    session['hover_height_SV'] = hover_height_input
+
+    temp_input = request.form['temp']
+    session['temp_SV'] = temp_input
+
+    wind_input = request.form['wind']
+    session['wind_SV'] = wind_input
+
+    try:
+        QNH = float(QNH_input)
+        gross_mass = float(gross_mass_input)
+        hover_height = float(hover_height_input)
+        temp = float(temp_input)
+        wind = float(wind_input)
+
+        # Calulating pixel_PA:
+        #  pressure difference between QNH and standard pressure
+        difference = (1013.2 - QNH) * 27
+
+        # pressure difference added to hover height.
+        PA = hover_height + difference
+        # converting to PA on chart
+        zero_feet = 3852
+        sixthousand_feet = 1501
+        # input PA_pixel (vertical line)
+        PA_pixel = round(zero_feet + PA * ((sixthousand_feet - zero_feet) / 6000))
+        # x = PA_pixel  # vertical line
+
+
+        # function 0 - temperature line at 10C
+        x_1,y_1 = 1115,1942          # about 7000, 0.45 (10C)
+        x_2,y_2 = 4242,3168          # about -1000, 0.175  (10C)
+        m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
+        b_0 = -m_0*x_1 + y_1          #intercept
+
+        # # equation for 10C line (273.15K + 10K):
+        # y_pixel = m_0*x_pixel + b_0
+
+        # # equation for -273.15C (0 Kelvin) line:
+        # y_pixel = m_0*x_pixel + b_0 + (283.15+10)*15
+
+        # # equation for 'temp'C line ( 273.15K + 'temp'K)
+        # y_pixel = m_0*x_pixel + b_0 + (283.15+10)*15 - (283.15+temp)*15
+
+        # substituting x_pixel for PA_pixel we obtain the equation for y_pixel value
+        PA_temp_pixel = m_0 * PA_pixel + b_0 + (283.15+10)*15 - (283.15+temp)*15
+
+
+        # # finding the equation for 6400kg line
+        # we reverse x and y, because y is the input and x is the output here
+        # point_4 = (4055, 4533)
+        # point_5 = (3560,4870)
+        # point_6 = (3311, 5056)
+        # point_7 = (3062,5257)
+        # point_8 = (2814,5472)
+        # point_9 = (2562, 5707)
+        # point_10 = (2016, 6282)
+        # # fitting with polynomial regression (2 degrees) results in:
+        # out_pixel = 0.000123437*in_pixel**2 - 1.60415*in_pixel + 9011.4
+
+        # next we find out how much the line shifts for every kg:
+        # for every kg above 6400kg and up to 6800kg the line shifts by 260/400 pixel down (in the positive direction)
+        above6400 = gross_mass - 6400
+        above6400_pixel = above6400 * 260/400
+
+        mass_pixel = 0.000123437*(PA_temp_pixel - above6400_pixel)**2 - 1.60415*(PA_temp_pixel - above6400_pixel )+ 9011.4
+
+        # # finding the equation for 0kt wind line
+        # point_11 = (4844,1798)
+        # point_12 = (5132,1736)
+        # point_13 = (5420,1613)
+        # point_14 = (5707,1427)
+        # point_15 = (5996,1179)
+        # point_16 = (6283,870)
+        # # fitting with polynomial regression (2 degrees) results in:
+        # out_pixel = -0.000374156*in_pixel**2 + 3.5184*in_pixel - 6465.88
+
+        d1 = 5862 - 5804 # from 0 to 10 knots right shift
+        d2 = 5936 - 5862 # from 10 to 20 knots right shift
+        d3 = 6052 -5936  # from 20 to 30 knots right shift
+        d4 =6208 - 6052  # from 30 to 40 knots right shift
+
+        if wind <= 10:
+            height_loss_pixel = (-0.000374156)*(mass_pixel-(wind*(d1)/10))**2 + 3.5184*(mass_pixel-(wind*(d1)/10))-6465.88
+        elif 10 < wind <=20:
+            height_loss_pixel = (-0.000374156)*(mass_pixel-d1-     ((wind-10)*d2/10)   )**2 + 3.5184*(mass_pixel-d1-      ((wind-10)*d2/10) )-6465.88
+        elif 20 < wind <=30:
+            height_loss_pixel = (-0.000374156)*(mass_pixel-d1-d2-  ((wind-20)*d3/10)   )**2 + 3.5184*(mass_pixel-d1-d2-  ((wind-20)*d3/10) )-6465.88
+        elif 30 < wind <=40:
+            height_loss_pixel = (-0.000374156)*(mass_pixel-d1-d2-d3-  ((wind-30)*d4/10)   )**2 + 3.5184*(mass_pixel-d1-d2-d3-  ((wind-30)*d4/10) )-6465.88
+
+        # convert pixel to feet and preparing for html variables:
+        zero_feet = 1916        #pixel
+        two_hundret_feet = 788  #pixel
+        one_foot = (two_hundret_feet - zero_feet)/200  #pixel per foot
+        height_loss_feet =  (height_loss_pixel - zero_feet)/one_foot
+        result_height_loss_feet = round(height_loss_feet)
+        result_PA = round(PA)
+
+
+        # generating the image
+        #im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW139_dropdown_6800.png")
+        d = ImageDraw.Draw(im)
+        line_color = (255, 0, 0)
+
+        # defining the points:
+        point_1 = (PA_pixel, 4184)    # pressure altitude on x-axis
+        point_2 = (PA_pixel, PA_temp_pixel) # pressure altitude intersect with temp line
+        point_3 = (mass_pixel, PA_temp_pixel)     # mass intersection
+        point_4 = (mass_pixel, height_loss_pixel) # wind intersection
+        point_5 = (4112, height_loss_pixel)  # height loss (ft) on y-axis
+
+        # drawing the lines between points:
+        d.line([point_1,point_2], fill=line_color, width=10)
+        d.line([point_2,point_3], fill=line_color, width=10)
+        d.line([point_3,point_4], fill=line_color, width=10)
+        d.line([point_4,point_5], fill=line_color, width=10)
+        #font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 80)
+        d.text((3820,height_loss_pixel-40),str(result_height_loss_feet) + ' ft' ,(255,0,0),font=font)
+
+        # #testbed to draw functions on graph
+        # shift = -(58 + 74 + 116 + 156)
+        # dot_list = []
+        # for x_pixel in range (4844,6283, 5):
+        #     y_pixel = -0.000374156*(x_pixel+shift)**2 + 3.5184*(x_pixel+shift) - 6465.88
+        #     x_y = (x_pixel,int(y_pixel))
+        #     dot_list.append(x_y)
+        # d.line(dot_list, fill=line_color, width=5)
+
+        # text on image:
+        vertical_align = 100
+        horizontal_align = -730
+        d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
+        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+        d.text((vertical_align,650),str(time),(0,0,255),font=font)
+        d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+        d.text((vertical_align,2250+horizontal_align),'Gross Mass: ',(0,0,0),font=font)
+        d.text((vertical_align,2400+horizontal_align),str(gross_mass) + ' kg' ,(0,0,255),font=font)
+        d.text((vertical_align,2600+horizontal_align),"QNH:" ,(0,0,0),font=font)
+        d.text((vertical_align,2750+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
+        d.text((vertical_align,2950+horizontal_align),"Hover Height:" ,(0,0,0),font=font)
+        d.text((vertical_align,3100+horizontal_align),str(hover_height)+ ' ft' ,(0,0,255),font=font)
+        d.text((vertical_align,3300+horizontal_align),"Temperature:" ,(0,0,0),font=font)
+        d.text((vertical_align,3450+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((vertical_align,3650+horizontal_align),"Wind:" ,(0,0,0),font=font)
+        d.text((vertical_align,3800+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
+
+        fontcolor = (255,0,0)
+        d.text((vertical_align,4150+horizontal_align),"RESULT:" ,(0,0,0),font=font)
+        d.text((vertical_align,4350+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
+        d.text((vertical_align,4500+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,4700+horizontal_align),"Height loss:" ,(0,0,0),font=font)
+        d.text((vertical_align,4850+horizontal_align),str(result_height_loss_feet) + ' ft' , fontcolor,font=font)
+
+
+        # create an output image
+        graph_name = "AW139_dropdown_6800_rendered " + str(time) + " UTC.png"
+
+        for filename in os.listdir('/home/gaviation/mysite/static/images/'):
+            if filename.startswith('AW139_dropdown_6800_rendered'):  # not to remove other images
+                os.remove('/home/gaviation/mysite/static/images/' + filename)
+
+        im.save("/home/gaviation/mysite/static/images/" + graph_name)
+
+        plt.figure(figsize=(20,40))
+
+
+        # returning the template (Flask-part)
+        return render_template(
+            'AW139_dropdown_6800.html',
+            QNH = QNH,
+            QNH_SV = session['QNH_SV'],
+            gross_mass = gross_mass,
+            gross_mass_SV = session['gross_mass_SV'],
+            hover_height = hover_height,
+            hover_height_SV = session['hover_height_SV'],
+            temp = temp,
+            temp_SV = session['temp_SV'],
+            wind = wind,
+            wind_SV = session['wind_SV'],
+
+            result_PA = result_PA,
+            result_height_loss_feet = result_height_loss_feet,
+            result_AW139_dropdown_6800 = graph_name,  # before: result_png = result_png,
+            calculation_success = True,
+        )
+
+    except ZeroDivisionError:
+        return render_template(
+            'index.html',
+            QNH = QNH,
+            hover_height = hover_height,
+            temp = temp,
+            wind = wind,
+            result="Bad Input",
+            calculation_success = False,
+            error = "You cannot divide by zero"
+        )
+
+    except ValueError:
+        return render_template(
+            'index.html',
+            QNH = QNH,
+            hover_height = hover_height,
+            temp = temp,
+            wind = wind,
             result="Bad Input",
             calculation_success = False,
             error = "Cannot perform numeric operations with provided input"

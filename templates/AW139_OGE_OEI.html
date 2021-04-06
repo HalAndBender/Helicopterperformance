@@ -6,12 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maximum Payload Calculator for AW139 OEI OGE</title>
 
-
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-
-
 
     <style>
       body {
@@ -31,7 +27,6 @@
 
   color: blue;
 }
-
 
     h3 {text-align: center;}
     </style>
@@ -145,9 +140,7 @@
     </form>
     {% if calculation_success == True %}
         <h5 id="anchor" style="color:red;font-size:4vw;">Result:</h5>
-        <!--table style="width:100%"-->
         <table>
-            <!--tr><td style="font-size:4vw">Pressure Altitude:</td><td style="color:red;font-size:4vw;">{{result_PA}} ft</td></tr-->
             <tr><td >Pressure Altitude:</td><td style="color:red;">{{result_PA}} ft</td></tr>
             <tr><td >Max. Mass, zero wind:</td><td style="color:red;">{{result_no_wind}} kg</td></tr>
             <tr><td >Max. Mass, full wind:</td><td style="color:red;">{{result_wind}} kg</td></tr>
@@ -161,26 +154,13 @@
         <!--p><a href="{{ url_for('static', filename=result_png) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p-->
         <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_png) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p>
         <br/>
-
     {% endif %}
+
     {% if calculation_success == False %}
         <br/>
         <p>{{error}}</p>
         <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
     {% endif %}
-<!--
-    {% if calculation_only_success == True %}
-        <h4 id="anchor" style="color:red;font-size:4vw;">Result:</h4>
-        <table style="width:100% ">
-            <tr><td style="font-size:4vw">Pressure Altitude:</td><td style="color:red;font-size:4vw;">{{result_PA}} ft</td></tr>
-            <tr><td style="font-size:4vw">Max. Mass, zero wind:</td><td style="color:red;font-size:4vw;">{{result_no_wind}} kg</td></tr>
-            <tr><td style="font-size:4vw">Max. Mass, full wind:</td><td style="color:red;font-size:4vw;">{{result_wind}} kg</td></tr>
-            <tr><td style="font-size:4vw">Max. limited Wind-benefit Mass:</td><td style="color:red;font-size:4vw;">{{result_performance_limited}} kg</td></tr>
-            <tr><td style="font-size:4vw">Max. Useful Load:</td><td style="color:red;font-size:4vw;">{{result_useful_load}} kg</td></tr>
-            <tr><td style="font-size:4vw">Max. Payload: </td><td style="color:red;font-size:4vw;">{{result_payload}} kg</td></tr>
-        </table>
-        <br/>
-    {% endif %}-->
 
     {% if calculation_only_success == False %}
         <br/>
