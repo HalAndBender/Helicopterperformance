@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximum Payload Calculator for AW169 HOGE OEI </title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <style>
+      body {
+            margin: auto;
+            position: relative;
+            background-color: #252626;
+            color: white;
+      }
+      .content {
+          margin: auto;
+          margin-top: 25px;
+          margin-left: 25px;
+          margin-right: 25px;
+          width: auto;
+      }
+    input[type=text] {
+
+  color: blue;
+}
+
+    h3 {text-align: center;}
+    </style>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-info">
+  <a class="navbar-brand" href="#">HelicopterPerformance.com</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('AW139') }}">AW139</a>
+      </li>
+            <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('AW169') }}">AW169</a>
+      </li>
+            <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('about') }}">About</a>
+      </li>
+      <!--li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dropdown
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form-->
+  </div>
+</nav>
+
+
+
+</head>
+<body>
+    <div class="content">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+   <!-- <p class="h6" style="text-align:center">...under development, results not accurate...</p> -->
+    <p class="h3" style="text-align:center" >Maximum Payload Calculator AW169 OEI HOGE </p>
+    <p style="text-align:center">Calculate the maximum payload and mass of the AW169 helicopter that allows maintaining an out of ground effect hover for 2.5 minutes in case of a single engine failure.</br>
+    Please find the instructions <a href="{{ url_for('about') }}">here</a>.
+    </p>
+    <form method="post" action="{{ url_for('AW169_OGE_OEI_result') }}" id="calculator_form">
+        <div class="form-group">
+            <label for="DOM">Dry Operating Mass (kg):</label>
+            <input class="form-control input-sm" type="text" name="DOM" id="DOM" value="{{DOM_SV}}" placeholder="2850 to 4800">
+        </div>
+
+        <div class="form-group">
+            <label for="fuel_at_hho">Fuel at site (kg):</label>
+            <input class="form-control input-sm" type="text" name="fuel_at_hho" id="fuel_at_hho" value="{{fuel_at_hho_SV}}" placeholder="0 to 904" >
+        </div>
+
+        <div class="form-group">
+            <label for="hover_height">Hover Height above MSL (ft):</label>
+            <input class="form-control input-sm" type="text" name="hover_height" id="hover_height" value="{{hover_height_SV}}" placeholder="0 to 2000">
+        </div>
+
+        <div class="form-group">
+            <label for="QNH">QNH (mb):</label>
+            <input class="form-control input-sm" type="text" name="QNH" id="QNH" value="{{QNH_SV}}" placeholder="970 to 1050">
+        </div>
+
+        <div class="form-group">
+            <label for="temp">Temperature (C):</label>
+            <input class="form-control input-sm" type="text" name="temp" id="temp" value="{{temp_SV}}" placeholder="-10 to 40">
+        </div>
+
+        <div class="form-group">
+            <label for="wind">Headwind (kt):</label>
+            <input class="form-control input-sm" type="text" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 50">
+        </div>
+
+        <div class="form-group">
+            <label for="perf_benefit">Wind Benefit (%):</label>
+            <input class="form-control input-sm" type="text" name="perf_benefit" id="perf_benefit" value="{{perf_benefit_SV}}" placeholder="0 to 100">
+        </div>
+        <a href="#anchor">
+        <input class="btn btn-primary" type="submit" value="Calculate" />
+        </a>
+        <br/>
+        <br/>
+        <b>Disclaimer:</b><br/>
+        The output must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the result is given.<br/>
+        <br/>
+
+
+
+    </form>
+    {% if calculation_success == True %}
+        <h5 id="anchor" style="color:red;font-size:4vw;">Result:</h5>
+        <table>
+            <tr><td >Pressure Altitude:</td><td style="color:red;">{{result_PA}} ft</td></tr>
+            <tr><td >Max. Mass, zero wind:</td><td style="color:red;">{{result_zero_wind_mass}} kg</td></tr>
+            <tr><td >Max. Mass, full wind:</td><td style="color:red;">{{result_full_wind_mass}} kg</td></tr>
+            <tr><td >Max. limited Wind-benefit Mass:</td><td style="color:red;">{{result_customer_mass}} kg</td></tr>
+            <tr><td >Max. Useful Load at site:</td><td style="color:red;">{{result_useful_load}} kg</td></tr>
+            <tr><td >Max. Payload at site: </td><td style="color:red;">{{result_payload}} kg</td></tr>
+        </table>
+        <br/>
+        <img id="output_image" src="{{ url_for('static', filename=result_AW169_HOGE_OEI)}}" />
+        <br/>
+        <!--p><a href="{{ url_for('static', filename=result_AW169_HOGE_OEI) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p-->
+        <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_AW169_HOGE_OEI) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p>
+        <br/>
+    {% endif %}
+
+    {% if calculation_success == False %}
+        <br/>
+        <p>{{error}}</p>
+        <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
+    {% endif %}
+
+    {% if calculation_only_success == False %}
+        <br/>
+        <p>{{error}}</p>
+        <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let img = document.getElementById('output_image');
+            img.style.height = '600px';
+            img.style.width = '466px';
+
+        }, false);
+    </script>
+    </div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</body>
+</html>

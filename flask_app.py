@@ -679,6 +679,369 @@ def AW139_dropdown_6800_result():
             error = "Cannot perform numeric operations with provided input"
         )
 
+@app.route('/AW169_OGE_OEI', methods=['GET', 'POST'])
+def AW169_OGE_OEI():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW169_OGE_OEI.html')
+
+@app.route('/AW169_OGE_OEI_result/', methods=['POST', 'GET'])
+def AW169_OGE_OEI_result():
+
+    error = None
+    result = None
+
+    # flask
+    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 50)
+    im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW169_HOGE_OEI_600.png")
+
+
+    # # jupyter
+    # im = Image.open("charts/AW169/OEI_hover/modified/AW169_HOGE_OEI_600.png")
+    # font = ImageFont.truetype("SFNS.ttf", 50)
+    # from datetime import date, datetime
+
+    # flask
+    # request.form looks for:
+    # html tags with matching "name= "
+    QNH_input = request.form['QNH']
+    session['QNH_SV'] = QNH_input
+
+    DOM_input = request.form['DOM']
+    session['DOM_SV'] = DOM_input
+
+    hover_height_input = request.form['hover_height']
+    session['hover_height_SV'] = hover_height_input
+
+    temp_input = request.form['temp']
+    session['temp_SV'] = temp_input
+
+    wind_input = request.form['wind']
+    session['wind_SV'] = wind_input
+
+    perf_benefit_input = request.form['perf_benefit']
+    session['perf_benefit_SV'] = perf_benefit_input
+
+    fuel_at_hho_input = request.form['fuel_at_hho']
+    session['fuel_at_hho_SV'] = fuel_at_hho_input
+
+    # # jupyter
+    # # User input:
+    # DOM = 3000
+    # QNH = 1013.2                # mb (min 971, max 1044)
+    # hover_height = 1000          # feet (min 0, max 350)
+    # temp = 10                   # degrees celcius (min: -10, max: 30)
+    # wind = 26               # knots (min: 0, max: 40)
+    # perf_benefit = 100          # percent
+    # fuel_at_hho = 439           # kg
+
+    # flask
+    try:
+        QNH = float(QNH_input)
+        DOM = float(DOM_input)
+        hover_height = float(hover_height_input)
+        temp = float(temp_input)
+        wind = float(wind_input)
+        perf_benefit = float(perf_benefit_input)
+        fuel_at_hho = float(fuel_at_hho_input)
+
+        # Calulating pixel_PA:
+        #  pressure difference between QNH and standard pressure
+        difference = (1013.2 - QNH) * 27
+
+        # pressure difference added to hover height.
+        PA = hover_height + difference
+        result_PA = round(PA)
+        # converting to PA on chart in pixel
+
+        #scaling the PA line
+        lower_feet = 3307  # here: 0 feet
+        upper_feet = 2528  # here 6000 feet
+        diff_feet = 6000 - 0
+        # input PA_pixel (vertical line)
+        PA_pixel = round(lower_feet + PA * ((upper_feet - lower_feet) / diff_feet))
+
+        # we pick the 30C line
+        line = 30
+
+        # function 0 - temperature line at 30C
+        x_1,y_1 = 589,2653          # about 5000ft, 30C
+        x_2,y_2 = 1521,3329          # about 4025kg, 30C
+        m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
+        b_0 = -m_0*x_1 + y_1          #intercept
+
+        # # equation for 30C line (273.15K + 30K = 303.15K) line:
+        # y_pixel = m_0*x_pixel + b_0
+
+        # for each degree above 0K we move (3394 - 3218)/10 = 16.8px in the positive(+) pixel direction
+        change_per_degree = +(3394 - 3218)/10
+        absolute_zero = 273.15
+        # # equation for -273.15C (0 Kelvin) line:
+        # y_pixel = m_0*x_pixel + b_0 - (273.15 + 30)*change_per_degree
+
+        # # equation for 'temp'C line ( 273.15K + 'temp'K)
+        # y_pixel = m_0*x_pixel + b_0 - (273.15 + 30)*change_per_degree + (273.15+temp)*change_per_degree
+
+        # # solving for x_pixel:
+        # x_pixel =  (y_pixel - (b_0 - (273.15 + 30)*change_per_degree + (273.15+temp)*change_per_degree) )/m_0
+
+        # # substituting the variables
+        PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
+
+
+        # use different line if past the 4025kg-line on x-axis:
+        if PA_temp_pixel > 1520:
+            # we pick the 20C line
+            line = 20
+
+            # function 0 - temperature line at 30C
+            x_1,y_1 = 1520,3157          # about 4025kg, 20C
+            x_2,y_2 = 1719,3280 # about 4180kg, 20C
+            m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
+            b_0 = -m_0*x_1 + y_1          #intercept
+
+            PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
+
+
+        # x = PA_temp_pixel
+        # y = PA_pixel
+
+        # checking if result is of right side of divisor line (blue):
+        x_1,y_1 = 1681,2751          # about 4150kg, -10C
+        x_2,y_2 = 1746,3437          # about 4200kg, -1000ft
+        slope = (y_1 - y_2)/(x_1 - x_2) #slope
+        intercept = -slope*x_1 + y_1    #intercept
+
+        result_a = PA_pixel
+        result_b = PA_temp_pixel * slope + intercept
+
+        if result_b > result_a:
+            # we pick the 0C line
+            line = 0
+
+            # function 0 - temperature line at 30C
+            x_1,y_1 = 1700,2923          # about 3000ft, 0C
+            x_2,y_2 = 1818,3362          # about 4265kg, 0C
+            m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
+            b_0 = -m_0*x_1 + y_1          #intercept
+
+            # # equation for 30C line (273.15K + 30K = 303.15K) line:
+            # y_pixel = m_0*x_pixel + b_0
+
+            # for each degree above 0K we move (3394 - 3218)/10 = 16.8px in the positive(+) pixel direction
+            change_per_degree = +(3440 - 3308)/10
+            absolute_zero = 273.15
+            # # equation for -273.15C (0 Kelvin) line:
+            # y_pixel = m_0*x_pixel + b_0 - (273.15 + 30)*change_per_degree
+
+            # # equation for 'temp'C line ( 273.15K + 'temp'K)
+            # y_pixel = m_0*x_pixel + b_0 - (273.15 + 30)*change_per_degree + (273.15+temp)*change_per_degree
+
+            # # solving for x_pixel:
+            # x_pixel =  (y_pixel - (b_0 - (273.15 + 30)*change_per_degree + (273.15+temp)*change_per_degree) )/m_0
+
+            # # substituting the variables
+            PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
+
+
+        # use different line if past the 4025kg-line on x-axis:
+        if PA_temp_pixel > 1818:
+            # we pick the -10C line
+            line = -10
+
+            # function 0 - temperature line at 30C
+            x_1,y_1 = 1818,3230          # about 4265kg, -10C
+            x_2,y_2 = 1864,3433          # about 4290kg, -10C
+            m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
+            b_0 = -m_0*x_1 + y_1          #intercept
+
+            change_per_degree = +(3433 - 3298)/10
+
+            PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
+
+        PA_temp_pixel = round(PA_temp_pixel)
+
+        # convert pixel output to chart value
+        lower_pixel = 712   # here: 3400kg
+        upper_pixel = 2004  # here: 4400kg
+        diff_value_kg =  4400 - 3400
+        diff_value_pixel = upper_pixel  - lower_pixel
+
+        pixel_per_kg = diff_value_pixel / diff_value_kg
+
+        zero_wind_mass = 3400 + ( PA_temp_pixel - lower_pixel )/pixel_per_kg
+
+
+
+        divisor = 5
+        wind_mod = wind%divisor
+        wind_table ={5:62,
+                    10:218,
+                    15:398,
+                    20:618,
+                    25:849,
+                    30:1045,
+                    35:1259,
+                    40:1499,
+                    45:1723,
+                    50:1959}
+
+        if wind_mod == 0:
+            result = wind_table.get(wind)
+
+        else:
+            wind_floor = wind//divisor
+            wind_mod = wind%divisor
+            table_value = wind_floor * divisor
+            result1 = wind_table.get(table_value)
+            result2 = (wind_mod/divisor)*((wind_table.get(table_value+divisor))-wind_table.get(table_value))
+            result = round(result1 + result2)
+
+        result_full_wind_mass = round (zero_wind_mass + result)
+        result_zero_wind_mass = round(zero_wind_mass)
+        result_customer_mass = round(result_zero_wind_mass + (result_full_wind_mass - result_zero_wind_mass)* perf_benefit/100)
+        result_useful_load = round(result_customer_mass - DOM)
+        result_payload = round(result_useful_load - fuel_at_hho)
+
+
+        # generating the image
+        d = ImageDraw.Draw(im)
+        line_color = (255, 0, 0)
+
+        # defining the points:
+        point_1 = (543, PA_pixel)           # pressure altitude on y-axis
+        point_2 = (PA_temp_pixel, PA_pixel) # pressure altitude intersect with temp line
+        point_3 = (PA_temp_pixel, 3471)     # zero wind mass on x-axis
+
+        # drawing the lines between points:
+        d.line([point_1,point_2], fill=line_color, width=10)
+        d.line([point_2,point_3], fill=line_color, width=10)
+
+        # text on image:
+        vertical_align = 2931
+        horizontal_align = -730
+        d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
+        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+        d.text((vertical_align,650),str(time),(0,0,255),font=font)
+        d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+        d.text((vertical_align,2200+horizontal_align),'Dry Ops Mass: ',(0,0,0),font=font)
+        d.text((vertical_align,2250+horizontal_align),str(DOM) + ' kg' ,(0,0,255),font=font)
+        d.text((vertical_align,2400+horizontal_align),"QNH:" ,(0,0,0),font=font)
+        d.text((vertical_align,2450+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
+        d.text((vertical_align,2600+horizontal_align),"Hover Height:" ,(0,0,0),font=font)
+        d.text((vertical_align,2650+horizontal_align),str(hover_height)+ ' ft' ,(0,0,255),font=font)
+        d.text((vertical_align,2800+horizontal_align),"Temperature:" ,(0,0,0),font=font)
+        d.text((vertical_align,2850+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((vertical_align,3000+horizontal_align),"Wind:" ,(0,0,0),font=font)
+        d.text((vertical_align,3050+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((vertical_align,3200+horizontal_align),"Wind performance benefit:" ,(0,0,0),font=font)
+        d.text((vertical_align,3250+horizontal_align),str(perf_benefit) + ' %' ,(0,0,255),font=font)
+        d.text((vertical_align,3400+horizontal_align),"Fuel at HHO:" ,(0,0,0),font=font)
+        d.text((vertical_align,3450+horizontal_align),str(fuel_at_hho) + ' kt' ,(0,0,255),font=font)
+
+        fontcolor = (255,0,0)
+        d.text((vertical_align,3800+horizontal_align),"RESULT:" ,(0,0,0),font=font)
+        d.text((vertical_align,4000+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
+        d.text((vertical_align,4050+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
+
+        d.text((vertical_align,4200+horizontal_align),"No Wind Mass:" ,(0,0,0),font=font)
+        d.text((vertical_align,4250+horizontal_align),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,4400+horizontal_align),"Full Wind Mass:" ,(0,0,0),font=font)
+        d.text((vertical_align,4450+horizontal_align),str(result_full_wind_mass) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,4600+horizontal_align),"Max Customer Mass:" ,(0,0,0),font=font)
+        d.text((vertical_align,4650+horizontal_align),str(result_customer_mass) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,4800+horizontal_align),"Useful Load at site:" ,(0,0,0),font=font)
+        d.text((vertical_align,4850+horizontal_align),str(result_useful_load) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,5000+horizontal_align),"Payload at site:" ,(0,0,0),font=font)
+        d.text((vertical_align,5050+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
+
+        # still need this?
+        time_save = datetime.utcnow().strftime("%Y-%m-%d_%H_%M_%S")
+
+        # create an output image
+        graph_name = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
+
+        for filename in os.listdir('/home/gaviation/mysite/static/images/'):
+            if filename.startswith('AW169_HOGE_OEI_rendered'):  # not to remove other images
+                os.remove('/home/gaviation/mysite/static/images/' + filename)
+
+        im.save("/home/gaviation/mysite/static/images/" + graph_name)
+
+        plt.figure(figsize=(40,20))
+
+
+
+        # returning the template (Flask-part)
+        return render_template(
+            'AW169_OGE_OEI.html',
+            QNH = QNH,
+            QNH_SV = session['QNH_SV'],
+
+            DOM = DOM,
+            DOM_SV = session['DOM_SV'],
+
+            hover_height = hover_height,
+            hover_height_SV = session['hover_height_SV'],
+
+            temp = temp,
+            temp_SV = session['temp_SV'],
+
+            wind = wind,
+            wind_SV = session['wind_SV'],
+
+            perf_benefit = perf_benefit,
+            perf_benefit_SV = session['perf_benefit_SV'],
+
+            fuel_at_hho = fuel_at_hho,
+            fuel_at_hho_SV = session['fuel_at_hho_SV'],
+
+            result_PA = result_PA,
+            result_zero_wind_mass = result_zero_wind_mass,
+            result_full_wind_mass = result_full_wind_mass,
+            result_customer_mass = result_customer_mass,
+            result_useful_load = result_useful_load,
+            result_payload = result_payload,
+            result_AW169_HOGE_OEI = graph_name,
+            calculation_success = True,
+        )
+
+    except ZeroDivisionError:
+        return render_template(
+            'index.html',
+            QNH = QNH,
+            DOM = DOM,
+            hover_height = hover_height,
+            temp = temp,
+            wind = wind,
+            perf_benefit = perf_benefit,
+            fuel_at_hho = fuel_at_hho,
+            result="Bad Input",
+            calculation_success = False,
+            error = "You cannot divide by zero"
+        )
+
+    except ValueError:
+        return render_template(
+            'index.html',
+            QNH = QNH,
+            DOM = DOM,
+            hover_height = hover_height,
+            temp = temp,
+            wind = wind,
+            perf_benefit = perf_benefit,
+            fuel_at_hho = fuel_at_hho,
+            result="Bad Input",
+            calculation_success = False,
+            error = "Cannot perform numeric operations with provided input"
+        )
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run()
