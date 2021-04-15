@@ -4,6 +4,21 @@
     <!-- Required meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!--  Essential META Tags -->
+    <meta property="og:title" content="Helicopter Performance Calculator">
+    <meta property="og:description" content="Assess the performance of your helicopter.">
+    <meta property="og:image" content="https://www.helicopterperformance.com/static/meta.jpg">
+    <meta property="og:url" content="https://www.helicopterperformance.com/index.html">
+    <!--meta name="twitter:card" content="summary_large_image"-->
+    <!--  Non-Essential, But Recommended -->
+    <!--meta property="og:site_name" content="European Travel, Inc.">
+    <meta name="twitter:image:alt" content="Alt text for image"-->
+    <!--  Non-Essential, But Required for Analytics -->
+    <!--meta property="fb:app_id" content="your_app_id" />
+    <meta name="twitter:site" content="@website-username"-->
+
+
+
     <title>AW139 drowdown after engine failure, 6800</title>
 
     <!-- Bootstrap CSS -->
@@ -23,15 +38,23 @@
               margin-right: 25px;
               width: auto;
       }
-        input[type=text] {
+        input[type=number] {
             color: blue;
      }
 
     h3 {text-align: center;}
+
+    .footer {
+   position: fixed;
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   text-align: center;
+    }
     </style>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-info">
-  <a class="navbar-brand" href="#">HelicopterPerformance.com</a>
+  <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}" width="160" height="40" alt="HelicopterPerformance.com" border=0 style="border:0; margin-top:0"></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -63,27 +86,27 @@
     <form method="post" action="{{ url_for('AW139_dropdown_6800_result') }}" id="calculator_form">
         <div class="form-group">
             <label for="gross_mass">Gross Operating Mass (kg):</label>
-            <input class="form-control input-sm" type="text" name="gross_mass" id="gross_mass" value="{{gross_mass_SV}}" placeholder="6400 to 6800">
+            <input class="form-control input-sm" type="number" name="gross_mass" id="gross_mass" value="{{gross_mass_SV}}" placeholder="6400 to 6800" min="6400" max="6800">
         </div>
 
         <div class="form-group">
             <label for="hover_height">Hover Height above MSL (ft):</label>
-            <input class="form-control input-sm" type="text" name="hover_height" id="hover_height" value="{{hover_height_SV}}" placeholder="0 to 6000">
+            <input class="form-control input-sm" type="number" name="hover_height" id="hover_height" value="{{hover_height_SV}}" placeholder="0 to 6000" min="0" max="6000">
         </div>
 
         <div class="form-group">
             <label for="QNH">QNH (mb):</label>
-            <input class="form-control input-sm" type="text" name="QNH" id="QNH" value="{{QNH_SV}}" placeholder="970 to 1050">
+            <input class="form-control input-sm" type="number" name="QNH" id="QNH" value="{{QNH_SV}}" placeholder="970 to 1050" min="970" max="1050">
         </div>
 
         <div class="form-group">
             <label for="temp">Temperature (C):</label>
-            <input class="form-control input-sm" type="text" name="temp" id="temp" value="{{temp_SV}}" placeholder="-30 to 40">
+            <input class="form-control input-sm" type="number" name="temp" id="temp" value="{{temp_SV}}" placeholder="-30 to 40" min="-30" max="40">
         </div>
 
         <div class="form-group">
             <label for="wind">Headwind component (kt):</label>
-            <input class="form-control input-sm" type="text" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 40">
+            <input class="form-control input-sm" type="number" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 40" min="0" max="40">
         </div>
 
         <a href="#anchor">
@@ -94,7 +117,7 @@
         <b>Disclaimer:</b><br/>
         The output must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the result is given.<br/>
         <br/>
-
+        <div class="footer"></div>
 
 
     </form>
@@ -106,6 +129,7 @@
         </table>
         <br/>
         <img id="output_image" src="{{ url_for('static', filename=result_AW139_dropdown_6800)}}" />
+        <br/>
         <br/>
         <div></div>
         <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_AW139_dropdown_6800) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p>
@@ -128,8 +152,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let img = document.getElementById('output_image');
-            img.style.height = '466px';
-            img.style.width = '600px';
+            img.style.height = '233px';
+            img.style.width = '300px';
 
         }, false);
     </script>

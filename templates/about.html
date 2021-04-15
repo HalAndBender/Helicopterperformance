@@ -3,6 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!--  Essential META Tags -->
+    <meta property="og:title" content="Helicopter Performance Calculator">
+    <meta property="og:description" content="Assess the performance of your helicopter.">
+    <meta property="og:image" content="https://www.helicopterperformance.com/static/meta.jpg">
+    <meta property="og:url" content="https://www.helicopterperformance.com/index.html">
+    <!--meta name="twitter:card" content="summary_large_image"-->
+    <!--  Non-Essential, But Recommended -->
+    <!--meta property="og:site_name" content="European Travel, Inc.">
+    <meta name="twitter:image:alt" content="Alt text for image"-->
+    <!--  Non-Essential, But Required for Analytics -->
+    <!--meta property="fb:app_id" content="your_app_id" />
+    <meta name="twitter:site" content="@website-username"-->
     <title>About</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
@@ -22,10 +34,18 @@
           width: 900;
       }
          h3 {text-align: center;}
+
+    .footer {
+       position: relative;
+       left: 25px;
+       bottom: 25px;
+       width: 100%;
+
+    }
     </style>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-info">
-  <a class="navbar-brand" href="#">HelicopterPerformance.com</a>
+  <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}" width="160" height="40" alt="HelicopterPerformance.com"></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -70,21 +90,27 @@
    <body>
        <h5>About</h5>
         This site is free to use for anyone. It  does not collect any data. <br>
-        It is intended to help helicopter pilots and operators quickly assess and compare the performance limitations of their helicopters near seal level.</br>
+        It is intended to help helicopter pilots and operators quickly assess and compare the performance of their helicopters.
+        Currently the operating heights that can be entered in the forms are limited to a range between a few hundred to a few thousand feet, depending on the chart.</br>
         </br>
         <h5>Instructions</h5>
-        The calculations require the input of various environmental and operational conditions, such as wind, QNH, height above sea level, etc.
+        The calculations require the input of various environmental and operational conditions, such as wind, QNH, operating height above sea level, dry operating mass, fuel at site, etc.
         The range of the allowed input values are displayed in the input fields themselves.
-        Reasonably accurate calculations can only be achieved within the ranges displayed.
-        The calculations are based on the information provided in the Rotorcraft Flying Manuals from the helicopter manufacturer. </br>
+        The calculations are based on the information provided in the applicable Rotorcraft Flying Manual from the manufacturer. </br>
         </br>
         <h5>Disclaimer</h5>
-        Results provided here must be validated by the Pilot in Command. No guarantee for the correctness or accuracy of the results is given.<br/>
+        Results provided here must be validated by the Pilot in Command. No guarantee for correctness or accuracy is given.<br/>
         <br/>
         <h5>Under development</h5>
-        The site was launched in April 2021 and is currently under development. In the future we hope to be able to offer performance calculations for a variety of helicopters and conditions.
+        This site was launched in April 2021 and is currently under development. In the future I hope to be able to offer performance calculations for a variety of helicopters types and operational situations. <br/>
+        If you would like to see another chart/helicopter to be added, want to report a bug or simply help me improve the site, please email me
+        <a href = "mailto: helicopterperformance@mailbox.org">here</a>.
+        <!--a class="LI-simple-link" href='https://nl.linkedin.com/in/stephan-goldberg-18a86284?trk=profile-badge'>Stephan Goldberg</a-->
       </div>
+      <br/>
+      <br/>
     </form>
+
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -94,5 +120,9 @@
 
 
    </body>
+   <div class="footer">
+   <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal"  data-vanity="stephan-goldberg-18a86284"><a class="LI-simple-link" href='https://nl.linkedin.com/in/stephan-goldberg-18a86284?trk=profile-badge'>Stephan Goldberg</a></div>
+   </div>
+    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
 </html>
 

@@ -4,7 +4,24 @@
     <!-- Required meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helicopter Performance - Home</title>
+
+    <!--  Essential META Tags -->
+    <meta property="og:title" content="Helicopter Performance Calculator">
+    <meta property="og:description" content="Assess the performance of your helicopter.">
+    <meta property="og:image" content="https://www.helicopterperformance.com/static/meta.jpg">
+    <meta property="og:url" content="https://www.helicopterperformance.com/index.html">
+    <!--meta name="twitter:card" content="summary_large_image"-->
+    <!--  Non-Essential, But Recommended -->
+    <!--meta property="og:site_name" content="European Travel, Inc.">
+    <meta name="twitter:image:alt" content="Alt text for image"-->
+    <!--  Non-Essential, But Required for Analytics -->
+    <!--meta property="fb:app_id" content="your_app_id" />
+    <meta name="twitter:site" content="@website-username"-->
+
+
+
+
+    <title>HelicopterPerformance.com</title>
 
 
     <!-- Bootstrap CSS -->
@@ -65,7 +82,7 @@
 
 
 <nav class="navbar navbar-expand-lg navbar-light bg-info">
-  <a class="navbar-brand" href="#">HelicopterPerformance.com</a>
+  <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}"  width="160" height="40" alt="HelicopterPerformance.com" border=0 style="border:0; margin-top:0"></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>

@@ -16,7 +16,7 @@
     <!--  Non-Essential, But Required for Analytics -->
     <!--meta property="fb:app_id" content="your_app_id" />
     <meta name="twitter:site" content="@website-username"-->
-    <title>Maximum Payload Calculator for AW139 OEI OGE</title>
+    <title>Dropdown Calculator for AW169, 4200kg </title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
@@ -97,24 +97,15 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
    <!-- <p class="h6" style="text-align:center">...under development, results not accurate...</p> -->
-    <p class="h3" style="text-align:center" >Maximum Payload Calculator AW139 OEI OGE </p>
-    <p style="text-align:center">Calculate the maximum payload and mass of the AW139 helicopter that allows maintaining an out of ground effect hover for 2.5 minutes in case of a single engine failure.</br>
+    <p class="h3" style="text-align:center" >Dropdown Calculator AW169 4200kg </p>
+    <p style="text-align:center">Calculate the dropdown height of the AW169 helicopter during a flyaway maneouver in case of a single engine failure.</br>
     Please find the instructions <a href="{{ url_for('about') }}">here</a>.
     </p>
-    <form method="post" action="{{ url_for('operation_result') }}" id="calculator_form">
-        <div class="form-group">
-            <label for="DOM">Dry Operating Mass (kg):</label>
-            <input class="form-control input-sm" type="number" name="DOM" id="DOM" value="{{DOM_SV}}" placeholder="4400 to 5500" min="4400" max="5500">
-        </div>
-
-        <div class="form-group">
-            <label for="fuel_at_hho">Fuel at site (kg):</label>
-            <input class="form-control input-sm" type="number" name="fuel_at_hho" id="fuel_at_hho" value="{{fuel_at_hho_SV}}" placeholder="0 to 1200" min="0" max="1200" >
-        </div>
+    <form method="post" action="{{ url_for('AW169_dropdown_4200_result') }}" id="calculator_form">
 
         <div class="form-group">
             <label for="hover_height">Hover Height above MSL (ft):</label>
-            <input class="form-control input-sm" type="number" name="hover_height" id="hover_height" value="{{hover_height_SV}}" placeholder="0 to 500" min="0" max="500">
+            <input class="form-control input-sm" type="number" name="hover_height" id="hover_height" value="{{hover_height_SV}}" placeholder="0 to 4000" min="0" max="4000">
         </div>
 
         <div class="form-group">
@@ -124,18 +115,14 @@
 
         <div class="form-group">
             <label for="temp">Temperature (C):</label>
-            <input class="form-control input-sm" type="number" name="temp" id="temp" value="{{temp_SV}}" placeholder="-10 to 40" min="-10" max="40">
+            <input class="form-control input-sm" type="number" name="temp" id="temp" value="{{temp_SV}}" placeholder="-10 to 50" min="-10" max="50">
         </div>
 
         <div class="form-group">
             <label for="wind">Headwind (kt):</label>
-            <input class="form-control input-sm" type="number" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 40" min="0" max="40">
+            <input class="form-control input-sm" type="number" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 50" min="0" max="50">
         </div>
 
-        <div class="form-group">
-            <label for="perf_benefit">Wind Benefit (%):</label>
-            <input class="form-control input-sm" type="number" name="perf_benefit" id="perf_benefit" value="{{perf_benefit_SV}}" placeholder="0 to 100" min="0" max="100">
-        </div>
         <a href="#anchor">
         <input class="btn btn-primary" type="submit" value="Calculate" />
         </a>
@@ -147,25 +134,20 @@
 
 
 
-
-
     </form>
     {% if calculation_success == True %}
         <h5 id="anchor" style="color:red;font-size:4vw;">Result:</h5>
         <table>
             <tr><td >Pressure Altitude:</td><td style="color:red;">{{result_PA}} ft</td></tr>
-            <tr><td >Max. Mass, zero wind:</td><td style="color:red;">{{result_no_wind}} kg</td></tr>
-            <tr><td >Max. Mass, full wind:</td><td style="color:red;">{{result_wind}} kg</td></tr>
-            <tr><td >Max. limited Wind-benefit Mass:</td><td style="color:red;">{{result_performance_limited}} kg</td></tr>
-            <tr><td >Max. Useful Load:</td><td style="color:red;">{{result_useful_load}} kg</td></tr>
-            <tr><td >Max. Payload: </td><td style="color:red;">{{result_payload}} kg</td></tr>
+            <tr><td >Zero-Wind dropdown: </td><td style="color:red;">{{result_feet}} ft</td></tr>
+            <tr><td >Wind-correction: </td><td style="color:red;">{{result_wind_correction}} ft</td></tr>
+            <tr><td >Absolute Dropdown: </td><td style="color:red;">{{result_total_dropdown}} ft</td></tr>
         </table>
         <br/>
-        <img id="output_image" src="{{ url_for('static', filename=result_png)}}" />
+        <img id="output_image" src="{{ url_for('static', filename=result_AW169_dropdown_4200)}}" />
         <br/>
         <br/>
-        <!--p><a href="{{ url_for('static', filename=result_png) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p-->
-        <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_png) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p>
+        <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_AW169_dropdown_4200) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p>
         <br/>
     {% endif %}
 
