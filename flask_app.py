@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, session
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
+import numpy as np
 import os
 
 
@@ -1008,6 +1009,271 @@ def AW169_OGE_OEI_result():
             result_useful_load = result_useful_load,
             result_payload = result_payload,
             result_AW169_HOGE_OEI = graph_name,
+            calculation_success = True,
+        )
+
+    except ZeroDivisionError:
+        return render_template(
+            'index.html',
+            QNH = QNH,
+            DOM = DOM,
+            hover_height = hover_height,
+            temp = temp,
+            wind = wind,
+            perf_benefit = perf_benefit,
+            fuel_at_hho = fuel_at_hho,
+            result="Bad Input",
+            calculation_success = False,
+            error = "You cannot divide by zero"
+        )
+
+    except ValueError:
+        return render_template(
+            'index.html',
+            QNH = QNH,
+            DOM = DOM,
+            hover_height = hover_height,
+            temp = temp,
+            wind = wind,
+            perf_benefit = perf_benefit,
+            fuel_at_hho = fuel_at_hho,
+            result="Bad Input",
+            calculation_success = False,
+            error = "Cannot perform numeric operations with provided input"
+        )
+
+@app.route('/AW169_dropdown_4200', methods=['GET', 'POST'])
+def AW169_dropdown_4200():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW169_dropdown_4200.html')
+
+@app.route('/AW169_dropdown_4200_result/', methods=['POST', 'GET'])
+def AW169_dropdown_4200_result():
+
+    error = None
+    result = None
+
+    # flask
+    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 50)
+    im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW169_drowdown_4200_600.png")
+
+
+    # # jupyter
+    # im = Image.open("charts/AW169/OEI_hover/modified/AW169_HOGE_OEI_600.png")
+    # font = ImageFont.truetype("SFNS.ttf", 50)
+    # from datetime import date, datetime
+
+    # flask
+    # request.form looks for:
+    # html tags with matching "name= "
+    QNH_input = request.form['QNH']
+    session['QNH_SV'] = QNH_input
+
+
+    hover_height_input = request.form['hover_height']
+    session['hover_height_SV'] = hover_height_input
+
+    temp_input = request.form['temp']
+    session['temp_SV'] = temp_input
+
+    wind_input = request.form['wind']
+    session['wind_SV'] = wind_input
+
+
+    # flask
+    try:
+        QNH = float(QNH_input)
+        hover_height = float(hover_height_input)
+        temp = float(temp_input)
+        wind = float(wind_input)
+
+        # Calulating pixel_PA:
+        #  pressure difference between QNH and standard pressure
+        difference = (1013.2 - QNH) * 27
+
+        # pressure difference added to hover height.
+        PA = hover_height + difference
+        result_PA = round(PA)
+        print("PA: " + str(PA))
+        # converting to PA on chart in pixel
+
+        #scaling the PA line
+        lower_feet = 3035  # here: 0 feet
+        upper_feet = 1346  # here 5000 feet
+        diff_feet = 5000 - (0)
+        # input PA_pixel (vertical line)
+        PA_pixel = round(lower_feet + PA * ((upper_feet - lower_feet) / diff_feet))
+
+
+        #X  = [-1000, 0 ,1000,2000,3000,4000,5000]  # chart values
+        y   = [3372,3035,2697,2360,2022,1684,1346]  # pixel values
+
+        x_neg10 = [ 758, 762, 766, 773, 782, 794,823]  # -10 deg line
+        x_0   =   [ 763, 768, 774, 783, 795, 826,873]
+        x_10  =   [ 768, 772, 782, 797, 832, 882,958]
+        x_20  =   [ 772, 782, 806, 841, 896, 977,1089]
+        x_30  =   [ 784, 811, 849, 907, 990,1101,1278]
+        x_40  =   [ 823, 866, 934,1028,1174,1400,1695]
+        x_45  =   [836,912,1031,1225,1538,1954,2478]
+        x_50  =   [900,1001,1189,1482,1880,2393,3079]  # 50 deg line
+
+        # dictionary of temperature lines
+        temp_dict ={-10:x_neg10,
+                     0:x_0,
+                    10:x_10,
+                    20:x_20,
+                    30:x_30,
+                    40:x_40,
+                    45:x_45,
+                    50:x_50}
+
+        # switched x and y here, since for this particular case y is the input and x is the output
+        if temp in temp_dict.keys():
+            x = temp_dict.get(temp)
+            model = np.poly1d(np.polyfit(y, x, len(y)-1)) # polynomial regression of degree (len(y)-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            ft_pixel = round(model(PA_pixel))   # make prediction
+            print("Pixel feet: "+ str(ft_pixel))
+        else:
+            lower_temp_key = max(k for k in temp_dict if k <= temp) # finding the adjacent lower value in the dictionary
+            upper_temp_key = min(k for k in temp_dict if k >= temp) # finding the adjacent higher value in the dictionary
+            x_1 = temp_dict.get(lower_temp_key)  # getting the pixel table
+            x_2 = temp_dict.get(upper_temp_key)  # getting the pixel table
+            model_1 = np.poly1d(np.polyfit(y, x_1, len(y)-1))
+            model_2 = np.poly1d(np.polyfit(y, x_2, len(y)-1))
+            intersect1 = model_1(PA_pixel)  # prediction
+            intersect2 = model_2(PA_pixel)  # prediction
+            interpolated = intersect1 + ((temp-lower_temp_key)/(upper_temp_key - lower_temp_key)*(intersect2-intersect1))
+            ft_pixel = round(interpolated)
+            print("Pixel feet: "+ str(ft_pixel))
+
+        # convert pixel output to chart value
+        lower_pixel = 747   # here: 0   ft
+        upper_pixel = 2529  # here: 170 ft
+        diff_value_pixel = upper_pixel  - lower_pixel # number of pixel in whole range
+        diff_value_unit =  170 - 0   # number of units in whole range
+
+        pixel_per_unit = diff_value_pixel / diff_value_unit
+
+        feet = 0 + ( ft_pixel - lower_pixel )/pixel_per_unit
+        print('Feet: '+ str(feet))
+
+        # wind correction table
+        divisor = 5
+        wind_mod = wind%divisor
+        wind_table ={5:2,
+                    10:7,
+                    15:12,
+                    20:17,
+                    25:22,
+                    30:27,
+                    35:32,
+                    40:37,
+                    45:42,
+                    50:47}
+        if wind_mod == 0:
+            wind_correction = wind_table.get(wind)
+        else:
+            wind_floor = wind//divisor
+            wind_mod = wind%divisor
+            table_value = wind_floor * divisor
+            wind_correction1 = wind_table.get(table_value)
+            wind_correction2 = (wind_mod/divisor)*((wind_table.get(table_value+divisor))-wind_table.get(table_value))
+            wind_correction = wind_correction1 + wind_correction2
+        print("wind correction: "+ str(wind_correction))
+
+        result_PA
+        result_feet = round (feet)
+        result_wind_correction = round(wind_correction)
+        result_total_dropdown = round(feet - wind_correction)
+        if result_total_dropdown <0:
+            result_total_dropdown = 0
+
+
+        # generating the image
+        d = ImageDraw.Draw(im)
+        line_color = (255, 0, 0)
+
+        # defining the points:
+        point_1 = (728, PA_pixel)           # pressure altitude on y-axis
+        point_2 = (ft_pixel, PA_pixel) # pressure altitude intersect with temp line
+        point_3 = (ft_pixel, 3400)     # zero wind mass on x-axis
+
+        # drawing the lines between points:
+        d.line([point_1,point_2], fill=line_color, width=10)
+        d.line([point_2,point_3], fill=line_color, width=10)
+
+        # text on image:
+        vertical_align = 2931
+        horizontal_align = -730
+        d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
+        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+        d.text((vertical_align,650),str(time),(0,0,255),font=font)
+        d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+        d.text((vertical_align,2400+horizontal_align),"QNH:" ,(0,0,0),font=font)
+        d.text((vertical_align,2450+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
+        d.text((vertical_align,2600+horizontal_align),"Hover Height:" ,(0,0,0),font=font)
+        d.text((vertical_align,2650+horizontal_align),str(hover_height)+ ' ft' ,(0,0,255),font=font)
+        d.text((vertical_align,2800+horizontal_align),"Temperature:" ,(0,0,0),font=font)
+        d.text((vertical_align,2850+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((vertical_align,3000+horizontal_align),"Wind:" ,(0,0,0),font=font)
+        d.text((vertical_align,3050+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
+
+
+        fontcolor = (255,0,0)
+        d.text((vertical_align,3800+horizontal_align),"RESULT:" ,(0,0,0),font=font)
+        d.text((vertical_align,4000+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
+        d.text((vertical_align,4050+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
+
+        d.text((vertical_align,4200+horizontal_align),"Zero-Wind Dropdown:" ,(0,0,0),font=font)
+        d.text((vertical_align,4250+horizontal_align),str(result_feet) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,4400+horizontal_align),"Wind-correction:" ,(0,0,0),font=font)
+        d.text((vertical_align,4450+horizontal_align),str(result_wind_correction) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,4600+horizontal_align),"Absolute Dropdown:" ,(0,0,0),font=font)
+        d.text((vertical_align,4650+horizontal_align),str(result_total_dropdown) + ' ft' , fontcolor,font=font)
+
+
+
+        # create an output image
+        graph_name = "AW169_dropdown_4200_rendered " + str(time) + " UTC.png"
+
+        for filename in os.listdir('/home/gaviation/mysite/static/images/'):
+            if filename.startswith('AW169_dropdown_4200_rendered'):  # not to remove other images
+                os.remove('/home/gaviation/mysite/static/images/' + filename)
+
+        im.save("/home/gaviation/mysite/static/images/" + graph_name)
+
+        plt.figure(figsize=(28,20))
+
+
+
+        # returning the template (Flask-part)
+        return render_template(
+            'AW169_dropdown_4200.html',
+            QNH = QNH,
+            QNH_SV = session['QNH_SV'],
+
+            hover_height = hover_height,
+            hover_height_SV = session['hover_height_SV'],
+
+            temp = temp,
+            temp_SV = session['temp_SV'],
+
+            wind = wind,
+            wind_SV = session['wind_SV'],
+
+            result_PA = result_PA,
+            result_feet = result_feet,
+            result_wind_correction = result_wind_correction,
+            result_total_dropdown = result_total_dropdown,
+            result_png = graph_name,
             calculation_success = True,
         )
 
