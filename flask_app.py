@@ -379,6 +379,11 @@ def operation_result():
 
         im.save("/home/gaviation/mysite/static/images/" + new_graph_name)
 
+        graph_name_pdf = "Payload " + str(time) + " UTC.pdf"
+        rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+        rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_name_pdf)
+
         plt.figure(figsize=(20,40))
 
 
@@ -414,6 +419,8 @@ def operation_result():
             result_useful_load = result_useful_load,
             result_payload = result_payload,
             result_png = new_graph_name,  # before: result_png = result_png,
+            result_pdf = graph_name_pdf,
+
             calculation_success = True,
         )
 
@@ -647,6 +654,14 @@ def AW139_dropdown_6800_result():
 
         im.save("/home/gaviation/mysite/static/images/" + graph_name)
 
+        graph_name_pdf = "AW139_dropdown_6800_rendered " + str(time) + " UTC.pdf"
+        rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+        rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_name_pdf)
+
+
+
+
         plt.figure(figsize=(20,40))
 
 
@@ -666,7 +681,8 @@ def AW139_dropdown_6800_result():
 
             result_PA = result_PA,
             result_height_loss_feet = result_height_loss_feet,
-            result_AW139_dropdown_6800 = graph_name,  # before: result_png = result_png,
+            result_AW139_dropdown_6800 = graph_name,
+            result_AW139_dropdown_6800_pdf = graph_name_pdf,
             calculation_success = True,
         )
 
@@ -713,7 +729,7 @@ def AW169_OGE_OEI_result():
     result = None
 
     # flask
-    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 50)
+    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 60)
     im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW169_HOGE_OEI_600.png")
 
 
@@ -952,37 +968,37 @@ def AW169_OGE_OEI_result():
         d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
         time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
         d.text((vertical_align,650),str(time),(0,0,255),font=font)
-        d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+        d.text((vertical_align,21000+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
         d.text((vertical_align,2200+horizontal_align),'Dry Ops Mass: ',(0,0,0),font=font)
-        d.text((vertical_align,2250+horizontal_align),str(DOM) + ' kg' ,(0,0,255),font=font)
+        d.text((vertical_align,2270+horizontal_align),str(DOM) + ' kg' ,(0,0,255),font=font)
         d.text((vertical_align,2400+horizontal_align),"QNH:" ,(0,0,0),font=font)
-        d.text((vertical_align,2450+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
+        d.text((vertical_align,2470+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
         d.text((vertical_align,2600+horizontal_align),"Hover Height:" ,(0,0,0),font=font)
-        d.text((vertical_align,2650+horizontal_align),str(hover_height)+ ' ft' ,(0,0,255),font=font)
+        d.text((vertical_align,2670+horizontal_align),str(hover_height)+ ' ft' ,(0,0,255),font=font)
         d.text((vertical_align,2800+horizontal_align),"Temperature:" ,(0,0,0),font=font)
-        d.text((vertical_align,2850+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((vertical_align,2870+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
         d.text((vertical_align,3000+horizontal_align),"Wind:" ,(0,0,0),font=font)
-        d.text((vertical_align,3050+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
-        d.text((vertical_align,3200+horizontal_align),"Wind performance benefit:" ,(0,0,0),font=font)
-        d.text((vertical_align,3250+horizontal_align),str(perf_benefit) + ' %' ,(0,0,255),font=font)
+        d.text((vertical_align,3070+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((vertical_align,3200+horizontal_align),"Wind benefit:" ,(0,0,0),font=font)
+        d.text((vertical_align,3270+horizontal_align),str(perf_benefit) + ' %' ,(0,0,255),font=font)
         d.text((vertical_align,3400+horizontal_align),"Fuel at HHO:" ,(0,0,0),font=font)
-        d.text((vertical_align,3450+horizontal_align),str(fuel_at_hho) + ' kt' ,(0,0,255),font=font)
+        d.text((vertical_align,3470+horizontal_align),str(fuel_at_hho) + ' kt' ,(0,0,255),font=font)
 
         fontcolor = (255,0,0)
-        d.text((vertical_align,3800+horizontal_align),"RESULT:" ,(0,0,0),font=font)
+        d.text((vertical_align,3900+horizontal_align),"RESULT:" ,(0,0,0),font=font)
         d.text((vertical_align,4000+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
-        d.text((vertical_align,4050+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,4070+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
 
         d.text((vertical_align,4200+horizontal_align),"No Wind Mass:" ,(0,0,0),font=font)
-        d.text((vertical_align,4250+horizontal_align),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,4270+horizontal_align),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
         d.text((vertical_align,4400+horizontal_align),"Full Wind Mass:" ,(0,0,0),font=font)
-        d.text((vertical_align,4450+horizontal_align),str(result_full_wind_mass) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,4470+horizontal_align),str(result_full_wind_mass) + ' kg' , fontcolor,font=font)
         d.text((vertical_align,4600+horizontal_align),"Max Customer Mass:" ,(0,0,0),font=font)
-        d.text((vertical_align,4650+horizontal_align),str(result_customer_mass) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,4670+horizontal_align),str(result_customer_mass) + ' kg' , fontcolor,font=font)
         d.text((vertical_align,4800+horizontal_align),"Useful Load at site:" ,(0,0,0),font=font)
-        d.text((vertical_align,4850+horizontal_align),str(result_useful_load) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,4870+horizontal_align),str(result_useful_load) + ' kg' , fontcolor,font=font)
         d.text((vertical_align,5000+horizontal_align),"Payload at site:" ,(0,0,0),font=font)
-        d.text((vertical_align,5050+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
+        d.text((vertical_align,5070+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
 
         # wind box
         begin = 1050
@@ -1004,11 +1020,9 @@ def AW169_OGE_OEI_result():
         d.line([linetop_left,linetop_right], fill=line_color, width=10)
         d.line([linebottom_left,linebottom_right], fill=line_color, width=10)
         #text
-        d.text((windpix-35,top -80),str(wind) + ' kt' ,(0,0,255),font=font)
-        d.text((windpix-35,bottom +20),str(result) + ' ft' ,(255,0,0),font=font)
+        d.text((windpix-50,top -80),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((windpix-80,bottom +10),str(result) + ' kg' ,(255,0,0),font=font)
 
-        # still need this?
-        #time_save = datetime.utcnow().strftime("%Y-%m-%d_%H_%M_%S")
 
         # create an output image
         graph_name = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
@@ -1016,8 +1030,14 @@ def AW169_OGE_OEI_result():
         for filename in os.listdir('/home/gaviation/mysite/static/images/'):
             if filename.startswith('AW169_HOGE_OEI_rendered'):  # not to remove other images
                 os.remove('/home/gaviation/mysite/static/images/' + filename)
-
         im.save("/home/gaviation/mysite/static/images/" + graph_name)
+
+        graph_name_pdf = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
+        rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+        rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_name_pdf)
+
+
 
         plt.figure(figsize=(40,20))
 
@@ -1054,6 +1074,7 @@ def AW169_OGE_OEI_result():
             result_useful_load = result_useful_load,
             result_payload = result_payload,
             result_AW169_HOGE_OEI = graph_name,
+            result_AW169_HOGE_OEI_pdf = graph_name_pdf,
             calculation_success = True,
         )
 
@@ -1322,6 +1343,11 @@ def AW169_dropdown_4200_result():
 
         im.save("/home/gaviation/mysite/static/images/" + graph_name)
 
+        graph_name_pdf = "AW169_dropdown_4200_rendered " + str(time) + " UTC.pdf"
+        rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+        rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_name_pdf)
+
         plt.figure(figsize=(28,20))
 
 
@@ -1346,6 +1372,8 @@ def AW169_dropdown_4200_result():
             result_wind_correction = result_wind_correction,
             result_total_dropdown = result_total_dropdown,
             result_png = graph_name,
+            result_pdf = graph_name_pdf,
+
             calculation_success = True,
         )
 
