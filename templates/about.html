@@ -18,8 +18,9 @@
     <title>About</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-
-    <style>
+    <!-- Own CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
+    <!--style>
       body {
             margin: auto;
             position: relative;
@@ -42,10 +43,13 @@
        width: 100%;
 
     }
-    </style>
+    </style-->
+</head>
 
+
+   <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-info">
-  <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}" width="160" height="40" alt="HelicopterPerformance.com"></a>
+  <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}"  width="160" height="40" alt="HelicopterPerformance.com" border=0 style="border:0; margin-top:0"></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -83,11 +87,10 @@
       <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form-->
+    </ul>
   </div>
 </nav>
-</head>
-   <div class="content">
-   <body>
+<div class="content">
        <h5>About</h5>
         This site is free to use for anyone. It  does not collect any data. <br>
         It is intended to help helicopter pilots and operators quickly assess and compare the performance of their helicopters.
@@ -103,14 +106,21 @@
         <br/>
         <h5>Under development</h5>
         This site was launched in April 2021 and is currently under development. In the future I hope to be able to offer performance calculations for a variety of helicopters types and operational situations. <br/>
-        If you would like to see another chart/helicopter to be added, want to report a bug or simply help me improve the site, please email me
-        <a href = "mailto: helicopterperformance@mailbox.org">here</a>.
+        If you would like to see another chart/helicopter to be added, want to report a bug or simply help me improve the site, please email me at:
+        <a href = "mailto: helicopterperformance@mailbox.org">helicopterperformance@mailbox.org</a>.
         <!--a class="LI-simple-link" href='https://nl.linkedin.com/in/stephan-goldberg-18a86284?trk=profile-badge'>Stephan Goldberg</a-->
       </div>
       <br/>
       <br/>
     </form>
+        <div class="badge-base LI-profile-badge" data-locale="en_US" data-size="medium"  data-type="VERTICAL" data-vanity="stephan-goldberg-18a86284" data-version="v1"><a class="badge-base__link LI-simple-link" href="https://nl.linkedin.com/in/stephan-goldberg-18a86284?trk=profile-badge">My LinkedIn Profile</a></div>
+   </div>
+<div class="footer">
 
+
+
+<!--Linkedin Script Badge-->
+<script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -120,9 +130,7 @@
 
 
    </body>
-   <div class="footer">
-   <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal"  data-vanity="stephan-goldberg-18a86284"><a class="LI-simple-link" href='https://nl.linkedin.com/in/stephan-goldberg-18a86284?trk=profile-badge'>Stephan Goldberg</a></div>
-   </div>
-    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+
+
 </html>
 

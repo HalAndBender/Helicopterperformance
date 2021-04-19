@@ -1,0 +1,50 @@
+body {
+    margin: auto;
+    position: relative;
+    background-color:     #252626 ;
+    color: white;
+}
+.footer {
+  margin: auto;
+  margin-top: 25px;
+  margin-left: 25px;
+  margin-right: 25px;
+  width: auto;
+}
+.content {
+  margin: auto;
+  margin-top: 25px;
+  margin-left: 25px;
+  margin-right: 25px;
+  width: auto;
+}
+img {
+  border: 5px solid #555;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 50px;
+}
+figure {
+  display: inline-block;
+}
+
+figcaption {
+  text-align: center;
+}
+
+.img-with-text {
+    text-align: center;
+    width: [width of img];
+}
+
+.img-with-text img {
+    display: block;
+    margin: 0 auto;
+    margin-top: 5px;
+}
+
+input[type=number] {color: blue;}
+
+h3 {
+    text-align: center;}

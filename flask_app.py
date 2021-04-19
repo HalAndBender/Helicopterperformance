@@ -304,6 +304,16 @@ def operation_result():
             dot_list.append(x_y)
         d.line(dot_list, fill=line_color, width=15)
 
+        # results
+        QNH = int(QNH)
+        DOM = int(DOM)
+        hover_height = int(hover_height)
+        temp = int(temp)
+        wind = int(wind)
+        perf_benefit = int(perf_benefit)
+        fuel_at_hho = int(fuel_at_hho)
+
+
         # generate the image
         # printing the text on the image:
         font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 130)
@@ -567,7 +577,11 @@ def AW139_dropdown_6800_result():
         height_loss_feet =  (height_loss_pixel - zero_feet)/one_foot
         result_height_loss_feet = round(height_loss_feet)
         result_PA = round(PA)
-
+        QNH = int(QNH)
+        gross_mass = int(gross_mass)
+        hover_height = int(hover_height)
+        temp = int(temp)
+        wind = int(wind)
 
         # generating the image
         #im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW139_dropdown_6800.png")
@@ -910,6 +924,14 @@ def AW169_OGE_OEI_result():
         result_useful_load = round(result_customer_mass - DOM)
         result_payload = round(result_useful_load - fuel_at_hho)
 
+        QNH = int(QNH)
+        DOM = int(DOM)
+        hover_height = int(hover_height)
+        temp = int(temp)
+        wind = int(wind)
+        perf_benefit = int(perf_benefit)
+        fuel_at_hho = int(fuel_at_hho)
+
 
         # generating the image
         d = ImageDraw.Draw(im)
@@ -962,8 +984,31 @@ def AW169_OGE_OEI_result():
         d.text((vertical_align,5000+horizontal_align),"Payload at site:" ,(0,0,0),font=font)
         d.text((vertical_align,5050+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
 
+        # wind box
+        begin = 1050
+        end = 2732
+        fieldlength = (end - begin)/9
+        zeroknots = begin - fieldlength
+        pix_per_knot = fieldlength / 5
+        windpix = zeroknots + (pix_per_knot * wind)
+        top = 3724
+        bottom = 4288
+        linetop_pt = (windpix,top)
+        linebottom_pt = (windpix, bottom)
+        linetop_left = (windpix-50,top )
+        linetop_right = (windpix +50, top)
+        linebottom_left = (windpix-50,bottom )
+        linebottom_right = (windpix +50, bottom)
+        #draw lines
+        d.line([linetop_pt,linebottom_pt], fill=line_color, width=5)
+        d.line([linetop_left,linetop_right], fill=line_color, width=10)
+        d.line([linebottom_left,linebottom_right], fill=line_color, width=10)
+        #text
+        d.text((windpix-35,top -80),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((windpix-35,bottom +20),str(result) + ' ft' ,(255,0,0),font=font)
+
         # still need this?
-        time_save = datetime.utcnow().strftime("%Y-%m-%d_%H_%M_%S")
+        #time_save = datetime.utcnow().strftime("%Y-%m-%d_%H_%M_%S")
 
         # create an output image
         graph_name = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
@@ -1168,7 +1213,8 @@ def AW169_dropdown_4200_result():
         # wind correction table
         divisor = 5
         wind_mod = wind%divisor
-        wind_table ={5:2,
+        wind_table ={0:0,
+                     5:2,
                     10:7,
                     15:12,
                     20:17,
@@ -1190,12 +1236,16 @@ def AW169_dropdown_4200_result():
         print("wind correction: "+ str(wind_correction))
 
         result_PA
-        result_feet = round (feet)
+        result_feet = int(round (feet))
         result_wind_correction = round(wind_correction)
-        result_total_dropdown = round(feet - wind_correction)
+        result_total_dropdown = int(round(feet - wind_correction))
         if result_total_dropdown <0:
             result_total_dropdown = 0
 
+        wind = int(wind)
+        temp = int(temp)
+        hover_height = int(hover_height)
+        QNH = int(QNH)
 
         # generating the image
         d = ImageDraw.Draw(im)
@@ -1232,13 +1282,35 @@ def AW169_dropdown_4200_result():
         d.text((vertical_align,4000+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
         d.text((vertical_align,4050+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
 
-        d.text((vertical_align,4200+horizontal_align),"Zero-Wind Dropdown:" ,(0,0,0),font=font)
+        d.text((vertical_align,4200+horizontal_align),"Dropdown with 0kt Wind:" ,(0,0,0),font=font)
         d.text((vertical_align,4250+horizontal_align),str(result_feet) + ' ft' , fontcolor,font=font)
-        d.text((vertical_align,4400+horizontal_align),"Wind-correction:" ,(0,0,0),font=font)
+        d.text((vertical_align,4400+horizontal_align),"Wind-benefit:" ,(0,0,0),font=font)
         d.text((vertical_align,4450+horizontal_align),str(result_wind_correction) + ' ft' , fontcolor,font=font)
-        d.text((vertical_align,4600+horizontal_align),"Absolute Dropdown:" ,(0,0,0),font=font)
+        d.text((vertical_align,4600+horizontal_align),"Total Dropdown:" ,(0,0,0),font=font)
         d.text((vertical_align,4650+horizontal_align),str(result_total_dropdown) + ' ft' , fontcolor,font=font)
 
+        # wind box
+        begin = 1300
+        end = 2437
+        fieldlength = (end - begin)/9
+        zeroknots = begin - fieldlength
+        pix_per_knot = fieldlength / 5
+        windpix = zeroknots + (pix_per_knot * wind)
+        top = 3674
+        bottom = 3960
+        linetop_pt = (windpix,top)
+        linebottom_pt = (windpix, bottom)
+        linetop_left = (windpix-50,top )
+        linetop_right = (windpix +50, top)
+        linebottom_left = (windpix-50,bottom )
+        linebottom_right = (windpix +50, bottom)
+        #draw lines
+        d.line([linetop_pt,linebottom_pt], fill=line_color, width=5)
+        d.line([linetop_left,linetop_right], fill=line_color, width=10)
+        d.line([linebottom_left,linebottom_right], fill=line_color, width=10)
+        #text
+        d.text((windpix-35,top -80),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((windpix-35,bottom +20),str(result_wind_correction) + ' ft' ,(255,0,0),font=font)
 
 
         # create an output image

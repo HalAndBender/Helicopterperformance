@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>AW169</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!--  Essential META Tags -->
     <meta property="og:title" content="Helicopter Performance Calculator">
@@ -18,104 +19,59 @@
     <title>AW169</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <!-- Own CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
 
-    <style>
-      body {
-            margin: auto;
-            position: relative;
-            background-color: #252626;
-            color: white;
-      }
-      .content {
-          margin: auto;
-          margin-top: 25px;
-          margin-left: 25px;
-          margin-right: 25px;
-          width: auto;
-      }
-    </style>
 
-    <style>
-    h3 {text-align: center;}
-    </style>
-<nav class="navbar navbar-expand-lg navbar-light bg-info">
-  <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}" width="160" height="40" alt="HelicopterPerformance.com" border=0 style="border:0; margin-top:0"></a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
-      </li>
-        <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('AW139') }}">AW139</a>
-      </li>
-            <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('AW169') }}">AW169</a>
-      </li>
-            <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('about') }}">About</a>
-      </li>
-    </ul>
-      <!--li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Dropdown
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-      </li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form-->
-  </div>
-</nav>
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-
-<style>
-img {
-  border: 5px solid #555;
-    display: block;
-  margin-left: auto;
-  margin-right: auto;
-    margin-top: 50px;
-}
-figure {
-  display: inline-block;
-}
-
-figcaption {
-    text-align: center;
-}
-
-.img-with-text {
-    text-align: center;
-    width: [width of img];
-}
-
-.img-with-text img {
-    display: block;
-    margin: 0 auto;
-    margin-top: 50px;
-}
-</style>
 </head>
 
 
-
 <body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-info">
+      <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}" width="160" height="40" alt="HelicopterPerformance.com" border=0 style="border:0; margin-top:0"></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
+          </li>
+            <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('AW139') }}">AW139</a>
+          </li>
+                <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('AW169') }}">AW169</a>
+          </li>
+                <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('about') }}">About</a>
+          </li>
+        </ul>
+          <!--li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Dropdown
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form-->
+      </div>
+    </nav>
+
+
 <div class="content">
 <p>Pick your chart:</p>
 </div>
@@ -142,7 +98,6 @@ figcaption {
     </a>
     <p>AW139 height loss after </br>engine failure from hover (6800 kg) </br></p>
 </div-->
-
 
 
 
