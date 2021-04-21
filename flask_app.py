@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
 import numpy as np
@@ -247,22 +247,22 @@ def operation_result():
         #shift_on_x = 0  # strangely enough, all lines need to be shifted 28 pixel to the right to fit on the new image
 
         # 1- pressure altitude / y-axis intercept
-        one = (1287, PA_pixel)
+        one = (120, PA_pixel)
 
         # 2- pressure altitude / temperature intercept
         two = (zero_wind_mass_pixel, PA_pixel)
 
         # 3- 40knots at zero wind mass point
-        three = (zero_wind_mass_pixel, 8270)
+        three = (zero_wind_mass_pixel, 8720)
 
         # 4- acutal wind at 4400kg point
-        four = (1287, wind_ref)
+        four = (120, wind_ref)
 
         # 5 - wind/mass intercept
         five = (max_mass_pixel, wind_ref)
 
         # 6 - full wind benefit mass
-        six = (max_mass_pixel, 8270)
+        six = (max_mass_pixel, 8720)
 
         # drawing the lines:
         d.line([one, two], fill=line_color, width=15)
@@ -333,7 +333,7 @@ def operation_result():
         d.text((5840,2600),"QNH:" ,(0,0,0),font=font)
         d.text((5840,2750),str(QNH) + ' mb' ,(0,0,255),font=font)
 
-        d.text((5840,2950),"Hover Height above MSL:" ,(0,0,0),font=font)
+        d.text((5840,2950),"Height above MSL:" ,(0,0,0),font=font)
         d.text((5840,3100),str(hover_height)+ ' ft' ,(0,0,255),font=font)
 
         d.text((5840,3300),"Temperature:" ,(0,0,0),font=font)
@@ -350,41 +350,40 @@ def operation_result():
 
         fontcolor = (255,0,0)
         d.text((5800,6150),"RESULT:" ,(0,0,0),font=font)
-
         d.text((5800,6350),"Pressure Altitude:" ,(0,0,0),font=font)
         d.text((5800,6500),str(result_PA) + ' ft' ,fontcolor,font=font)
-
-        d.text((5800,6700),"Zero Wind Mass:" ,(0,0,0),font=font)
+        d.text((5800,6700),"Mass, 0 kt Wind:" ,(0,0,0),font=font)
         d.text((5800,6850),str(result_no_wind) + ' kg' ,fontcolor,font=font)
-
-        d.text((5800,7050),"Full Wind Mass:" ,(0,0,0),font=font)
+        d.text((5800,7050),"Mass, "+str(wind) + ' kt Wind:' ,(0,0,0),font=font)
         d.text((5800,7200),str(result_wind) + ' kg' ,fontcolor,font=font)
-
-        d.text((5800,7400),"max ltd. Wind-benefit Mass:" ,(0,0,0),font=font)
+        d.text((5800,7400),"Mass, "+str(perf_benefit) + ' %'  " Wind:" ,(0,0,0),font=font)
         d.text((5800,7550),str(result_performance_limited) + ' kg' ,fontcolor,font=font)
-
-        d.text((5800,7750),"max Useful Load:" ,(0,0,0),font=font)
+        d.text((5800,7750),"Useful Load:" ,(0,0,0),font=font)
         d.text((5800,7900),str(result_useful_load) + ' kg' ,fontcolor,font=font)
-
-        d.text((5800,8150),"max Payload:" ,(0,0,0),font=font)
+        d.text((5800,8150),"Payload:" ,(0,0,0),font=font)
         d.text((5800,8300),str(result_payload) + ' kg' ,fontcolor,font=font)
 
-        # # to create an output image
-        new_graph_name = "Payload " + str(time) + " UTC.png"
+        # figures on chart margin
+        d.text((120, PA_pixel-160),str(result_PA) + ' ft' ,fontcolor,font=font)
+        d.text((zero_wind_mass_pixel, PA_pixel-160),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((zero_wind_mass_pixel-480, 8652-80),str(result_no_wind) + ' kg' ,fontcolor,font=font)
+        d.text((120, wind_ref-160),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((max_mass_pixel+30,8652-80),str(result_wind) + ' kg' ,fontcolor,font=font)
 
         # removing previously generated images
         for filename in os.listdir('/home/gaviation/mysite/static/images/'):
-            if filename.startswith('Payload'):  # not to remove other images
+            if filename.startswith('139_HOGE_OEI_rendered'):  # not to remove other images
                 os.remove('/home/gaviation/mysite/static/images/' + filename)
 
-        im.save("/home/gaviation/mysite/static/images/" + new_graph_name)
+        # create png
+        graph_png = "139_HOGE_OEI_rendered " + str(time) + " UTC.png"
+        im.save("/home/gaviation/mysite/static/images/" + graph_png)
 
-        graph_name_pdf = "Payload " + str(time) + " UTC.pdf"
+        # create pdf
+        graph_pdf = "139_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_name_pdf)
-
-        plt.figure(figsize=(20,40))
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
 
 
 
@@ -418,8 +417,8 @@ def operation_result():
             result_performance_limited = result_performance_limited,
             result_useful_load = result_useful_load,
             result_payload = result_payload,
-            result_png = new_graph_name,  # before: result_png = result_png,
-            result_pdf = graph_name_pdf,
+            result_png = graph_png,
+            result_pdf = graph_pdf,
 
             calculation_success = True,
         )
@@ -475,7 +474,6 @@ def AW139_dropdown_6800_result():
     # paths
     font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 80)
     im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW139_dropdown_6800.png")
-
 
     # request.form looks for:
     # html tags with matching "name= "
@@ -644,25 +642,20 @@ def AW139_dropdown_6800_result():
         d.text((vertical_align,4700+horizontal_align),"Height loss:" ,(0,0,0),font=font)
         d.text((vertical_align,4850+horizontal_align),str(result_height_loss_feet) + ' ft' , fontcolor,font=font)
 
-
-        # create an output image
-        graph_name = "AW139_dropdown_6800_rendered " + str(time) + " UTC.png"
-
+        # removing previously generated images
         for filename in os.listdir('/home/gaviation/mysite/static/images/'):
             if filename.startswith('AW139_dropdown_6800_rendered'):  # not to remove other images
                 os.remove('/home/gaviation/mysite/static/images/' + filename)
 
-        im.save("/home/gaviation/mysite/static/images/" + graph_name)
+        # create png
+        graph_png = "AW139_dropdown_6800_rendered " + str(time) + " UTC.png"
+        im.save("/home/gaviation/mysite/static/images/" + graph_png)
 
-        graph_name_pdf = "AW139_dropdown_6800_rendered " + str(time) + " UTC.pdf"
+        # create pdf
+        graph_pdf = "AW139_dropdown_6800_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_name_pdf)
-
-
-
-
-        plt.figure(figsize=(20,40))
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -681,8 +674,8 @@ def AW139_dropdown_6800_result():
 
             result_PA = result_PA,
             result_height_loss_feet = result_height_loss_feet,
-            result_AW139_dropdown_6800 = graph_name,
-            result_AW139_dropdown_6800_pdf = graph_name_pdf,
+            result_png = graph_png,
+            result_pdf = graph_pdf,
             calculation_success = True,
         )
 
@@ -839,7 +832,6 @@ def AW169_OGE_OEI_result():
 
             PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
 
-
         # x = PA_temp_pixel
         # y = PA_pixel
 
@@ -908,11 +900,10 @@ def AW169_OGE_OEI_result():
 
         zero_wind_mass = 3400 + ( PA_temp_pixel - lower_pixel )/pixel_per_kg
 
-
-
         divisor = 5
         wind_mod = wind%divisor
-        wind_table ={5:62,
+        wind_table ={0:0,
+                     5:62,
                     10:218,
                     15:398,
                     20:618,
@@ -954,9 +945,9 @@ def AW169_OGE_OEI_result():
         line_color = (255, 0, 0)
 
         # defining the points:
-        point_1 = (543, PA_pixel)           # pressure altitude on y-axis
+        point_1 = (70, PA_pixel)           # pressure altitude on y-axis
         point_2 = (PA_temp_pixel, PA_pixel) # pressure altitude intersect with temp line
-        point_3 = (PA_temp_pixel, 3471)     # zero wind mass on x-axis
+        point_3 = (PA_temp_pixel, 3520)     # zero wind mass on x-axis
 
         # drawing the lines between points:
         d.line([point_1,point_2], fill=line_color, width=10)
@@ -989,16 +980,20 @@ def AW169_OGE_OEI_result():
         d.text((vertical_align,4000+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
         d.text((vertical_align,4070+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
 
-        d.text((vertical_align,4200+horizontal_align),"No Wind Mass:" ,(0,0,0),font=font)
+        d.text((vertical_align,4200+horizontal_align),"Mass, 0 kt Wind:" ,(0,0,0),font=font)
         d.text((vertical_align,4270+horizontal_align),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
-        d.text((vertical_align,4400+horizontal_align),"Full Wind Mass:" ,(0,0,0),font=font)
+        d.text((vertical_align,4400+horizontal_align),"Mass, "+str(wind) + ' kt Wind' ,(0,0,0),font=font)
         d.text((vertical_align,4470+horizontal_align),str(result_full_wind_mass) + ' kg' , fontcolor,font=font)
-        d.text((vertical_align,4600+horizontal_align),"Max Customer Mass:" ,(0,0,0),font=font)
+        d.text((vertical_align,4600+horizontal_align),"Mass, "+str(perf_benefit) + ' %'  " Wind:" ,(0,0,0),font=font)
         d.text((vertical_align,4670+horizontal_align),str(result_customer_mass) + ' kg' , fontcolor,font=font)
         d.text((vertical_align,4800+horizontal_align),"Useful Load at site:" ,(0,0,0),font=font)
         d.text((vertical_align,4870+horizontal_align),str(result_useful_load) + ' kg' , fontcolor,font=font)
         d.text((vertical_align,5000+horizontal_align),"Payload at site:" ,(0,0,0),font=font)
         d.text((vertical_align,5070+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
+
+        d.text((60, PA_pixel-80),str(result_PA) + ' ft' , fontcolor,font=font)
+        d.text((PA_temp_pixel, PA_pixel-80),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((PA_temp_pixel, 3520),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
 
         # wind box
         begin = 1050
@@ -1023,24 +1018,20 @@ def AW169_OGE_OEI_result():
         d.text((windpix-50,top -80),str(wind) + ' kt' ,(0,0,255),font=font)
         d.text((windpix-80,bottom +10),str(result) + ' kg' ,(255,0,0),font=font)
 
-
-        # create an output image
-        graph_name = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
-
+        # removing previously generated images
         for filename in os.listdir('/home/gaviation/mysite/static/images/'):
             if filename.startswith('AW169_HOGE_OEI_rendered'):  # not to remove other images
                 os.remove('/home/gaviation/mysite/static/images/' + filename)
-        im.save("/home/gaviation/mysite/static/images/" + graph_name)
 
-        graph_name_pdf = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
+        # create png
+        graph_png = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
+        im.save("/home/gaviation/mysite/static/images/" + graph_png)
+
+        # create pdf
+        graph_pdf = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_name_pdf)
-
-
-
-        plt.figure(figsize=(40,20))
-
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -1048,33 +1039,26 @@ def AW169_OGE_OEI_result():
             'AW169_OGE_OEI.html',
             QNH = QNH,
             QNH_SV = session['QNH_SV'],
-
             DOM = DOM,
             DOM_SV = session['DOM_SV'],
-
             hover_height = hover_height,
             hover_height_SV = session['hover_height_SV'],
-
             temp = temp,
             temp_SV = session['temp_SV'],
-
             wind = wind,
             wind_SV = session['wind_SV'],
-
             perf_benefit = perf_benefit,
             perf_benefit_SV = session['perf_benefit_SV'],
-
             fuel_at_hho = fuel_at_hho,
             fuel_at_hho_SV = session['fuel_at_hho_SV'],
-
             result_PA = result_PA,
             result_zero_wind_mass = result_zero_wind_mass,
             result_full_wind_mass = result_full_wind_mass,
             result_customer_mass = result_customer_mass,
             result_useful_load = result_useful_load,
             result_payload = result_payload,
-            result_AW169_HOGE_OEI = graph_name,
-            result_AW169_HOGE_OEI_pdf = graph_name_pdf,
+            result_png = graph_png,
+            result_pdf = graph_pdf,
             calculation_success = True,
         )
 
@@ -1297,7 +1281,6 @@ def AW169_dropdown_4200_result():
         d.text((vertical_align,3000+horizontal_align),"Wind:" ,(0,0,0),font=font)
         d.text((vertical_align,3050+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
 
-
         fontcolor = (255,0,0)
         d.text((vertical_align,3800+horizontal_align),"RESULT:" ,(0,0,0),font=font)
         d.text((vertical_align,4000+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
@@ -1333,23 +1316,20 @@ def AW169_dropdown_4200_result():
         d.text((windpix-35,top -80),str(wind) + ' kt' ,(0,0,255),font=font)
         d.text((windpix-35,bottom +20),str(result_wind_correction) + ' ft' ,(255,0,0),font=font)
 
-
-        # create an output image
-        graph_name = "AW169_dropdown_4200_rendered " + str(time) + " UTC.png"
-
+        # removing previously generated images
         for filename in os.listdir('/home/gaviation/mysite/static/images/'):
             if filename.startswith('AW169_dropdown_4200_rendered'):  # not to remove other images
                 os.remove('/home/gaviation/mysite/static/images/' + filename)
 
-        im.save("/home/gaviation/mysite/static/images/" + graph_name)
+        # create png
+        graph_png = "AW169_dropdown_4200_rendered " + str(time) + " UTC.png"
+        im.save("/home/gaviation/mysite/static/images/" + graph_png)
 
-        graph_name_pdf = "AW169_dropdown_4200_rendered " + str(time) + " UTC.pdf"
+        # create pdf
+        graph_pdf = "AW169_dropdown_4200_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_name_pdf)
-
-        plt.figure(figsize=(28,20))
-
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -1357,23 +1337,18 @@ def AW169_dropdown_4200_result():
             'AW169_dropdown_4200.html',
             QNH = QNH,
             QNH_SV = session['QNH_SV'],
-
             hover_height = hover_height,
             hover_height_SV = session['hover_height_SV'],
-
             temp = temp,
             temp_SV = session['temp_SV'],
-
             wind = wind,
             wind_SV = session['wind_SV'],
-
             result_PA = result_PA,
             result_feet = result_feet,
             result_wind_correction = result_wind_correction,
             result_total_dropdown = result_total_dropdown,
-            result_png = graph_name,
-            result_pdf = graph_name_pdf,
-
+            result_png = graph_png,
+            result_pdf = graph_pdf,
             calculation_success = True,
         )
 

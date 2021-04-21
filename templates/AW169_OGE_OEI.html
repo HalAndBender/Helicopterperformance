@@ -118,30 +118,28 @@
         <br/>
 
 
-
     </form>
     {% if calculation_success == True %}
         <h5 id="anchor" style="color:red;">Result:</h5>
         <table>
             <tr><td >Pressure Altitude:</td><td style="color:red;">{{result_PA}} ft</td></tr>
-            <tr><td >Max. Mass, zero wind:</td><td style="color:red;">{{result_zero_wind_mass}} kg</td></tr>
-            <tr><td >Max. Mass, full wind:</td><td style="color:red;">{{result_full_wind_mass}} kg</td></tr>
-            <tr><td >Max. limited Wind-benefit Mass:</td><td style="color:red;">{{result_customer_mass}} kg</td></tr>
-            <tr><td >Max. Useful Load at site:</td><td style="color:red;">{{result_useful_load}} kg</td></tr>
-            <tr><td >Max. Payload at site: </td><td style="color:red;">{{result_payload}} kg</td></tr>
+            <tr><td >Mass, 0 kt Wind:</td><td style="color:red;">{{result_zero_wind_mass}} kg</td></tr>
+            <tr><td >Mass, full wind:</td><td style="color:red;">{{result_full_wind_mass}} kg</td></tr>
+            <tr><td >Mass, limited Wind-benefit :</td><td style="color:red;">{{result_customer_mass}} kg</td></tr>
+            <tr><td >Useful Load at site:</td><td style="color:red;">{{result_useful_load}} kg</td></tr>
+            <tr><td >Payload at site: </td><td style="color:red;">{{result_payload}} kg</td></tr>
         </table>
         <br/>
         <div class="content">
         <p style="text-align: left"><b>Preview:</b></p>
-        <img id="output_image" align="left" style= "margin-bottom: 25px; margin-top: 0px" src="{{ url_for('static', filename=result_AW169_HOGE_OEI )}}" style="border:0; margin-top:0">
+        <img id="output_image" align="left" style= "margin-bottom: 25px; margin-top: 0px" src="{{ url_for('static', filename=result_png )}}" style="border:0; margin-top:0">
         </div>
         <br/>
         <div class="content">
-        <embed src="{{ url_for('static', filename=result_AW169_HOGE_OEI_pdf )}}" type="application/pdf" width="100%" height="600px" />
+        <embed src="{{ url_for('static', filename=result_pdf )}}" type="application/pdf" width="100%" height="600px" />
         <br/>
         <br/>
-        <!--p><a href="{{ url_for('static', filename=result_AW169_HOGE_OEI) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p-->
-        <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_AW169_HOGE_OEI_pdf) }}" download rel="noopener noreferrer" target="_blank">Download PDF</a></p>
+        <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_pdf) }}" download rel="noopener noreferrer" target="_blank">Download PDF</a></p>
         </div>
         <br/>
     {% endif %}

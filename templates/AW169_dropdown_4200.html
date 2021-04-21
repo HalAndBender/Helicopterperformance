@@ -120,10 +120,17 @@
             <tr><td >Total Dropdown: </td><td style="color:red;">{{result_total_dropdown}} ft</td></tr>
         </table>
         <br/>
-        <img id="output_image" src="{{ url_for('static', filename=result_png)}}" />
+        <div class="content">
+        <p style="text-align: left"><b>Preview:</b></p>
+        <img id="output_image" align="left" style= "margin-bottom: 25px; margin-top: 0px" src="{{ url_for('static', filename=result_png )}}" style="border:0; margin-top:0">
+        </div>
+        <br/>
+        <div class="content">
+        <embed src="{{ url_for('static', filename=result_pdf )}}" type="application/pdf" width="100%" height="600px" />
         <br/>
         <br/>
-        <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_png) }}" download rel="noopener noreferrer" target="_blank">Download  </a></p>
+        <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_pdf) }}" download rel="noopener noreferrer" target="_blank">Download PDF</a></p>
+        </div>
         <br/>
     {% endif %}
 
