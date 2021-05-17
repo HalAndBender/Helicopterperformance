@@ -336,7 +336,7 @@ def operation_result():
         d.text((5840,1850),"Flight ID:" ,(0,0,0),font=font)
         d.text((5840,2000),str(flight_ID_input),(0,0,255),font=font)
 
-        d.text((5840,2200),"PIC/SIC 3 letter code:" ,(0,0,0),font=font)
+        d.text((5840,2200),"PIC/SIC:" ,(0,0,0),font=font)
         d.text((5840,2350),str(PIC_input),(0,0,255),font=font)
 
         #d.text((5840,2550),'INPUT: ',(0,0,0),font=font)
@@ -515,12 +515,19 @@ def AW139_dropdown_6800_result():
     wind_input = request.form['wind']
     session['wind_SV'] = wind_input
 
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
     try:
         QNH = float(QNH_input)
         gross_mass = float(gross_mass_input)
         hover_height = float(hover_height_input)
         temp = float(temp_input)
         wind = float(wind_input)
+        PIC = str(PIC_input)
+        flight_ID = str(flight_ID_input)
 
         # Calulating pixel_PA:
         #  pressure difference between QNH and standard pressure
@@ -645,8 +652,14 @@ def AW139_dropdown_6800_result():
         horizontal_align = -730
         d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
         time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
-        d.text((vertical_align,650),str(time),(0,0,255),font=font)
-        d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+        d.text((vertical_align,580),str(time),(0,0,255),font=font)
+
+        d.text((vertical_align,700),"Flight ID:" ,(0,0,0),font=font)
+        d.text((vertical_align,780),str(flight_ID_input),(0,0,255),font=font)
+        d.text((vertical_align,900),"PIC/SIC:" ,(0,0,0),font=font)
+        d.text((vertical_align,980),str(PIC_input),(0,0,255),font=font)
+
+        #d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
         d.text((vertical_align,2250+horizontal_align),'Gross Mass: ',(0,0,0),font=font)
         d.text((vertical_align,2400+horizontal_align),str(gross_mass) + ' kg' ,(0,0,255),font=font)
         d.text((vertical_align,2600+horizontal_align),"QNH:" ,(0,0,0),font=font)
@@ -694,6 +707,10 @@ def AW139_dropdown_6800_result():
             temp_SV = session['temp_SV'],
             wind = wind,
             wind_SV = session['wind_SV'],
+            PIC = PIC,
+            PIC_SV = session['PIC_SV'],
+            flight_ID = flight_ID,
+            flight_ID_SV = session['flight_ID_SV'],
 
             result_PA = result_PA,
             result_height_loss_feet = result_height_loss_feet,
@@ -778,6 +795,12 @@ def AW169_OGE_OEI_result():
     fuel_at_hho_input = request.form['fuel_at_hho']
     session['fuel_at_hho_SV'] = fuel_at_hho_input
 
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
+
     # # jupyter
     # # User input:
     # DOM = 3000
@@ -788,6 +811,7 @@ def AW169_OGE_OEI_result():
     # perf_benefit = 100          # percent
     # fuel_at_hho = 439           # kg
 
+
     # flask
     try:
         QNH = float(QNH_input)
@@ -797,6 +821,8 @@ def AW169_OGE_OEI_result():
         wind = float(wind_input)
         perf_benefit = float(perf_benefit_input)
         fuel_at_hho = float(fuel_at_hho_input)
+        PIC = str(PIC_input)
+        flight_ID = str(flight_ID_input)
 
         # Calulating pixel_PA:
         #  pressure difference between QNH and standard pressure
@@ -949,8 +975,12 @@ def AW169_OGE_OEI_result():
             result = round(result1 + result2)
 
         result_full_wind_mass = round (zero_wind_mass + result)
+        if result_full_wind_mass > 4800:
+            result_full_wind_mass = 4800
         result_zero_wind_mass = round(zero_wind_mass)
         result_customer_mass = round(result_zero_wind_mass + (result_full_wind_mass - result_zero_wind_mass)* perf_benefit/100)
+        if result_customer_mass > 4800:
+            result_customer_mass = 4800
         result_useful_load = round(result_customer_mass - DOM)
         result_payload = round(result_useful_load - fuel_at_hho)
 
@@ -979,10 +1009,14 @@ def AW169_OGE_OEI_result():
         # text on image:
         vertical_align = 2931
         horizontal_align = -730
-        d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
+        d.text((vertical_align,580),"Date, Time (UTC)",(0,0,0),font=font)
         time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
         d.text((vertical_align,650),str(time),(0,0,255),font=font)
-        d.text((vertical_align,21000+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+        d.text((vertical_align,800),"Flight ID:" ,(0,0,0),font=font)
+        d.text((vertical_align,870),str(flight_ID_input),(0,0,255),font=font)
+        d.text((vertical_align,1000),"PIC/SIC:" ,(0,0,0),font=font)
+        d.text((vertical_align,1070),str(PIC_input),(0,0,255),font=font)
+        d.text((vertical_align,2100+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
         d.text((vertical_align,2200+horizontal_align),'Dry Ops Mass: ',(0,0,0),font=font)
         d.text((vertical_align,2270+horizontal_align),str(DOM) + ' kg' ,(0,0,255),font=font)
         d.text((vertical_align,2400+horizontal_align),"QNH:" ,(0,0,0),font=font)
@@ -1074,6 +1108,10 @@ def AW169_OGE_OEI_result():
             perf_benefit_SV = session['perf_benefit_SV'],
             fuel_at_hho = fuel_at_hho,
             fuel_at_hho_SV = session['fuel_at_hho_SV'],
+            PIC = PIC,
+            PIC_SV = session['PIC_SV'],
+            flight_ID = flight_ID,
+            flight_ID_SV = session['flight_ID_SV'],
             result_PA = result_PA,
             result_zero_wind_mass = result_zero_wind_mass,
             result_full_wind_mass = result_full_wind_mass,
@@ -1159,6 +1197,11 @@ def AW169_dropdown_4200_result():
     wind_input = request.form['wind']
     session['wind_SV'] = wind_input
 
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
 
     # flask
     try:
@@ -1166,7 +1209,8 @@ def AW169_dropdown_4200_result():
         hover_height = float(hover_height_input)
         temp = float(temp_input)
         wind = float(wind_input)
-
+        PIC = str(PIC_input)
+        flight_ID = str(flight_ID_input)
         # Calulating pixel_PA:
         #  pressure difference between QNH and standard pressure
         difference = (1013.2 - QNH) * 27
@@ -1293,8 +1337,14 @@ def AW169_dropdown_4200_result():
         horizontal_align = -730
         d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
         time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
-        d.text((vertical_align,650),str(time),(0,0,255),font=font)
-        d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+        d.text((vertical_align,580),str(time),(0,0,255),font=font)
+
+        d.text((vertical_align,700),"Flight ID:" ,(0,0,0),font=font)
+        d.text((vertical_align,780),str(flight_ID_input),(0,0,255),font=font)
+        d.text((vertical_align,900),"PIC/SIC:" ,(0,0,0),font=font)
+        d.text((vertical_align,980),str(PIC_input),(0,0,255),font=font)
+
+        # d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
         d.text((vertical_align,2400+horizontal_align),"QNH:" ,(0,0,0),font=font)
         d.text((vertical_align,2450+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
         d.text((vertical_align,2600+horizontal_align),"Hover Height:" ,(0,0,0),font=font)
@@ -1366,6 +1416,10 @@ def AW169_dropdown_4200_result():
             temp_SV = session['temp_SV'],
             wind = wind,
             wind_SV = session['wind_SV'],
+            PIC = PIC,
+            PIC_SV = session['PIC_SV'],
+            flight_ID = flight_ID,
+            flight_ID_SV = session['flight_ID_SV'],
             result_PA = result_PA,
             result_feet = result_feet,
             result_wind_correction = result_wind_correction,
