@@ -148,6 +148,12 @@ def operation_result():
     fuel_at_hho_input = request.form['fuel_at_hho']
     session['fuel_at_hho_SV'] = fuel_at_hho_input
 
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
+
     try:
         QNH = float(QNH_input)
         DOM = float(DOM_input)
@@ -156,6 +162,8 @@ def operation_result():
         wind = float(wind_input)
         perf_benefit = float(perf_benefit_input)
         fuel_at_hho = float(fuel_at_hho_input)
+        PIC = str(PIC_input)
+        flight_ID = str(flight_ID_input)
 
 
         # linking all functions together:
@@ -325,28 +333,36 @@ def operation_result():
         time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
         d.text((5840,1650),str(time),(0,0,255),font=font)
 
-        d.text((5840,2050),'USER INPUT: ',(0,0,0),font=font)
+        d.text((5840,1850),"Flight ID:" ,(0,0,0),font=font)
+        d.text((5840,2000),str(flight_ID_input),(0,0,255),font=font)
 
-        d.text((5840,2250),'DOM: ',(0,0,0),font=font)
-        d.text((5840,2400),str(DOM) + ' kg' ,(0,0,255),font=font)
+        d.text((5840,2200),"PIC/SIC 3 letter code:" ,(0,0,0),font=font)
+        d.text((5840,2350),str(PIC_input),(0,0,255),font=font)
 
-        d.text((5840,2600),"QNH:" ,(0,0,0),font=font)
-        d.text((5840,2750),str(QNH) + ' mb' ,(0,0,255),font=font)
+        #d.text((5840,2550),'INPUT: ',(0,0,0),font=font)
 
-        d.text((5840,2950),"Height above MSL:" ,(0,0,0),font=font)
-        d.text((5840,3100),str(hover_height)+ ' ft' ,(0,0,255),font=font)
+        d.text((5840,2750),'DOM: ',(0,0,0),font=font)
+        d.text((5840,2900),str(DOM) + ' kg' ,(0,0,255),font=font)
 
-        d.text((5840,3300),"Temperature:" ,(0,0,0),font=font)
-        d.text((5840,3450),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((5840,3100),"QNH:" ,(0,0,0),font=font)
+        d.text((5840,3250),str(QNH) + ' mb' ,(0,0,255),font=font)
 
-        d.text((5840,3650),"Headwind:" ,(0,0,0),font=font)
-        d.text((5840,3800),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((5840,3450),"Height above MSL:" ,(0,0,0),font=font)
+        d.text((5840,3600),str(hover_height)+ ' ft' ,(0,0,255),font=font)
 
-        d.text((5840,4000),"Wind Benefit:" ,(0,0,0),font=font)
-        d.text((5840,4150),str(perf_benefit) + ' %' ,(0,0,255),font=font)
+        d.text((5840,3800),"Temperature:" ,(0,0,0),font=font)
+        d.text((5840,3950),str(temp) + ' C' ,(0,0,255),font=font)
 
-        d.text((5840,4350),"Fuel at site:" ,(0,0,0),font=font)
-        d.text((5840,4500),str(fuel_at_hho) + ' kg',(0,0,255),font=font)
+        d.text((5840,4150),"Headwind:" ,(0,0,0),font=font)
+        d.text((5840,4300),str(wind) + ' kt' ,(0,0,255),font=font)
+
+        d.text((5840,4500),"Wind Benefit:" ,(0,0,0),font=font)
+        d.text((5840,4650),str(perf_benefit) + ' %' ,(0,0,255),font=font)
+
+        d.text((5840,4850),"Fuel at site:" ,(0,0,0),font=font)
+        d.text((5840,5000),str(fuel_at_hho) + ' kg',(0,0,255),font=font)
+
+
 
         fontcolor = (255,0,0)
         d.text((5800,6150),"RESULT:" ,(0,0,0),font=font)
@@ -362,6 +378,7 @@ def operation_result():
         d.text((5800,7900),str(result_useful_load) + ' kg' ,fontcolor,font=font)
         d.text((5800,8150),"Payload:" ,(0,0,0),font=font)
         d.text((5800,8300),str(result_payload) + ' kg' ,fontcolor,font=font)
+
 
         # figures on chart margin
         d.text((120, PA_pixel-160),str(result_PA) + ' ft' ,fontcolor,font=font)
@@ -410,6 +427,12 @@ def operation_result():
 
             fuel_at_hho = fuel_at_hho,
             fuel_at_hho_SV = session['fuel_at_hho_SV'],
+
+            PIC = PIC,
+            PIC_SV = session['PIC_SV'],
+
+            flight_ID = flight_ID,
+            flight_ID_SV = session['flight_ID_SV'],
 
             result_PA = result_PA,
             result_no_wind = result_no_wind,
@@ -973,7 +996,7 @@ def AW169_OGE_OEI_result():
         d.text((vertical_align,3200+horizontal_align),"Wind benefit:" ,(0,0,0),font=font)
         d.text((vertical_align,3270+horizontal_align),str(perf_benefit) + ' %' ,(0,0,255),font=font)
         d.text((vertical_align,3400+horizontal_align),"Fuel at HHO:" ,(0,0,0),font=font)
-        d.text((vertical_align,3470+horizontal_align),str(fuel_at_hho) + ' kt' ,(0,0,255),font=font)
+        d.text((vertical_align,3470+horizontal_align),str(fuel_at_hho) + ' kg' ,(0,0,255),font=font)
 
         fontcolor = (255,0,0)
         d.text((vertical_align,3900+horizontal_align),"RESULT:" ,(0,0,0),font=font)
