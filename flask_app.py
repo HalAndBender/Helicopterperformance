@@ -14,7 +14,6 @@ path_pycharm = ""
 path_pythonanywhere = "/home/gaviation/mysite/"
 
 
-
 @app.route('/', methods=['GET'])
 def index():
     """ Displays the index page accessible at '/' """
@@ -56,7 +55,6 @@ def AW139():
 
     # show the form, it wasn't submitted
     return render_template('AW139.html')
-
 
 
 
