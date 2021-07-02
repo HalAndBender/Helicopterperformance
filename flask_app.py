@@ -1457,7 +1457,380 @@ def AW169_dropdown_4200_result():
             error = "Cannot perform numeric operations with provided input"
         )
 
+@app.route('/AW139_dropdown_enhanced', methods=['GET', 'POST'])
+def AW139_dropdown_enhanced():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
 
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_dropdown_enhanced.html')
+
+@app.route('/AW139_dropdown_enhanced_result/', methods=['POST', 'GET'])
+def AW139_dropdown_enhanced_result():
+
+    error = None
+    result = None
+
+    # flask
+    im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW139_dropdown_enhanced.png")
+    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 70)
+
+
+
+    # # jupyter
+    # im = Image.open("charts/AW139/dropdown_enhanced/modified/AW139_dropdown_enhanced.png")
+    # font = ImageFont.truetype("SFNS.ttf", 80)
+    # from datetime import date, datetime
+
+    # flask
+    # request.form looks for:
+    # html tags with matching "name= "
+    QNH_input = request.form['QNH']
+    session['QNH_SV'] = QNH_input
+
+    gross_mass_input = request.form['gross_mass']
+    session['gross_mass_SV'] = gross_mass_input
+
+    hover_height_input = request.form['hover_height']
+    session['hover_height_SV'] = hover_height_input
+
+    temp_input = request.form['temp']
+    session['temp_SV'] = temp_input
+
+    wind_input = request.form['wind']
+    session['wind_SV'] = wind_input
+
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
+
+
+    # # jupyter
+    # # User input:
+    # gross_mass = 7000           # 6600 to 7000kg
+    # QNH = 1013.2                # mb (min 971, max 1044)
+    # hover_height = 200          # feet (min 0, max 350)
+    # temp = 25                   # degrees celcius (min: -10, max: 30)
+    # wind = 7               # knots (min: 0, max: 40)
+    # flight_ID = 'HSO41A'
+    # PIC =  'SGO'
+
+    # flask
+    try:
+        QNH = float(QNH_input)
+        gross_mass = float(gross_mass_input)
+        hover_height = float(hover_height_input)
+        temp = float(temp_input)
+        wind = float(wind_input)*0.5
+        PIC = str(PIC_input)
+        flight_ID = str(flight_ID_input)
+
+        '''The left chart area:'''
+        # Calulating pixel_PA:
+        #  pressure difference between QNH and standard pressure
+        difference = (1013.2 - QNH) * 27
+
+        # pressure altitude at hover height.
+        PA = hover_height + difference
+        result_PA = round(PA)
+
+        # converting PA to pixel
+        pixel_per_ft = (2496 - 841)/2000
+        PA_pixel = 1668 + (result_PA * pixel_per_ft)
+
+        # Define the known points
+        x = [841, 2495]  # 0ftPA, 1000ftPA
+        y_1 = [3744,3226] #-30 deg
+        y_2 = [3452,2942] #-20 deg
+        y_3 = [3178,2670] #-10 deg
+        y_4 = [2916,2412]   #0 deg
+        y_5 = [2664, 2165] #10 deg
+        y_6 = [2422,1926]  #20 deg
+        y_7 = [2192,1702]  #30 deg
+        y_8 = [1970,1480]  #40 deg
+        y_9 = [1756,1256]  #50 deg
+
+        # reference dictionary
+        temp_dict ={-30:y_1,-20:y_2,-10:y_3,0:y_4,10:y_5,20:y_6,30:y_7,40:y_8,50:y_9}
+
+        # assign the input
+        pixel_in = PA_pixel
+
+        if temp in temp_dict.keys():
+            y = temp_dict.get(temp)
+            model = np.poly1d(np.polyfit(x,y, len(y)-1)) # polynomial regression of degree (len(y)-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            pixel_out_left = round(model(pixel_in))   # make prediction
+        else:
+            lower_temp_key = max(k for k in temp_dict if k <= temp) # finding the adjacent lower value in the dictionary
+            upper_temp_key = min(k for k in temp_dict if k >= temp) # finding the adjacent higher value in the dictionary
+            y_lower = temp_dict.get(lower_temp_key)  # getting the pixel table
+            y_upper = temp_dict.get(upper_temp_key)  # getting the pixel table
+            model_1 = np.poly1d(np.polyfit(x, y_lower, len(y_lower)-1))
+            model_2 = np.poly1d(np.polyfit(x, y_upper, len(y_upper)-1))
+            intersect1 = model_1(pixel_in)  # prediction
+            intersect2 = model_2(pixel_in)  # prediction
+            interpolated = intersect1 + ((temp-lower_temp_key)/(upper_temp_key - lower_temp_key)*(intersect2-intersect1))
+            pixel_out_left = round(interpolated)
+
+        # assign the output
+        pixel_in_middle = pixel_out_left
+
+        '''The middle chart area:'''
+        # line for pixel_in starts on y-axis at 1503 (top left corner)
+        x=[2520,2762,2992,3233,3465,3697,3937,4173,4411]
+        y=[1503,1585,1684,1831,1988,2155,2332,2532,2739]
+
+        # shift line for different input values
+        correction = pixel_in_middle - 1503
+        y = [i+correction for i in y]
+
+        # fit polynomial regression
+        coef = np.polyfit(x, y, 5)
+
+        # create model to be used for other input values
+        model = np.poly1d(coef)
+
+        '''Analysis of model for middle chart'''
+        # print ('coef1 =', coef[0])
+        # print ('coef2 =', coef[1])
+        # from sklearn.metrics import r2_score
+        # y_pred = model(x)
+        # print(r2_score(y, y_pred)) # r-score   # check the r2 score
+        # x_axis = np.linspace(min(x),max(x),100)
+        # y_axis = model(x_axis)  # the prediction
+        # plt.plot(x_axis, y_axis)
+        # plt.plot( x, y, 'go' )
+        # plt.grid('on')
+        # plt.show()
+
+        # wind pixel
+        pixel_per_knot = (4411-2520)/40
+        wind_pixel = round(2520 +  (pixel_per_knot * wind))
+
+        # plotting the line
+        x_pixel = np.linspace(min(x),wind_pixel,100)
+        y_pixel = model(x_pixel) #the prediction
+
+        # pixle out
+        pixel_out_middle = round(model(wind_pixel))
+
+        # assigning pixel_in:
+        pixel_in_right = pixel_out_middle
+
+
+        '''Right chart area'''
+        # pixel values on x- and y-axis
+        y_7000=[4435,4509,4709,4980,5336,5556,5774,6098,6444]
+        x_7000=[2811,2697,2494,2293,2089,1989,1889,1769,1647]
+        y_6800=[4436,4509,4705,4980,5339,5781,6325,6443]
+        x_6800=[2609,2495,2297,2093,1890,1689,1488,1452]
+        y_6600=[4435,4504,4703,4987,5151,5331]
+        x_6600=[2401,2294,2091,1890,1793,1692]
+        y_6400=[4435,4496,4694,4831,4966]
+        x_6400=[2187,2091,1892,1789,1690]
+        y_6200=[4435,4484,4679,4951,5127]
+        x_6200=[1970,1891,1689,1485,1387]
+        y_6000=[4435,4470,4658,4789]
+        x_6000=[1747,1690,1487,1388]
+        y_5800=[4434,4450,4539]
+        x_5800=[1515,1486,1389]
+
+        # dictionary for mass lines
+        mass_dict ={7000:[x_7000,y_7000],
+                    6800:[x_6800,y_6800],
+                    6600:[x_6600,y_6600],
+                    6400:[x_6400,y_6400],
+                    6200:[x_6200,y_6200],
+                    6000:[x_6000,y_6000],
+                    5800:[x_5800,y_5800]}
+
+        # finding the output value
+        if gross_mass in mass_dict.keys():
+            x_and_y = mass_dict.get(gross_mass)
+            model = np.poly1d(np.polyfit(x_and_y[0], x_and_y[1], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            height_loss_pixel = round(model(pixel_in_right))   # make prediction
+        #    print("Pixel height loss: "+ str(height_loss_pixel))
+        else:
+            lower_key = max(k for k in mass_dict if k <= gross_mass) # finding the adjacent lower value in the dictionary
+            upper_key = min(k for k in mass_dict if k >= gross_mass) # finding the adjacent higher value in the dictionary
+            x_and_y_1 = mass_dict.get(lower_key)  # getting the pixel table
+            x_and_y_2 = mass_dict.get(upper_key)  # getting the pixel table
+            model_1 = np.poly1d(np.polyfit(x_and_y_1[0],x_and_y_1[1], len(x_and_y_1[0])-1))
+            model_2 = np.poly1d(np.polyfit(x_and_y_2[0],x_and_y_2[1], len(x_and_y_2[0])-1))
+            intersect1 = model_1(pixel_in_right)  # prediction
+            intersect2 = model_2(pixel_in_right)  # prediction
+            interpolated = intersect1 + ((gross_mass-lower_key)/(upper_key - lower_key)*(intersect2-intersect1))
+            height_loss_pixel = round(interpolated)
+        #     print("Pixel height loss: "+ str(height_loss_pixel))
+        # print(pixel_in_right)
+
+        # convert pixel output to chart value
+        lower_pixel = 4434   # here: 0ft
+        upper_pixel = 6443  # here: 150ft
+        diff_value_pixel = upper_pixel  - lower_pixel # number of pixel in whole range
+        diff_value_unit =  150 - 0   # number of units in whole range
+
+        pixel_per_unit = diff_value_pixel / diff_value_unit
+
+        result_height_loss_feet = int(0 + ( height_loss_pixel - lower_pixel )/pixel_per_unit)
+        # print(' Height Loss Feet: '+ str(result_height_loss_feet))
+
+
+        '''Preparing for print '''
+        QNH = int(QNH)
+        gross_mass = int(gross_mass)
+        hover_height = int(hover_height)
+        temp = int(temp)
+        wind = int(wind)
+
+        # generating the image
+        d = ImageDraw.Draw(im)
+        line_color = (255, 0, 0)
+
+        # defining the points:
+        point_1 = (PA_pixel, 4450)           # pressure altitude on x-axis
+        point_2 = (PA_pixel, pixel_out_left) # pressure altitude intersect with temp line
+        point_3 = (2520, pixel_out_left)     # entry point in middle chart
+
+        point_4 = (wind_pixel, 4450)       # wind start point
+        point_5 = (wind_pixel, pixel_out_middle)
+        point_6 = (height_loss_pixel, pixel_out_middle) # between middle and right chart
+        point_7 = (height_loss_pixel, 4450)  # height loss point
+
+        # drawing the lines between points:
+        d.line([point_1,point_2], fill=line_color, width=10)
+        d.line([point_2,point_3], fill=line_color, width=10)
+        #x_y = (x_pixel,y_pixel)
+        x_y = zip(x_pixel,y_pixel)
+        x_y = list(x_y)
+        # dot_list.append(x_y)
+        d.line(x_y, fill=line_color, width=10)
+        # here following curve
+        d.line([point_4,point_5], fill=line_color, width=10)
+        d.line([point_5,point_6], fill=line_color, width=10)
+        d.line([point_6,point_7], fill=line_color, width=10)
+
+        # text on image:
+        vertical_align = 100
+        horizontal_align = -730
+        d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
+        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+        d.text((vertical_align,650),str(time),(0,0,255),font=font)
+
+        d.text((vertical_align,750),"Flight ID:" ,(0,0,0),font=font)
+        d.text((vertical_align,850),str(flight_ID_input),(0,0,255),font=font)
+
+        d.text((vertical_align,950),"PIC/SIC:" ,(0,0,0),font=font)
+        d.text((vertical_align,1050),str(PIC_input),(0,0,255),font=font)
+
+        d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+        d.text((vertical_align,2150+horizontal_align),'Gross Mass: ',(0,0,0),font=font)
+        d.text((vertical_align,2250+horizontal_align),str(gross_mass) + ' kg' ,(0,0,255),font=font)
+        d.text((vertical_align,2350+horizontal_align),"QNH:" ,(0,0,0),font=font)
+        d.text((vertical_align,2450+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
+        d.text((vertical_align,2550+horizontal_align),"TDP (above MSL):" ,(0,0,0),font=font)
+        d.text((vertical_align,2650+horizontal_align),str(hover_height)+ ' ft' ,(0,0,255),font=font)
+        d.text((vertical_align,2750+horizontal_align),"Temperature:" ,(0,0,0),font=font)
+        d.text((vertical_align,2850+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((vertical_align,2950+horizontal_align),"Actual Wind:" ,(0,0,0),font=font)
+        d.text((vertical_align,3050+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
+
+        fontcolor = (255,0,0)
+        d.text((vertical_align,3300+horizontal_align),"RESULT:" ,(0,0,0),font=font)
+        d.text((vertical_align,3400+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
+        d.text((vertical_align,3500+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,3600+horizontal_align),"Height loss:" ,(0,0,0),font=font)
+        d.text((vertical_align,3700+horizontal_align),str(result_height_loss_feet) + ' ft' , fontcolor,font=font)
+
+        d.text((PA_pixel-300, 4450-80),str(result_PA) + ' ft' , fontcolor,font=font)
+        d.text((wind_pixel-200, 4450-80),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((height_loss_pixel+30, 4450-80),str(result_height_loss_feet) + ' ft' , fontcolor,font=font)
+        d.text((PA_pixel-200, pixel_out_left-80),str(temp) + ' C' ,(0,0,255),font=font)
+        d.text((height_loss_pixel+30, pixel_out_middle-80),str(gross_mass) + ' kg' ,(0,0,255),font=font)
+
+        # flask
+        # removing previously generated images
+        for filename in os.listdir('/home/gaviation/mysite/static/images/'):
+            if filename.startswith('AW139_dropdown_enhanced_rendered'):  # not to remove other images
+                os.remove('/home/gaviation/mysite/static/images/' + filename)
+
+        # create png
+        graph_png = "AW139_dropdown_enhanced_rendered " + str(time) + " UTC.png"
+        im.save("/home/gaviation/mysite/static/images/" + graph_png)
+
+        # create pdf
+        graph_pdf = "AW139_dropdown_enhanced_rendered " + str(time) + " UTC.pdf"
+        rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+        rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
+
+        im.save("AW139_dropdown_enhanced_rendered.png")
+
+
+        # returning the template (Flask-part)
+        return render_template(
+            'AW139_dropdown_enhanced.html',
+            gross_mass = gross_mass,
+            gross_mass_SV = session['gross_mass_SV'],
+            QNH = QNH,
+            QNH_SV = session['QNH_SV'],
+            hover_height = hover_height,
+            hover_height_SV = session['hover_height_SV'],
+            temp = temp,
+            temp_SV = session['temp_SV'],
+            wind = wind,
+            wind_SV = session['wind_SV'],
+            PIC = PIC,
+            PIC_SV = session['PIC_SV'],
+            flight_ID = flight_ID,
+            flight_ID_SV = session['flight_ID_SV'],
+            result_PA = result_PA,
+            result_height_loss_feet = result_height_loss_feet,
+            # result_feet = result_feet,
+            # result_wind_correction = result_wind_correction,
+            # result_total_dropdown = result_total_dropdown,
+            result_png = graph_png,
+            result_pdf = graph_pdf,
+            calculation_success = True,
+        )
+
+    except ZeroDivisionError:
+        return render_template(
+            'index.html',
+            QNH = QNH,
+            DOM = DOM,
+            hover_height = hover_height,
+            temp = temp,
+            wind = wind,
+            perf_benefit = perf_benefit,
+            fuel_at_hho = fuel_at_hho,
+            result="Bad Input",
+            calculation_success = False,
+            error = "You cannot divide by zero"
+        )
+
+    except ValueError:
+        return render_template(
+            'index.html',
+            QNH = QNH,
+            DOM = DOM,
+            hover_height = hover_height,
+            temp = temp,
+            wind = wind,
+            perf_benefit = perf_benefit,
+            fuel_at_hho = fuel_at_hho,
+            result="Bad Input",
+            calculation_success = False,
+            error = "Cannot perform numeric operations with provided input"
+        )
 if __name__ == '__main__':
     app.debug = True
     app.run()
