@@ -5,16 +5,18 @@ from datetime import datetime
 import numpy as np
 import os
 
-
-
-
 app = Flask(__name__) # Creating our Flask Instance
 app.secret_key = "randomly543tert443434"
 
-path_pycharm = ""
-path_pythonanywhere = "/home/gaviation/mysite/"
+'''Paths for switching between Pycharm and Pythonanywere'''
+# path for pythonanywere
+path_pycharm = "/home/gaviation/mysite"
 
-# Database part
+# path for pycharm
+#path_pycharm = ""
+
+
+'''Database'''
 from flask_sqlalchemy import SQLAlchemy
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="gaviation",
@@ -36,7 +38,7 @@ class Comment(db.Model):
     content = db.Column(db.String(4096))
 
 
-
+'''Sites'''
 @app.route('/', methods=['GET'])
 def index():
     """ Displays the index page accessible at '/' """
@@ -53,18 +55,6 @@ def about():
 
     # show the form, it wasn't submitted
     return render_template('about.html')
-
-# @app.route('/instructions', methods=['GET', 'POST'])
-# def instructions():
-#     if request.method == 'POST':
-#         # do stuff when the form is submitted
-#
-#         # redirect to end the POST handling
-#         # the redirect can be to the same route or somewhere else
-#         return redirect(url_for('index.html'))
-#
-#     # show the form, it wasn't submitted
-#     return render_template('instructions.html')
 
 
 @app.route('/AW139', methods=['GET', 'POST'])
@@ -271,7 +261,7 @@ def operation_result():
         result_payload = round(performance_limited_mass - DOM - fuel_at_hho)
 
         # drawing the new image
-        im = Image.open("/home/gaviation/mysite/static/images/Hover_ceiling_OGE_orig.png")
+        im = Image.open(path_pycharm + "/static/images/Hover_ceiling_OGE_orig.png")
         d = ImageDraw.Draw(im)
         line_color = (255,0,0)
 
@@ -347,7 +337,7 @@ def operation_result():
 
         # generate the image
         # printing the text on the image:
-        font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 130)
+        font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 130)
 
         #d.text((2860,3050),"Calculations provided by Stephan Goldberg",(255,0,0),font=font)
 
@@ -417,13 +407,13 @@ def operation_result():
 
         # create png
         graph_png = "139_HOGE_OEI_rendered " + str(time) + " UTC.png"
-        im.save("/home/gaviation/mysite/static/images/" + graph_png)
+        im.save(path_pycharm + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "139_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
+        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
 
 
 
@@ -518,8 +508,8 @@ def AW139_dropdown_6800_result():
     result = None
 
     # paths
-    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 80)
-    im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW139_dropdown_6800.png")
+    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 80)
+    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_dropdown_6800.png")
 
     # request.form looks for:
     # html tags with matching "name= "
@@ -642,7 +632,7 @@ def AW139_dropdown_6800_result():
         wind = int(wind)
 
         # generating the image
-        #im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW139_dropdown_6800.png")
+        #im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_dropdown_6800.png")
         d = ImageDraw.Draw(im)
         line_color = (255, 0, 0)
 
@@ -658,7 +648,7 @@ def AW139_dropdown_6800_result():
         d.line([point_2,point_3], fill=line_color, width=10)
         d.line([point_3,point_4], fill=line_color, width=10)
         d.line([point_4,point_5], fill=line_color, width=10)
-        #font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 80)
+        #font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 80)
         d.text((3820,height_loss_pixel-40),str(result_height_loss_feet) + ' ft' ,(255,0,0),font=font)
 
         # #testbed to draw functions on graph
@@ -708,13 +698,13 @@ def AW139_dropdown_6800_result():
 
         # create png
         graph_png = "AW139_dropdown_6800_rendered " + str(time) + " UTC.png"
-        im.save("/home/gaviation/mysite/static/images/" + graph_png)
+        im.save(path_pycharm + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "AW139_dropdown_6800_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
+        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -785,8 +775,8 @@ def AW169_OGE_OEI_result():
     result = None
 
     # flask
-    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 60)
-    im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW169_HOGE_OEI_600.png")
+    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
+    im = Image.open(path_pycharm + "/static/images/baseline_images/AW169_HOGE_OEI_600.png")
 
 
     # # jupyter
@@ -1105,13 +1095,13 @@ def AW169_OGE_OEI_result():
 
         # create png
         graph_png = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
-        im.save("/home/gaviation/mysite/static/images/" + graph_png)
+        im.save(path_pycharm + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
+        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -1195,8 +1185,8 @@ def AW169_dropdown_4200_result():
     result = None
 
     # flask
-    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 50)
-    im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW169_drowdown_4200_600.png")
+    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 50)
+    im = Image.open(path_pycharm + "/static/images/baseline_images/AW169_drowdown_4200_600.png")
 
 
     # # jupyter
@@ -1419,13 +1409,13 @@ def AW169_dropdown_4200_result():
 
         # create png
         graph_png = "AW169_dropdown_4200_rendered " + str(time) + " UTC.png"
-        im.save("/home/gaviation/mysite/static/images/" + graph_png)
+        im.save(path_pycharm + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "AW169_dropdown_4200_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
+        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -1495,8 +1485,8 @@ def AW139_dropdown_enhanced_result():
     result = None
 
     # flask
-    im = Image.open("/home/gaviation/mysite/static/images/baseline_images/AW139_dropdown_enhanced.png")
-    font = ImageFont.truetype("/home/gaviation/mysite/static/fonts/SFNS.ttf", 70)
+    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_dropdown_enhanced.png")
+    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 70)
 
 
 
@@ -1831,13 +1821,13 @@ def AW139_dropdown_enhanced_result():
 
         # create png
         graph_png = "AW139_dropdown_enhanced_rendered " + str(time) + " UTC.png"
-        im.save("/home/gaviation/mysite/static/images/" + graph_png)
+        im.save(path_pycharm + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "AW139_dropdown_enhanced_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save("/home/gaviation/mysite/static/images/" + graph_pdf)
+        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
 
         im.save("AW139_dropdown_enhanced_rendered.png")
 
