@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect, url_for
 # import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
@@ -7,11 +7,34 @@ import os
 
 
 
+
 app = Flask(__name__) # Creating our Flask Instance
 app.secret_key = "randomly543tert443434"
 
 path_pycharm = ""
 path_pythonanywhere = "/home/gaviation/mysite/"
+
+# Database part
+from flask_sqlalchemy import SQLAlchemy
+SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+    username="gaviation",
+    password="wq9IUEf4lX",
+    hostname="gaviation.mysql.pythonanywhere-services.com",
+    databasename="gaviation$comments",
+)
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+class Comment(db.Model):
+
+    __tablename__ = "comments"
+
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(4096))
+
 
 
 @app.route('/', methods=['GET'])
@@ -31,17 +54,17 @@ def about():
     # show the form, it wasn't submitted
     return render_template('about.html')
 
-@app.route('/instructions', methods=['GET', 'POST'])
-def instructions():
-    if request.method == 'POST':
-        # do stuff when the form is submitted
-
-        # redirect to end the POST handling
-        # the redirect can be to the same route or somewhere else
-        return redirect(url_for('index.html'))
-
-    # show the form, it wasn't submitted
-    return render_template('instructions.html')
+# @app.route('/instructions', methods=['GET', 'POST'])
+# def instructions():
+#     if request.method == 'POST':
+#         # do stuff when the form is submitted
+#
+#         # redirect to end the POST handling
+#         # the redirect can be to the same route or somewhere else
+#         return redirect(url_for('index.html'))
+#
+#     # show the form, it wasn't submitted
+#     return render_template('instructions.html')
 
 
 @app.route('/AW139', methods=['GET', 'POST'])
@@ -148,6 +171,8 @@ def operation_result():
 
     PIC_input = request.form['PIC']
     session['PIC_SV'] = PIC_input
+    # db.session.add(PIC_input)
+    # db.session.commit()
 
     flight_ID_input = request.form['flight_ID']
     session['flight_ID_SV'] = flight_ID_input
@@ -1431,12 +1456,9 @@ def AW169_dropdown_4200_result():
         return render_template(
             'index.html',
             QNH = QNH,
-            DOM = DOM,
             hover_height = hover_height,
             temp = temp,
             wind = wind,
-            perf_benefit = perf_benefit,
-            fuel_at_hho = fuel_at_hho,
             result="Bad Input",
             calculation_success = False,
             error = "You cannot divide by zero"
@@ -1446,12 +1468,9 @@ def AW169_dropdown_4200_result():
         return render_template(
             'index.html',
             QNH = QNH,
-            DOM = DOM,
             hover_height = hover_height,
             temp = temp,
             wind = wind,
-            perf_benefit = perf_benefit,
-            fuel_at_hho = fuel_at_hho,
             result="Bad Input",
             calculation_success = False,
             error = "Cannot perform numeric operations with provided input"
@@ -1504,6 +1523,9 @@ def AW139_dropdown_enhanced_result():
     wind_input = request.form['wind']
     session['wind_SV'] = wind_input
 
+    perf_benefit_input = request.form['perf_benefit']
+    session['perf_benefit_SV'] = perf_benefit_input
+
     PIC_input = request.form['PIC']
     session['PIC_SV'] = PIC_input
 
@@ -1527,7 +1549,8 @@ def AW139_dropdown_enhanced_result():
         gross_mass = float(gross_mass_input)
         hover_height = float(hover_height_input)
         temp = float(temp_input)
-        wind = float(wind_input)*0.5
+        wind = float(wind_input)
+        perf_benefit = float(perf_benefit_input)
         PIC = str(PIC_input)
         flight_ID = str(flight_ID_input)
 
@@ -1613,16 +1636,21 @@ def AW139_dropdown_enhanced_result():
         # wind pixel
         pixel_per_knot = (4411-2520)/40
         wind_pixel = round(2520 +  (pixel_per_knot * wind))
+        zero_wind_pixel = 2520
 
         # plotting the line
-        x_pixel = np.linspace(min(x),wind_pixel,100)
-        y_pixel = model(x_pixel) #the prediction
+        x_pixel = np.linspace(min(x),wind_pixel,100) # full wind
+        x_zero_pixel = np.linspace(min(x),zero_wind_pixel,100) # zero wind
+        y_pixel = model(x_pixel) #the prediction for full wind
+        y_zero_pixel = model(x_zero_pixel) #the prediction for zero wind
 
         # pixle out
-        pixel_out_middle = round(model(wind_pixel))
+        pixel_out_middle = round(model(wind_pixel)) # full wind
+        pixel_zero_out_middle = round(model(zero_wind_pixel)) # zero wind
 
         # assigning pixel_in:
-        pixel_in_right = pixel_out_middle
+        pixel_in_right = pixel_out_middle # full wind
+        pixel_zero_in_right = pixel_zero_out_middle # zero wind
 
 
         '''Right chart area'''
@@ -1656,7 +1684,8 @@ def AW139_dropdown_enhanced_result():
             x_and_y = mass_dict.get(gross_mass)
             model = np.poly1d(np.polyfit(x_and_y[0], x_and_y[1], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
             # r2_score(x, model(y)) # r-score   # check the r2 score
-            height_loss_pixel = round(model(pixel_in_right))   # make prediction
+            height_loss_pixel = round(model(pixel_in_right))   # make prediction full wind
+            height_loss_pixel_zero = round(model(pixel_zero_in_right))   # make prediction zero wind
         #    print("Pixel height loss: "+ str(height_loss_pixel))
         else:
             lower_key = max(k for k in mass_dict if k <= gross_mass) # finding the adjacent lower value in the dictionary
@@ -1665,10 +1694,16 @@ def AW139_dropdown_enhanced_result():
             x_and_y_2 = mass_dict.get(upper_key)  # getting the pixel table
             model_1 = np.poly1d(np.polyfit(x_and_y_1[0],x_and_y_1[1], len(x_and_y_1[0])-1))
             model_2 = np.poly1d(np.polyfit(x_and_y_2[0],x_and_y_2[1], len(x_and_y_2[0])-1))
-            intersect1 = model_1(pixel_in_right)  # prediction
-            intersect2 = model_2(pixel_in_right)  # prediction
-            interpolated = intersect1 + ((gross_mass-lower_key)/(upper_key - lower_key)*(intersect2-intersect1))
-            height_loss_pixel = round(interpolated)
+            intersect1 = model_1(pixel_in_right)  # prediction full wind
+            intersect2 = model_2(pixel_in_right)  # prediction full wind
+            intersect1_zero = model_1(pixel_zero_in_right)  # prediction full wind
+            intersect2_zero = model_2(pixel_zero_in_right)  # prediction full wind
+
+            interpolated = intersect1 + ((gross_mass-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # full wind
+            interpolated_zero = intersect1_zero + ((gross_mass-lower_key)/(upper_key - lower_key)*(intersect2_zero-intersect1_zero)) # zero wind
+
+            height_loss_pixel = round(interpolated) # full wind
+            height_loss_pixel_zero = round(interpolated_zero) # zero wind
         #     print("Pixel height loss: "+ str(height_loss_pixel))
         # print(pixel_in_right)
 
@@ -1680,7 +1715,9 @@ def AW139_dropdown_enhanced_result():
 
         pixel_per_unit = diff_value_pixel / diff_value_unit
 
-        result_height_loss_feet = int(0 + ( height_loss_pixel - lower_pixel )/pixel_per_unit)
+        result_height_loss_feet = int(0 + ( height_loss_pixel - lower_pixel )/pixel_per_unit) # full wind
+        result_height_loss_feet_zero = int(0 + ( height_loss_pixel_zero - lower_pixel )/pixel_per_unit) # zero wind
+        result_height_loss_perf_benefit = int(result_height_loss_feet_zero + (perf_benefit/100 * (result_height_loss_feet - result_height_loss_feet_zero)))
         # print(' Height Loss Feet: '+ str(result_height_loss_feet))
 
 
@@ -1695,35 +1732,57 @@ def AW139_dropdown_enhanced_result():
         d = ImageDraw.Draw(im)
         line_color = (255, 0, 0)
 
+
+
+
+
         # defining the points:
         point_1 = (PA_pixel, 4450)           # pressure altitude on x-axis
         point_2 = (PA_pixel, pixel_out_left) # pressure altitude intersect with temp line
-        point_3 = (2520, pixel_out_left)     # entry point in middle chart
+        point_3 = (zero_wind_pixel, pixel_out_left)     # entry point in middle chart
 
-        point_4 = (wind_pixel, 4450)       # wind start point
-        point_5 = (wind_pixel, pixel_out_middle)
+        point_4 = (wind_pixel, 4450)       # full wind start point
+        point_4_zero = (zero_wind_pixel, 4450)       # zero wind start point
+
+        point_5 = (wind_pixel, pixel_out_middle) # full wind
+        point_5_zero = (zero_wind_pixel, pixel_zero_out_middle) # zero wind
+
         point_6 = (height_loss_pixel, pixel_out_middle) # between middle and right chart
+        point_6_zero = (height_loss_pixel_zero, pixel_zero_out_middle) # between middle and right chart zero wind
+
         point_7 = (height_loss_pixel, 4450)  # height loss point
+        point_7_zero = (height_loss_pixel_zero, 4450)  # height loss point zero wind
 
         # drawing the lines between points:
         d.line([point_1,point_2], fill=line_color, width=10)
         d.line([point_2,point_3], fill=line_color, width=10)
+
         #x_y = (x_pixel,y_pixel)
         x_y = zip(x_pixel,y_pixel)
         x_y = list(x_y)
+        x_y_zero = zip (x_zero_pixel, y_zero_pixel)
+        x_y_zero = list(x_y_zero)
         # dot_list.append(x_y)
         d.line(x_y, fill=line_color, width=10)
-        # here following curve
+        d.line(x_y_zero, fill=line_color, width=10)
+        # here following full wind curve
         d.line([point_4,point_5], fill=line_color, width=10)
         d.line([point_5,point_6], fill=line_color, width=10)
         d.line([point_6,point_7], fill=line_color, width=10)
+        # zero wind curve
+        d.line([point_4_zero,point_5_zero], fill=line_color, width=10)
+        d.line([point_5_zero,point_6_zero], fill=line_color, width=10)
+        d.line([point_6_zero,point_7_zero], fill=line_color, width=10)
+        # zero wind curve
+
+
 
         # text on image:
         vertical_align = 100
         horizontal_align = -730
         d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
         time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
-        d.text((vertical_align,650),str(time),(0,0,255),font=font)
+        d.text((vertical_align,600),str(time),(0,0,255),font=font)
 
         d.text((vertical_align,750),"Flight ID:" ,(0,0,0),font=font)
         d.text((vertical_align,850),str(flight_ID_input),(0,0,255),font=font)
@@ -1742,19 +1801,27 @@ def AW139_dropdown_enhanced_result():
         d.text((vertical_align,2850+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
         d.text((vertical_align,2950+horizontal_align),"Actual Wind:" ,(0,0,0),font=font)
         d.text((vertical_align,3050+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((vertical_align,3150+horizontal_align),"Performance Benefit:" ,(0,0,0),font=font)
+        d.text((vertical_align,3250+horizontal_align),str(int(perf_benefit)) + ' %' ,(0,0,255),font=font)
 
         fontcolor = (255,0,0)
-        d.text((vertical_align,3300+horizontal_align),"RESULT:" ,(0,0,0),font=font)
-        d.text((vertical_align,3400+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
-        d.text((vertical_align,3500+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
-        d.text((vertical_align,3600+horizontal_align),"Height loss:" ,(0,0,0),font=font)
-        d.text((vertical_align,3700+horizontal_align),str(result_height_loss_feet) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,3500+horizontal_align),"RESULT:" ,(0,0,0),font=font)
+        d.text((vertical_align,3600+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
+        d.text((vertical_align,3700+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,3800+horizontal_align),"Height loss zero wind:" ,(0,0,0),font=font)
+        d.text((vertical_align,3900+horizontal_align),str(result_height_loss_feet_zero) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,4000+horizontal_align),"Height loss full wind:" ,(0,0,0),font=font)
+        d.text((vertical_align,4100+horizontal_align),str(result_height_loss_feet) + ' ft' , fontcolor,font=font)
+        d.text((vertical_align,4300+horizontal_align),"Height loss " +  str(int(perf_benefit)) + ' % perf.benefit: ',(0,0,0),font=font)
+        d.text((vertical_align,4400+horizontal_align),str(result_height_loss_perf_benefit) + ' ft' , fontcolor,font=font)
 
-        d.text((PA_pixel-300, 4450-80),str(result_PA) + ' ft' , fontcolor,font=font)
-        d.text((wind_pixel-200, 4450-80),str(wind) + ' kt' ,(0,0,255),font=font)
-        d.text((height_loss_pixel+30, 4450-80),str(result_height_loss_feet) + ' ft' , fontcolor,font=font)
+        d.text((PA_pixel-200, 4450-80),str(result_PA) + ' ft' , fontcolor,font=font)
+        d.text((zero_wind_pixel-150, 4450-80),'0 kt' ,(0,0,255),font=font)
+        d.text((wind_pixel+50, 4450-80),str(wind) + ' kt' ,(0,0,255),font=font)
+        d.text((height_loss_pixel-200, 4450-80),str(result_height_loss_feet) + ' ft' , fontcolor,font=font)
+        d.text((height_loss_pixel_zero+50, 4450-80),str(result_height_loss_feet_zero) + ' ft' , fontcolor,font=font) # here
         d.text((PA_pixel-200, pixel_out_left-80),str(temp) + ' C' ,(0,0,255),font=font)
-        d.text((height_loss_pixel+30, pixel_out_middle-80),str(gross_mass) + ' kg' ,(0,0,255),font=font)
+        d.text((height_loss_pixel_zero+30, pixel_zero_out_middle-80),str(gross_mass) + ' kg' ,(0,0,255),font=font)
 
         # flask
         # removing previously generated images
@@ -1788,12 +1855,15 @@ def AW139_dropdown_enhanced_result():
             temp_SV = session['temp_SV'],
             wind = wind,
             wind_SV = session['wind_SV'],
+            perf_benefit = perf_benefit,
+            perf_benefit_SV = session['perf_benefit_SV'],
             PIC = PIC,
             PIC_SV = session['PIC_SV'],
             flight_ID = flight_ID,
             flight_ID_SV = session['flight_ID_SV'],
             result_PA = result_PA,
             result_height_loss_feet = result_height_loss_feet,
+            result_height_loss_perf_benefit = result_height_loss_perf_benefit,
             # result_feet = result_feet,
             # result_wind_correction = result_wind_correction,
             # result_total_dropdown = result_total_dropdown,
@@ -1806,12 +1876,10 @@ def AW139_dropdown_enhanced_result():
         return render_template(
             'index.html',
             QNH = QNH,
-            DOM = DOM,
             hover_height = hover_height,
             temp = temp,
             wind = wind,
             perf_benefit = perf_benefit,
-            fuel_at_hho = fuel_at_hho,
             result="Bad Input",
             calculation_success = False,
             error = "You cannot divide by zero"
@@ -1821,12 +1889,10 @@ def AW139_dropdown_enhanced_result():
         return render_template(
             'index.html',
             QNH = QNH,
-            DOM = DOM,
             hover_height = hover_height,
             temp = temp,
             wind = wind,
             perf_benefit = perf_benefit,
-            fuel_at_hho = fuel_at_hho,
             result="Bad Input",
             calculation_success = False,
             error = "Cannot perform numeric operations with provided input"

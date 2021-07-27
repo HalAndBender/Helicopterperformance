@@ -105,6 +105,12 @@
             <label for="wind">Headwind (kt):</label>
             <input class="form-control input-sm" type="number" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 40" min="0" max="40">
         </div>
+
+        <div class="form-group">
+            <label for="perf_benefit">Wind Benefit (%):</label>
+            <input class="form-control input-sm" type="number" name="perf_benefit" id="perf_benefit" value="{{perf_benefit_SV}}" placeholder="0 to 100" min="0" max="100">
+        </div>
+
         <div class="form-group">
             <label for="flight_ID">Flight ID:</label>
             <input class="form-control input-sm" type="text" name="flight_ID" id="flight_ID" value="{{flight_ID_SV}}" placeholder="example: HSO41A or D-HHMH">
@@ -127,7 +133,7 @@
         <h5 id="anchor" style="color:red;font-size:4vw;">Result:</h5>
         <table>
             <tr><td >Pressure Altitude:</td><td style="color:red;">{{result_PA}} ft</td></tr>
-            <tr><td >Height loss: </td><td style="color:red;">{{result_height_loss_feet}} ft</td></tr>
+            <tr><td >Height loss with applied perf.benefit factor: </td><td style="color:red;">{{result_height_loss_perf_benefit}} ft</td></tr>
         </table>
         <br/>
         <div class="content">
