@@ -9,11 +9,9 @@ app = Flask(__name__) # Creating our Flask Instance
 app.secret_key = "randomly543tert443434"
 
 '''Paths for switching between Pycharm and Pythonanywere'''
-# path for pythonanywere
-path_pycharm = "/home/gaviation/mysite"
 
-# path for pycharm
-#path_pycharm = ""
+path_pycharm = "/home/gaviation/mysite" # path for pythonanywere
+#path_pycharm = ""                      # path for pycharm
 
 
 '''Database'''
