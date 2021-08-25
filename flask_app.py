@@ -15,25 +15,25 @@ path_pycharm = "/home/gaviation/mysite" # path for pythonanywere
 
 
 '''Database'''
-from flask_sqlalchemy import SQLAlchemy
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="gaviation",
-    password="wq9IUEf4lX",
-    hostname="gaviation.mysql.pythonanywhere-services.com",
-    databasename="gaviation$comments",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-db = SQLAlchemy(app)
-
-class Comment(db.Model):
-
-    __tablename__ = "comments"
-
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(4096))
+# from flask_sqlalchemy import SQLAlchemy
+# SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+#     username="gaviation",
+#     password="wq9IUEf4lX",
+#     hostname="gaviation.mysql.pythonanywhere-services.com",
+#     databasename="gaviation$comments",
+# )
+# app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+# app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+#
+# db = SQLAlchemy(app)
+#
+# class Comment(db.Model):
+#
+#     __tablename__ = "comments"
+#
+#     id = db.Column(db.Integer, primary_key=True)
+#     content = db.Column(db.String(4096))
 
 
 '''Sites'''
@@ -1827,7 +1827,8 @@ def AW139_dropdown_enhanced_result():
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
         rgb.save(path_pycharm + "/static/images/" + graph_pdf)
 
-        im.save("AW139_dropdown_enhanced_rendered.png")
+        # likely nothing
+        # im.save("AW139_dropdown_enhanced_rendered.png")
 
 
         # returning the template (Flask-part)
@@ -1885,6 +1886,895 @@ def AW139_dropdown_enhanced_result():
             calculation_success = False,
             error = "Cannot perform numeric operations with provided input"
         )
+
+@app.route('/AW139_rejected_tod_clear_area', methods=['GET', 'POST'])
+def AW139_rejected_tod_clear_area():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_rejected_tod_clear_area.html')
+
+@app.route('/AW139_rejected_tod_clear_area_result/', methods=['POST', 'GET'])
+def AW139_rejected_tod_clear_area_result():
+
+    error = None
+    result = None
+
+    fontcolor = (255,0,0)
+    line_color = (255, 0, 0)
+
+    #flask
+    QNH_input = request.form['QNH']
+    session['QNH_SV'] = QNH_input
+
+    height_input = request.form['height']
+    session['height_SV'] = height_input
+
+    gross_mass_input = request.form['gross_mass']
+    session['gross_mass_SV'] = gross_mass_input
+
+    temp_input = request.form['temp']
+    session['temp_SV'] = temp_input
+
+    wind_input = request.form['wind']
+    session['wind_SV'] = wind_input
+
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
+
+    # flask
+    QNH = int(QNH_input)
+    height = int(height_input)
+    gross_mass = int(gross_mass_input)
+    temp = int(temp_input)
+    wind = int(wind_input)
+    PIC = PIC_input
+    flight_ID = flight_ID_input
+
+
+
+    # # jupyter
+    # im = Image.open("charts/AW139/dropdown_enhanced/modified/AW139_dropdown_enhanced.png")
+    # font = ImageFont.truetype("SFNS.ttf", 80)
+    # from datetime import date, datetime
+
+    # flask
+    # request.form looks for:
+    # html tags with matching "name= "
+
+
+
+    # # jupyter
+    # # User input:
+    # gross_mass = 7000           # 6600 to 7000kg
+    # QNH = 1013.2                # mb (min 971, max 1044)
+    # hover_height = 200          # feet (min 0, max 350)
+    # temp = 25                   # degrees celcius (min: -10, max: 30)
+    # wind = 7               # knots (min: 0, max: 40)
+    # flight_ID = 'HSO41A'
+    # PIC =  'SGO'
+
+
+    '''Forking three charts:'''
+    if gross_mass <= 6400:
+
+        # # jupyter
+        # font = ImageFont.truetype("SFNS.ttf", 60)
+        # im = Image.open("charts/AW139/rejected_tod_clear_area/modified/AW139_rejected_tod_clear_area_6400.png")
+
+        # flask
+        font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
+        im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_rejected_tod_clear_area_6400.png")
+
+        d = ImageDraw.Draw(im) # generating the image
+
+        '''Left chart area:'''
+        # Calulating Pressure Altitude and pixel_PA:
+        difference = (1013.2 - QNH) * 27 #  pressure difference between QNH and standard pressure
+        result_PA = round(height + difference) # pressure altitude at hover height.
+        lower_PA_pixel = 2211 # here: 0ft
+        upper_PA_pixel = 555  # here: 14000ft
+        diff_upper_lower_PA = 14000 # difference between upper and lower PA on chart
+        pixel_per_ft = (upper_PA_pixel - lower_PA_pixel)/diff_upper_lower_PA # converting PA to pixel
+        PA_pixel = lower_PA_pixel + (result_PA * pixel_per_ft) # converting PA to pixel
+
+        input_output_row_pixel = 2800
+        point_1 = (PA_pixel, input_output_row_pixel)              # defining starting point on chart
+        d.text((PA_pixel+80, input_output_row_pixel-80),str(result_PA) + ' ft' , fontcolor,font=font) # labeling the point
+
+        # pixel values on x- and y-axis
+        x_1=[ 555, 792,1028,1265] #-40
+        y_1=[1721,1929,2150,2387]
+        x_2=[ 555, 792,1028,1265,1502] #-30
+        y_2=[1622,1823,2039,2270,2516]
+        x_3=[ 555, 792,1028,1265,1502] #-20
+        y_3=[1528,1722,1929,2151,2386]
+        x_4=[ 555, 792,1028,1265,1502,1738] #-10
+        y_4=[1443,1628,1827,2043,2271,2511]
+        x_5=[ 555, 792,1028,1265,1502,1738] # 0
+        y_5=[1359,1539,1731,1937,2157,2388]
+        x_6=[ 555, 792,1028,1265,1502,1738,1975] # +10
+        y_6=[1280,1450,1635,1834,2046,2269,2508]
+        x_7=[ 555, 792,1028,1265,1502,1738,1975,2102] # +20
+        y_7=[1188,1351,1529,1722,1925,2143,2370,2498]
+        x_8=[          1028,1265,1502,1738,1975,2211] # +30
+        y_8=[          1416,1599,1793,1999,2217,2448]
+        x_9=[                         1738,1975,2211,2330] # +40
+        y_9=[                         1864,2073,2289,2399]
+        x_10=[                                  2211,2330] # +50
+        y_10=[                                  2095,2201]
+
+        # dictionary for lines
+        dictionary ={-40:[x_1,y_1],
+                     -30:[x_2,y_2],
+                     -20:[x_3,y_3],
+                     -10:[x_4,y_4],
+                       0:[x_5,y_5],
+                      10:[x_6,y_6],
+                      20:[x_7,y_7],
+                      30:[x_8,y_8],
+                      40:[x_9,y_9],
+                      50:[x_10,y_10]}
+
+        # finding the output value
+        input_real = temp
+        input_pixel = PA_pixel
+        if input_real in dictionary.keys():
+            x_and_y = dictionary.get(input_real)
+            model = np.poly1d(np.polyfit(x_and_y[0], x_and_y[1], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            output_pixel = round(model(input_pixel))   #  prediction
+        else:
+            lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+            upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+            x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+            x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+            model_1 = np.poly1d(np.polyfit(x_and_y_1[0],x_and_y_1[1], len(x_and_y_1[0])-1)) # model the lower line
+            model_2 = np.poly1d(np.polyfit(x_and_y_2[0],x_and_y_2[1], len(x_and_y_2[0])-1)) # model the upper line
+            intersect1 = model_1(input_pixel)  # prediction upper line
+            intersect2 = model_2(input_pixel)  # prediction lower line
+            interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+            output_pixel = round(interpolated)
+        pixel_limit = 2501
+        if output_pixel > pixel_limit:
+            output_pixel = pixel_limit
+        # # restricting the chart output
+        # if output_pixel > 2501:
+        #     output_pixel = 2501
+        output_pixel_left = output_pixel
+        point_2 = (PA_pixel, output_pixel_left) # defining second point on chart
+        d.text((PA_pixel-150, output_pixel_left-80),str(temp) + ' C' ,(0,0,255),font=font) # point label
+
+        # #  sanity check: plotting the model
+        # # define plot range
+        # input_is_x = 0 # set to 1 if input is x
+        # output_is_y = 1 # set to 0 if output is y
+        # chart_lower_value = 555 # choose x- or y- values
+        # chart_upper_value = 2331  # choose x- or y- values
+        # for key in dictionary.keys():
+        #     x_and_y = dictionary.get(key)
+        #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        #     point_list = []
+        #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #         output_pixel = round(model(i))
+        #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+        #         point_list.append(point)
+        #     d.line(point_list, fill=line_color, width=10)
+
+        '''Middle chart area:'''
+        # pixel values on x- and y-axis
+        x_1=[2424,2414,2419,2421,2425,2435,2449,2454,2456,2502,2533,2597,2721,2847,3036,3098,3224,3287,3350,3429,3475] # 6400kg
+        y_1=[2398,2471,2439,2419,2399,2385,2367,2363,2358,2299,2259,2179,2019,1859,1617,1536,1376,1295,1216,1113,1055]
+        x_2=[2409,3385] # 6000kg
+        y_2=[2222,1055]
+        x_3=[2409,3288] #5600kg
+        y_3=[2039,1055]
+        x_4=[2409,3171] # 5200kg
+        y_4=[1841,1055]
+        x_5=[2409,3027] # 4800kg
+        y_5=[1653,1055]
+        x_6=[2409,2865] # 4400kg
+        y_6=[1461,1055]
+
+        # dictionary for lines
+        dictionary ={6400:[x_1,y_1],
+                     6000:[x_2,y_2],
+                     5600:[x_3,y_3],
+                     5200:[x_4,y_4],
+                     4800:[x_5,y_5],
+                     4400:[x_6,y_6]}
+
+        # finding the output value
+        input_real = gross_mass
+        input_pixel = output_pixel_left
+
+        # defining input and output variable
+        input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+        output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
+
+        if input_real in dictionary.keys():
+            x_and_y = dictionary.get(input_real)
+            model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            output_pixel = round(model(input_pixel))   #  prediction
+        else:
+            lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+            upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+            x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+            x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+            model_1 = np.poly1d(np.polyfit(x_and_y_1[input_is_x],x_and_y_1[output_is_y], len(x_and_y_1[0])-1)) # model the lower line
+            model_2 = np.poly1d(np.polyfit(x_and_y_2[input_is_x],x_and_y_2[output_is_y], len(x_and_y_2[0])-1)) # model the upper line
+            intersect1 = model_1(input_pixel)  # prediction upper line
+            intersect2 = model_2(input_pixel)  # prediction lower line
+            interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+            output_pixel = round(interpolated)
+        pixel_limit = 2409
+        if output_pixel < pixel_limit:
+            output_pixel = pixel_limit
+
+
+        output_pixel_middle = output_pixel
+        point_3 = (output_pixel_middle, output_pixel_left)     # entry point in middle chart
+        d.text((output_pixel_middle+40, output_pixel_left-80),str(gross_mass) + ' kg' ,(0,0,255),font=font) # point label
+
+        # # sanity check: plotting the model
+        # # define plot range
+        # input_is_x = 0 # set to 1 if input is x
+        # output_is_y = 1 # set to 0 if output is y
+        # chart_lower_value = 2403 # choose x- or y- values
+        # chart_upper_value = 3471  # choose x- or y- values
+        # for key in dictionary.keys():
+        #     x_and_y = dictionary.get(key)
+        #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        #     point_list = []
+        #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #         output_pixel = round(model(i))
+        #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+        #         point_list.append(point)
+        #     d.line(point_list, fill=line_color, width=10)
+
+        point_4 = (output_pixel_middle, input_output_row_pixel)      # bottom exit point middle chart
+
+        # convert pixel output to chart value
+        lower_pixel = 2346   # here: 0   m
+        upper_pixel = 3475  # here: 1800 m
+        diff_value_pixel = upper_pixel  - lower_pixel # number of pixel in whole range
+        diff_value_unit =  1800 - 0   # number of units in whole range
+        pixel_per_unit = diff_value_pixel / diff_value_unit
+
+        result_distance = round(0 + ( output_pixel_middle - lower_pixel )/pixel_per_unit)
+        print('Meter: '+ str(result_distance))
+
+        d.text((output_pixel_middle+80, input_output_row_pixel-80),str(result_distance) + ' m' , fontcolor,font=font) # point label
+
+        '''Right chart area:'''
+        input_pixel_right = output_pixel_left  #beware
+        input_pixel = output_pixel_left
+
+        # defining the curve by points
+        x_1=[3492,3543,3651,3734,3814,3975,4136,4198]
+        y_1=[2500,2420,2242,2101,1955,1635,1241,1055]
+        x_and_y = [x_1,y_1]
+
+        # defining input and output variable
+        input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+        output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
+
+        # fitting the model to the data
+        model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        output_pixel = round(model(input_pixel))   #  prediction
+        output_pixel_right = output_pixel
+
+        point_5 = (output_pixel_right, input_pixel_right)  # intersection point right chart
+        point_6 = (output_pixel_right, input_output_row_pixel)  # bottom exit point right chart
+
+        # convert pixel output to chart value
+        lower_pixel = 3491   # here: 0 m
+        upper_pixel = 4298  # here: -25 m
+        diff_value_pixel = upper_pixel  - lower_pixel # number of pixel in whole range
+        diff_value_unit =  -25 - 0   # number of units in whole range
+        pixel_per_unit = diff_value_pixel / diff_value_unit
+
+        result_correction = round(0 + ( output_pixel_right - lower_pixel )/pixel_per_unit,2)
+        print('Correction factor: '+ str(result_correction))
+
+        d.text((output_pixel_right+80, input_output_row_pixel-80),str(result_correction) + ' m' ,fontcolor,font=font) # point label
+
+        # # sanity check: plotting the model
+        # point_list = []
+        # chart_lower_value = 1053 # can be x- or y- values
+        # chart_upper_value = 2499  # can be x- or y- values
+        # for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #     output_pixel = round(model(i))
+        #     point = (output_pixel,i)  # make sure x and y have correct position here!!
+        #     point_list.append(point)
+        # d.line(point_list, fill=line_color, width=10)
+
+        # endresult
+        result_rejected_takeoff_distance = round(result_distance + wind * result_correction)
+
+    elif 6400 < gross_mass <= 6800:
+        # # jupyter
+        # font = ImageFont.truetype("SFNS.ttf", 60)
+        # im = Image.open("charts/AW139/rejected_tod_clear_area/modified/AW139_rejected_tod_clear_area_6800.png")
+
+        # flask
+        font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
+        im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_rejected_tod_clear_area_6800.png")
+
+        d = ImageDraw.Draw(im) # generating the image
+
+        '''Left chart area:'''
+        # Calulating Pressure Altitude and pixel_PA:
+        difference = (1013.2 - QNH) * 27 #  pressure difference between QNH and standard pressure
+        result_PA = round(height + difference) # pressure altitude at hover height.
+        lower_PA_pixel = 1960 # here: 0ft
+        upper_PA_pixel = 562  # here: 14000ft
+        diff_upper_lower_PA = 8000 # difference between upper and lower PA on chart
+        pixel_per_ft = (upper_PA_pixel - lower_PA_pixel)/diff_upper_lower_PA # converting PA to pixel
+        PA_pixel = lower_PA_pixel + (result_PA * pixel_per_ft) # converting PA to pixel
+
+        input_output_row_pixel = 2800
+        point_1 = (PA_pixel, input_output_row_pixel)              # defining starting point on chart
+        d.text((PA_pixel+40, input_output_row_pixel-80),str(result_PA) + ' ft' , fontcolor,font=font) # labeling the point
+
+        # pixel values on x- and y-axis
+        # x_1=[ 562, 792,1028,1265] #-40
+        # y_1=[1721,1929,2150,2387]
+        x_2=[ 562, 737, 912,1087,1262,1436,1611,1776] #-30
+        y_2=[1767,1874,1984,2098,2214,2334,2455,2573]
+        x_3=[ 562, 737, 912,1087,1262,1436,1611,1785] #-20
+        y_3=[1658,1763,1871,1981,2093,2210,2328,2449]
+        x_4=[ 562, 737, 912,1087,1262,1436,1611,1785,1960] #-10
+        y_4=[1562,1663,1767,1873,1983,2095,2210,2327,2446]
+        x_5=[ 562, 737, 912,1087,1262,1436,1611,1785,1960,2135] # 0
+        y_5=[1469,1565,1665,1768,1875,1984,2095,2209,2326,2441]
+        x_6=[ 562, 737, 912,1087,1262,1436,1611,1785,1960,2135] # +10
+        y_6=[1377,1470,1566,1665,1768,1872,1980,2091,2205,2317]
+        x_7=[ 562, 602, 737, 912,1087,1262,1436,1611,1785,1960,2090,2135] # +20
+        y_7=[1275,1296,1366,1457,1553,1653,1753,1859,1965,2074,2156,2184]
+        x_8=[ 562, 737, 912,1087,1262,1436,1611,1785,1960,2135] # +30
+        y_8=[1169,1254,1340,1431,1524,1621,1721,1824,1928,2034]
+        x_9=[               912,1087,1262,1436,1611,1785,1960,2135] # +40
+        y_9=[               1220,1316,1406,1497,1591,1688,1787,1887]
+        x_10=[                                       1960,2135] # +50
+        y_10=[                                       1615,1710]
+
+        # dictionary for lines
+        dictionary ={-30:[x_2,y_2],
+                     -20:[x_3,y_3],
+                     -10:[x_4,y_4],
+                     0:[x_5,y_5],
+                     10:[x_6,y_6],
+                     20:[x_7,y_7],
+                     30:[x_8,y_8],
+                     40:[x_9,y_9],
+                     50:[x_10,y_10]}
+
+        # finding the output value
+        input_real = temp
+        input_pixel = PA_pixel
+        if input_real in dictionary.keys():
+            x_and_y = dictionary.get(input_real)
+            model = np.poly1d(np.polyfit(x_and_y[0], x_and_y[1], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            output_pixel = round(model(input_pixel))   #  prediction
+        else:
+            lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+            upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+            x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+            x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+            model_1 = np.poly1d(np.polyfit(x_and_y_1[0],x_and_y_1[1], len(x_and_y_1[0])-1)) # model the lower line
+            model_2 = np.poly1d(np.polyfit(x_and_y_2[0],x_and_y_2[1], len(x_and_y_2[0])-1)) # model the upper line
+            intersect1 = model_1(input_pixel)  # prediction upper line
+            intersect2 = model_2(input_pixel)  # prediction lower line
+            interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+            output_pixel = round(interpolated)
+
+        # restricting the chart output
+        pixel_limit = 2461
+        if output_pixel > pixel_limit:
+            output_pixel = pixel_limit
+
+        output_pixel_left = output_pixel
+
+        point_2 = (PA_pixel, output_pixel_left) # defining second point on chart
+        d.text((PA_pixel-150, output_pixel_left-80),str(temp) + ' C' ,(0,0,255),font=font) # point label
+
+        # #  sanity check: plotting the model
+        # # define plot range
+        # input_is_x = 0 # set to 1 if input is x
+        # output_is_y = 1 # set to 0 if output is y
+        # chart_lower_value = 555 # choose x- or y- values
+        # chart_upper_value = 2135  # choose x- or y- values
+        # for key in dictionary.keys():
+        #     x_and_y = dictionary.get(key)
+        #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        #     point_list = []
+        #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #         output_pixel = round(model(i))
+        #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+        #         point_list.append(point)
+        #     d.line(point_list, fill=line_color, width=10)
+
+        '''Middle chart area:'''
+        # pixel values on x- and y-axis
+        x_1=[2217,2238,2250,2260,2270,2282,  2347,2413,2479,2544,2610,2675,2741,2806,2872,2938,3003,3068,3134,3200,3265,3315,3331] # 6800
+        y_1=[2432,2385,2357,2334,2322,2308,  2232,2156,2080,2003,1927,1851,1774,1698,1621,1545,1469,1393,1316,1240,1163,1106,1087]
+        x_2=[2217,3148] # 6600kg
+        y_2=[2140,1088]
+        x_3=[2217,2232,2242,2265,2292,2309,2342,2380,2397,2473,2541,2609,2675,2740,2807,2871,2938,2962] #6400kg
+        y_3=[1930,1889,1874,1850,1821,1806,1764,1724,1709,1621,1545,1469,1400,1329,1256,1183,1112,1087]
+
+        # dictionary for lines
+        dictionary ={6800:[x_1,y_1],
+                     6600:[x_2,y_2],
+                     6400:[x_3,y_3]}
+
+
+        # finding the output value
+        input_real = gross_mass
+        input_pixel = output_pixel_left
+
+        # defining input and output variable
+        input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+        output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
+
+        if input_real in dictionary.keys():
+            x_and_y = dictionary.get(input_real)
+            model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            output_pixel = round(model(input_pixel))   #  prediction
+        else:
+            lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+            upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+            x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+            x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+            model_1 = np.poly1d(np.polyfit(x_and_y_1[input_is_x],x_and_y_1[output_is_y], len(x_and_y_1[0])-1)) # model the lower line
+            model_2 = np.poly1d(np.polyfit(x_and_y_2[input_is_x],x_and_y_2[output_is_y], len(x_and_y_2[0])-1)) # model the upper line
+            intersect1 = model_1(input_pixel)  # prediction upper line
+            intersect2 = model_2(input_pixel)  # prediction lower line
+            interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+            output_pixel = round(interpolated)
+        pixel_limit = 2409
+        if output_pixel < pixel_limit:
+            output_pixel = pixel_limit
+
+
+        output_pixel_middle = output_pixel
+        point_3 = (output_pixel_middle, output_pixel_left)     # entry point in middle chart
+        d.text((output_pixel_middle+40, output_pixel_left-80),str(gross_mass) + ' kg' ,(0,0,255),font=font) # point label
+
+        # # sanity check: plotting the model
+        # # define plot range
+        # input_is_x = 0 # set to 1 if input is x
+        # output_is_y = 1 # set to 0 if output is y
+        # chart_lower_value = 2210 # choose x- or y- values
+        # chart_upper_value = 3331  # choose x- or y- values
+        # for key in dictionary.keys():
+        #     x_and_y = dictionary.get(key)
+        #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        #     point_list = []
+        #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #         output_pixel = round(model(i))
+        #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+        #         point_list.append(point)
+        #     d.line(point_list, fill=line_color, width=10)
+
+        point_4 = (output_pixel_middle, input_output_row_pixel)      # bottom exit point middle chart
+
+        # convert pixel output to chart value
+        lower_pixel = 2151  # here: 0   m
+        upper_pixel = 3331  # here: 1800 m
+        diff_value_pixel = upper_pixel  - lower_pixel # number of pixel in whole range
+        diff_value_unit =  1800 - 0   # number of units in whole range
+        pixel_per_unit = diff_value_pixel / diff_value_unit
+
+        result_distance = round(0 + ( output_pixel_middle - lower_pixel )/pixel_per_unit)
+        print('Meter: '+ str(result_distance))
+
+        d.text((output_pixel_middle+40, input_output_row_pixel-80),str(int(result_distance)) + ' m' , fontcolor,font=font) # point label
+
+        '''Right chart area:'''
+        input_pixel_right = output_pixel_left  #beware
+        input_pixel = output_pixel_left
+
+        # defining the curve by points
+        x_1=[3346,3519,3693,3866,4039,4212]
+        y_1=[2462,2258,2039,1798,1524,1185]
+        x_and_y = [x_1,y_1]
+
+        # defining input and output variable
+        input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+        output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
+
+        # fitting the model to the data
+        model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        output_pixel = round(model(input_pixel))   #  prediction
+        output_pixel_right = output_pixel
+
+        point_5 = (output_pixel_right, input_pixel_right)  # intersection point right chart
+        point_6 = (output_pixel_right, input_output_row_pixel)  # bottom exit point right chart
+
+        # convert pixel output to chart value
+        lower_pixel = 3346   # here: 0 m
+        upper_pixel = 4212  # here: -25 m
+        diff_value_pixel = upper_pixel  - lower_pixel # number of pixel in whole range
+        diff_value_unit =  -25 - 0   # number of units in whole range
+        pixel_per_unit = diff_value_pixel / diff_value_unit
+
+        result_correction = round(0 + ( output_pixel_right - lower_pixel )/pixel_per_unit,2)
+        print('Correction factor: '+ str(result_correction))
+
+        d.text((output_pixel_right+40, input_output_row_pixel-80),str(result_correction) + ' m' ,fontcolor,font=font) # point label
+
+        # # sanity check: plotting the model
+        # point_list = []
+        # chart_lower_value = 1087 # can be x- or y- values
+        # chart_upper_value = 2461  # can be x- or y- values
+        # for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #     output_pixel = round(model(i))
+        #     point = (output_pixel,i)  # make sure x and y have correct position here!!
+        #     point_list.append(point)
+        # d.line(point_list, fill=line_color, width=10)
+
+        # endresult
+        result_rejected_takeoff_distance = round(result_distance + wind * result_correction)
+
+
+    elif 6800 < gross_mass <= 7000:
+        # # jupyter
+        # font = ImageFont.truetype("SFNS.ttf", 60)
+        # im = Image.open("charts/AW139/rejected_tod_clear_area/modified/AW139_rejected_tod_clear_area_7000.png")
+
+        # flask
+        font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
+        im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_rejected_tod_clear_area_7000.png")
+
+        d = ImageDraw.Draw(im) # generating the image
+
+        '''Left chart area:'''
+        # Calulating Pressure Altitude and pixel_PA:
+        difference = (1013.2 - QNH) * 27 #  pressure difference between QNH and standard pressure
+        result_PA = round(height + difference) # pressure altitude at hover height.
+        lower_PA_pixel = 1957 # here: 0ft
+        upper_PA_pixel = 559  # here: 8000ft
+        diff_upper_lower_PA = 8000 # difference between upper and lower PA on chart
+        pixel_per_ft = (upper_PA_pixel - lower_PA_pixel)/diff_upper_lower_PA # converting PA to pixel
+        PA_pixel = lower_PA_pixel + (result_PA * pixel_per_ft) # converting PA to pixel
+
+        input_output_row_pixel = 2800
+        point_1 = (PA_pixel, input_output_row_pixel)              # defining starting point on chart
+        d.text((PA_pixel+40, input_output_row_pixel-80),str(result_PA) + ' ft' , fontcolor,font=font) # labeling the point
+
+        # pixel values on x- and y-axis
+        x_1=[ 559, 908,1258,1607,1791] #-40
+        y_1=[1459,1723,2001,2290,2446]
+        x_2=[ 559, 908,1258,1607,1957] #-30
+        y_2=[1335,1590,1860,2142,2436]
+        x_3=[ 559, 908,1258,1607,1957,2132] #-20
+        y_3=[1210,1456,1718,1992,2279,2422]
+        x_4=[ 559, 908,1258,1607,1957,2132] #-10
+        y_4=[1098,1334,1587,1853,2133,2273]
+        x_5=[ 690, 908,1258,1607,1957,2132] # 0
+        y_5=[1071,1217,1461,1719,1990,2127]
+        x_6=[ 863, 908,1258,1607,1957,2132] # +10
+        y_6=[1071,1101,1335,1585,1848,1981]
+        x_7=[1057,1258,1607,1957,2132] # +20
+        y_7=[1071,1203,1442,1696,1824]
+        x_8=[1286,1433,1607,1957,2132] # +30
+        y_8=[1071,1167,1284,1525,1649]
+        x_9=[1510,1782,2131] # +40
+        y_9=[1071,1245,1478]
+        x_10=[564,3938] # +50
+        y_10=[282,2414]
+
+        # dictionary for lines
+        dictionary ={-40:[x_1,y_1],
+                     -30:[x_2,y_2],
+                     -20:[x_3,y_3],
+                     -10:[x_4,y_4],
+                     0:[x_5,y_5],
+                     10:[x_6,y_6],
+                     20:[x_7,y_7],
+                     30:[x_8,y_8],
+                     40:[x_9,y_9],
+                     50:[x_10,y_10]}
+
+        # finding the output value
+        input_real = temp
+        input_pixel = PA_pixel
+        if input_real in dictionary.keys():
+            x_and_y = dictionary.get(input_real)
+            model = np.poly1d(np.polyfit(x_and_y[0], x_and_y[1], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            output_pixel = round(model(input_pixel))   #  prediction
+        else:
+            lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+            upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+            x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+            x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+            model_1 = np.poly1d(np.polyfit(x_and_y_1[0],x_and_y_1[1], len(x_and_y_1[0])-1)) # model the lower line
+            model_2 = np.poly1d(np.polyfit(x_and_y_2[0],x_and_y_2[1], len(x_and_y_2[0])-1)) # model the upper line
+            intersect1 = model_1(input_pixel)  # prediction upper line
+            intersect2 = model_2(input_pixel)  # prediction lower line
+            interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+            output_pixel = round(interpolated)
+
+        pixel_limit = 2446     # restricting the chart output
+        if output_pixel > pixel_limit:
+            output_pixel = pixel_limit
+
+        output_pixel_left = output_pixel
+
+        point_2 = (PA_pixel, output_pixel_left) # defining second point on chart
+        d.text((PA_pixel-150, output_pixel_left-80),str(temp) + ' C' ,(0,0,255),font=font) # point label
+
+        # #  sanity check: plotting the model
+        # # define plot range
+        # input_is_x = 0 # set to 1 if input is x
+        # output_is_y = 1 # set to 0 if output is y
+        # chart_lower_value = 555 # choose x- or y- values
+        # chart_upper_value = 2135  # choose x- or y- values
+        # for key in dictionary.keys():
+        #     x_and_y = dictionary.get(key)
+        #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        #     point_list = []
+        #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #         output_pixel = round(model(i))
+        #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+        #         point_list.append(point)
+        #     d.line(point_list, fill=line_color, width=10)
+
+        '''Middle chart area:'''
+        # pixel values on x- and y-axis
+        x_1=[2226,2243,2253,2262,2270,2279,2292,2305,2339,2384,2463,2541,2619,2698,2776,2855,2934,3012,3054,3081,3099] # 6800
+        y_1=[2116,2080,2057,2036,2019,2000,1984,1970,1932,1881,1792,1701,1614,1524,1434,1344,1256,1168,1120,1089,1071]
+        x_2=[2226,2240,2252,2263,2273,2282,2295,2309,2322,2345,2364,2383,2462,2541,2619,2698,2777,2856,2934,3013,3091,3170,3249,3289,3327] # 7000kg
+        y_2=[2413,2383,2357,2331,2309,2289,2274,2257,2243,2215,2194,2172,2079,1987,1897,1804,1712,1621,1530,1438,1347,1255,1163,1116,1071]
+
+
+        # dictionary for lines
+        dictionary ={6800:[x_1,y_1],
+                     7000:[x_2,y_2]}
+
+
+        # finding the output value
+        input_real = gross_mass
+        input_pixel = output_pixel_left
+
+        # defining input and output variable
+        input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+        output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
+
+        if input_real in dictionary.keys():
+            x_and_y = dictionary.get(input_real)
+            model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            output_pixel = round(model(input_pixel))   #  prediction
+        else:
+            lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+            upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+            x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+            x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+            model_1 = np.poly1d(np.polyfit(x_and_y_1[input_is_x],x_and_y_1[output_is_y], len(x_and_y_1[0])-1)) # model the lower line
+            model_2 = np.poly1d(np.polyfit(x_and_y_2[input_is_x],x_and_y_2[output_is_y], len(x_and_y_2[0])-1)) # model the upper line
+            intersect1 = model_1(input_pixel)  # prediction upper line
+            intersect2 = model_2(input_pixel)  # prediction lower line
+            interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+            output_pixel = round(interpolated)
+        pixel_limit = 2226
+        if output_pixel < pixel_limit:
+            output_pixel = pixel_limit
+
+
+        output_pixel_middle = output_pixel
+        point_3 = (output_pixel_middle, output_pixel_left)     # entry point in middle chart
+        d.text((output_pixel_middle+40, output_pixel_left-80),str(gross_mass) + ' kg' ,(0,0,255),font=font) # point label
+
+        # # sanity check: plotting the model
+        # # define plot range
+        # input_is_x = 0 # set to 1 if input is x
+        # output_is_y = 1 # set to 0 if output is y
+        # chart_lower_value = 2226 # choose x- or y- values
+        # chart_upper_value = 3327  # choose x- or y- values
+        # for key in dictionary.keys():
+        #     x_and_y = dictionary.get(key)
+        #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        #     point_list = []
+        #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #         output_pixel = round(model(i))
+        #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+        #         point_list.append(point)
+        #     d.line(point_list, fill=line_color, width=10)
+
+        point_4 = (output_pixel_middle, input_output_row_pixel)      # bottom exit point middle chart
+
+        # convert pixel output to chart value
+        lower_pixel = 2147  # here: 0   m
+        upper_pixel = 3328  # here: 1800 m
+        diff_value_pixel = upper_pixel  - lower_pixel # number of pixel in whole range
+        diff_value_unit =  1500 - 0   # number of units in whole range
+        pixel_per_unit = diff_value_pixel / diff_value_unit
+
+        result_distance = round(0 + ( output_pixel_middle - lower_pixel )/pixel_per_unit)
+        print('Meter: '+ str(result_distance))
+
+        d.text((output_pixel_middle+40, input_output_row_pixel-80),str(int(result_distance)) + ' m' , fontcolor,font=font) # point label
+
+        '''Right chart area:'''
+        input_pixel_right = output_pixel_left  #beware
+        input_pixel = output_pixel_left
+
+        # defining the curve by points
+        x_1=[3343,3516,3689,3862,4035,4147]
+        y_1=[2446,2201,1938,1650,1321,1070]
+        x_and_y = [x_1,y_1]
+
+        # defining input and output variable
+        input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+        output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
+
+        # fitting the model to the data
+        model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        output_pixel = round(model(input_pixel))   #  prediction
+        output_pixel_right = output_pixel
+
+        point_5 = (output_pixel_right, input_pixel_right)  # intersection point right chart
+        point_6 = (output_pixel_right, input_output_row_pixel)  # bottom exit point right chart
+
+        # convert pixel output to chart value
+        lower_pixel = 3346   # here: 0 m
+        upper_pixel = 4212  # here: -25 m
+        diff_value_pixel = upper_pixel  - lower_pixel # number of pixel in whole range
+        diff_value_unit =  -25 - 0   # number of units in whole range
+        pixel_per_unit = diff_value_pixel / diff_value_unit
+
+        result_correction = round(0 + ( output_pixel_right - lower_pixel )/pixel_per_unit,2)
+        print('Correction factor: '+ str(result_correction))
+
+        d.text((output_pixel_right+40, input_output_row_pixel-80),str(result_correction) + ' m' ,fontcolor,font=font) # point label
+
+        # # sanity check: plotting the model
+        # point_list = []
+        # chart_lower_value = 1087 # can be x- or y- values
+        # chart_upper_value = 2461  # can be x- or y- values
+        # for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #     output_pixel = round(model(i))
+        #     point = (output_pixel,i)  # make sure x and y have correct position here!!
+        #     point_list.append(point)
+        # d.line(point_list, fill=line_color, width=10)
+
+        # endresult
+        result_rejected_takeoff_distance = round(result_distance + wind * result_correction)
+
+
+        # # Sanity check: printing calculated values
+        # print('Height: ' + str(height))
+        # print('QNH: ' + str(QNH))
+        # print('Temperature: '+ str(temp))
+        # print('PA: ' + str(result_PA))
+        # print('Gross mass: ' + str(gross_mass))
+        # print('Wind: ' + str(wind))
+        # print("Pixel output left: "+ str(output_pixel_left))
+        # print("Pixel output middle: "+ str(output_pixel_middle))
+        # print("Pixel input right: "+ str(input_pixel_right))
+        # print("Pixel output right: "+ str(output_pixel_right))
+        # print("Rejected takeoff distance:" + str(result_rejected_takeoff_distance))
+
+
+    '''Preparing for print '''
+    QNH = int(QNH)
+    gross_mass = int(gross_mass)
+    height = int(height)
+    temp = int(temp)
+    wind = int(wind)
+    result_distance = int(result_distance)
+    result_rejected_takeoff_distance = int(result_rejected_takeoff_distance)
+
+    # drawing the lines between points:
+    d.line([point_1,point_2,point_3,point_4], fill=line_color, width=10)
+    d.line([point_3,point_5,point_6], fill=line_color, width=10)
+
+    # adding text to chart:
+    vertical_align = 100
+    horizontal_align = -730
+    d.text((vertical_align,400),"Date, Time (UTC)",(0,0,0),font=font)
+    time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+    d.text((vertical_align,500),str(time),(0,0,255),font=font)
+
+    d.text((vertical_align,750),"Flight ID:" ,(0,0,0),font=font)
+    d.text((vertical_align,850),str(flight_ID),(0,0,255),font=font)
+
+    d.text((vertical_align,950),"PIC/SIC:" ,(0,0,0),font=font)
+    d.text((vertical_align,1050),str(PIC),(0,0,255),font=font)
+
+    #d.text((vertical_align,2050+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+    d.text((vertical_align,2000+horizontal_align),'Gross Mass: ',(0,0,0),font=font)
+    d.text((vertical_align,2100+horizontal_align),str(gross_mass) + ' kg' ,(0,0,255),font=font)
+    d.text((vertical_align,2200+horizontal_align),"QNH:" ,(0,0,0),font=font)
+    d.text((vertical_align,2300+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
+    d.text((vertical_align,2400+horizontal_align),"Height above MSL:" ,(0,0,0),font=font)
+    d.text((vertical_align,2500+horizontal_align),str(height)+ ' ft' ,(0,0,255),font=font)
+    d.text((vertical_align,2600+horizontal_align),"Temperature:" ,(0,0,0),font=font)
+    d.text((vertical_align,2700+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
+    d.text((vertical_align,2800+horizontal_align),"Headwind component:" ,(0,0,0),font=font)
+    d.text((vertical_align,2900+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
+
+
+    d.text((vertical_align,3050+horizontal_align),"RESULT:" ,(0,0,0),font=font)
+    d.text((vertical_align,3150+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
+    d.text((vertical_align,3250+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
+    d.text((vertical_align,3350+horizontal_align),"Rejected Takeoff Distance:" ,(0,0,0),font=font)
+    d.text((vertical_align,3450+horizontal_align),str(result_distance) + ' m - (' + str(-1*result_correction) + ' m * '+ str(wind) +' kt)', fontcolor,font=font)
+    d.text((vertical_align-45,3550+horizontal_align),'≈ '+ str(result_distance) + ' m - ' + str(int(-1*result_correction*wind)) + ' m', fontcolor,font=font)
+    d.text((vertical_align-45,3650+horizontal_align),'= '+ str(result_rejected_takeoff_distance) + ' m', fontcolor,font=font)
+    # # jupyter
+    # plt.figure(figsize=(160,80))
+    # imgplot = plt.imshow(im)
+    # plt.show()
+
+    # flask
+    # removing previously generated images
+    for filename in os.listdir(path_pycharm + '/static/images/'):
+        if filename.startswith('AW139_rejected_tod_clear_area_rendered'):  # not to remove other images
+            os.remove(path_pycharm + '/static/images/' + filename)
+
+    # create png
+    graph_png = "AW139_rejected_tod_clear_area_rendered " + str(time) + " UTC.png"
+    im.save(path_pycharm + '/static/images/' + graph_png)
+
+    # create pdf
+    graph_pdf = "AW139_rejected_tod_clear_area_rendered " + str(time) + " UTC.pdf"
+    rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+    rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+    rgb.save(path_pycharm + '/static/images/' + graph_pdf)
+
+
+    # returning the html template with filled values(Flask-part)
+    return render_template(
+        'AW139_rejected_tod_clear_area.html',
+        gross_mass = gross_mass,
+        gross_mass_SV = session['gross_mass_SV'],
+        QNH = QNH,
+        QNH_SV = session['QNH_SV'],
+        height = height,
+        height_SV = session['height_SV'],
+        temp = temp,
+        temp_SV = session['temp_SV'],
+        wind = wind,
+        wind_SV = session['wind_SV'],
+        PIC = PIC,
+        PIC_SV = session['PIC_SV'],
+        flight_ID = flight_ID,
+        flight_ID_SV = session['flight_ID_SV'],
+        result_png = graph_png,
+        result_pdf = graph_pdf,
+        result_PA = result_PA,
+        result_distance = result_distance,
+        result_correction = result_correction,
+        result_rejected_takeoff_distance = result_rejected_takeoff_distance,
+        # result_height_loss_feet = result_height_loss_feet,
+        # result_height_loss_perf_benefit = result_height_loss_perf_benefit,
+        # result_feet = result_feet,
+        # result_wind_correction = result_wind_correction,
+        # result_total_dropdown = result_total_dropdown,
+        #perf_benefit = perf_benefit,
+        #perf_benefit_SV = session['perf_benefit_SV'],
+
+        calculation_success = True,
+    )
+
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run()
