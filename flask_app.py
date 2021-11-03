@@ -986,14 +986,26 @@ def AW169_OGE_OEI_result():
             result = round(result1 + result2)
 
         result_full_wind_mass = round (zero_wind_mass + result)
+        result_full_wind_mass_customer = result_full_wind_mass
         if result_full_wind_mass > 4800:
             result_full_wind_mass = 4800
         result_zero_wind_mass = round(zero_wind_mass)
-        result_customer_mass = round(result_zero_wind_mass + (result_full_wind_mass - result_zero_wind_mass)* perf_benefit/100)
+        result_customer_mass = round(result_zero_wind_mass + (result_full_wind_mass_customer - result_zero_wind_mass)* perf_benefit/100)
         if result_customer_mass > 4800:
             result_customer_mass = 4800
         result_useful_load = round(result_customer_mass - DOM)
         result_payload = round(result_useful_load - fuel_at_hho)
+
+# double, can be removed if block above work
+        # result_full_wind_mass = round (zero_wind_mass + result)
+        # if result_full_wind_mass > 4800:
+        #     result_full_wind_mass = 4800
+        # result_zero_wind_mass = round(zero_wind_mass)
+        # result_customer_mass = round(result_zero_wind_mass + (result_full_wind_mass - result_zero_wind_mass)* perf_benefit/100)
+        # if result_customer_mass > 4800:
+        #     result_customer_mass = 4800
+        # result_useful_load = round(result_customer_mass - DOM)
+        # result_payload = round(result_useful_load - fuel_at_hho)
 
         QNH = int(QNH)
         DOM = int(DOM)
