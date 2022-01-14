@@ -772,16 +772,16 @@ def AW169_OGE_OEI():
 @app.route('/AW169_OGE_OEI_result/', methods=['POST', 'GET'])
 def AW169_OGE_OEI_result():
 
-    # changes here #
-    a = 23
-    # stop here#
-
     error = None
     result = None
 
     # flask
+    # font = ImageFont.truetype("SFNS.ttf", 80)
+    fontcolor = (255,0,0)
+    line_color = (255, 0, 0)
+
     font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW169_HOGE_OEI_600.png")
+    im = Image.open(path_pycharm + "/static/images/baseline_images/AW169_HOGE_OEI_600_new.png")
 
 
     # # jupyter
@@ -798,8 +798,8 @@ def AW169_OGE_OEI_result():
     DOM_input = request.form['DOM']
     session['DOM_SV'] = DOM_input
 
-    hover_height_input = request.form['hover_height']
-    session['hover_height_SV'] = hover_height_input
+    height_input = request.form['height']
+    session['height_SV'] = height_input
 
     temp_input = request.form['temp']
     session['temp_SV'] = temp_input
@@ -823,7 +823,7 @@ def AW169_OGE_OEI_result():
     # # User input:
     # DOM = 3000
     # QNH = 1013.2                # mb (min 971, max 1044)
-    # hover_height = 1000          # feet (min 0, max 350)
+    # height = 1000          # feet (min 0, max 350)
     # temp = 10                   # degrees celcius (min: -10, max: 30)
     # wind = 26               # knots (min: 0, max: 40)
     # perf_benefit = 100          # percent
@@ -831,357 +831,401 @@ def AW169_OGE_OEI_result():
 
 
     # flask
-    try:
-        QNH = float(QNH_input)
-        DOM = float(DOM_input)
-        hover_height = float(hover_height_input)
-        temp = float(temp_input)
-        wind = float(wind_input)
-        perf_benefit = float(perf_benefit_input)
-        fuel_at_hho = float(fuel_at_hho_input)
-        PIC = str(PIC_input)
-        flight_ID = str(flight_ID_input)
 
-        # Calulating pixel_PA:
-        #  pressure difference between QNH and standard pressure
-        difference = (1013.2 - QNH) * 27
+    QNH = float(QNH_input)
+    DOM = float(DOM_input)
+    height = float(height_input)
+    temp = float(temp_input)
+    wind = float(wind_input)
+    perf_benefit = float(perf_benefit_input)
+    fuel_at_hho = float(fuel_at_hho_input)
+    PIC = str(PIC_input)
+    flight_ID = str(flight_ID_input)
 
-        # pressure difference added to hover height.
-        PA = hover_height + difference
-        result_PA = round(PA)
-        # converting to PA on chart in pixel
+    ''' new part:'''
 
-        #scaling the PA line
-        lower_feet = 3307  # here: 0 feet
-        upper_feet = 2528  # here 6000 feet
-        diff_feet = 6000 - 0
-        # input PA_pixel (vertical line)
-        PA_pixel = round(lower_feet + PA * ((upper_feet - lower_feet) / diff_feet))
-
-        # we pick the 30C line
-        line = 30
-
-        # function 0 - temperature line at 30C
-        x_1,y_1 = 589,2653          # about 5000ft, 30C
-        x_2,y_2 = 1521,3329          # about 4025kg, 30C
-        m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
-        b_0 = -m_0*x_1 + y_1          #intercept
-
-        # # equation for 30C line (273.15K + 30K = 303.15K) line:
-        # y_pixel = m_0*x_pixel + b_0
-
-        # for each degree above 0K we move (3394 - 3218)/10 = 16.8px in the positive(+) pixel direction
-        change_per_degree = +(3394 - 3218)/10
-        absolute_zero = 273.15
-        # # equation for -273.15C (0 Kelvin) line:
-        # y_pixel = m_0*x_pixel + b_0 - (273.15 + 30)*change_per_degree
-
-        # # equation for 'temp'C line ( 273.15K + 'temp'K)
-        # y_pixel = m_0*x_pixel + b_0 - (273.15 + 30)*change_per_degree + (273.15+temp)*change_per_degree
-
-        # # solving for x_pixel:
-        # x_pixel =  (y_pixel - (b_0 - (273.15 + 30)*change_per_degree + (273.15+temp)*change_per_degree) )/m_0
-
-        # # substituting the variables
-        PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
+    # jupyter
+    # font = ImageFont.truetype("SFNS.ttf", 60)
+    # im = Image.open("charts/AW139/rejected_tod_clear_area/modified/AW139_rejected_tod_clear_area_6400.png")
 
 
-        # use different line if past the 4025kg-line on x-axis:
-        if PA_temp_pixel > 1520:
-            # we pick the 20C line
-            line = 20
+    d = ImageDraw.Draw(im) # generating the image
 
-            # function 0 - temperature line at 30C
-            x_1,y_1 = 1520,3157          # about 4025kg, 20C
-            x_2,y_2 = 1719,3280 # about 4180kg, 20C
-            m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
-            b_0 = -m_0*x_1 + y_1          #intercept
+    '''Left chart area:'''
+    # Calulating Pressure Altitude and pixel_PA:
+    difference = (1013.2 - QNH) * 27 #  pressure difference between QNH and standard pressure
+    result_PA = round(height + difference) # pressure altitude at hover height.
+    lower_PA_pixel = 3312 # here: 0ft
+    upper_PA_pixel = 1329  # here: 15000ft
+    diff_upper_lower_PA = 15000 # difference between upper and lower PA on chart
+    pixel_per_ft = (upper_PA_pixel - lower_PA_pixel)/diff_upper_lower_PA # converting PA to pixel
+    PA_pixel = lower_PA_pixel + (result_PA * pixel_per_ft) # converting PA to pixel
 
-            PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
+    # start point on vertical-axis
+    input_vertical_pixel = 580 # this is an x-value
+    point_1 = (input_vertical_pixel, PA_pixel )              # defining starting point on chart
+    d.text((input_vertical_pixel,PA_pixel-80 ),str(result_PA) + ' ft' , fontcolor,font=font) # labeling the point
 
-        # x = PA_temp_pixel
-        # y = PA_pixel
+    '''left part of manufacturers chart'''
+    # pixel values on x- and y-axis
+    x_3=[ 822,1216,1611,1942] #-20
+    y_3=[1829,2113,2386,2599]
+    x_4=[ 822,1216,1611,1951] #-10
+    y_4=[1972,2262,2537,2755]
+    x_5=[ 822,1216,1611,1963] # 0
+    y_5=[2140,2429,2703,2928]
+    x_6=[ 822,1216,1611,1974] # +10
+    y_6=[2300,2594,2866,3099]
+    x_7=[ 822,1216,1611,1990] # +20
+    y_7=[2487,2780,3057,3303]
+    x_8=[ 822,1216,1611,1931] # +30
+    y_8=[2654,2951,3231,3445]
+    x_9=[ 822,1216,1611] # +40
+    y_9=[2856,3152,3434]
+    x_10=[ 822,1138,1289] # +50
+    y_10=[3106,3327,3445]
 
-        # checking if result is of right side of divisor line (blue):
-        x_1,y_1 = 1681,2751          # about 4150kg, -10C
-        x_2,y_2 = 1746,3437          # about 4200kg, -1000ft
-        slope = (y_1 - y_2)/(x_1 - x_2) #slope
-        intercept = -slope*x_1 + y_1    #intercept
+    # dictionary for lines
+    dictionary ={-20:[x_3,y_3],
+                 -10:[x_4,y_4],
+                 0:[x_5,y_5],
+                 10:[x_6,y_6],
+                 20:[x_7,y_7],
+                 30:[x_8,y_8],
+                 40:[x_9,y_9],
+                 50:[x_10,y_10]}
 
-        result_a = PA_pixel
-        result_b = PA_temp_pixel * slope + intercept
+    # finding the output value by first defining which is input
+    input_real = temp
+    input_pixel = PA_pixel
 
-        if result_b > result_a:
-            # we pick the 0C line
-            line = 0
+    # defining input and output variable
+    input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+    output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
 
-            # function 0 - temperature line at 30C
-            x_1,y_1 = 1700,2923          # about 3000ft, 0C
-            x_2,y_2 = 1818,3362          # about 4265kg, 0C
-            m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
-            b_0 = -m_0*x_1 + y_1          #intercept
+    if input_real in dictionary.keys():
+        x_and_y = dictionary.get(input_real)
+        model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+        # r2_score(x, model(y)) # r-score   # check the r2 score
+        output_pixel = round(model(input_pixel))   #  prediction
+    else:
+        lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+        upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+        x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+        x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+        model_1 = np.poly1d(np.polyfit(x_and_y_1[input_is_x],x_and_y_1[output_is_y], len(x_and_y_1[0])-1)) # model the lower line
+        model_2 = np.poly1d(np.polyfit(x_and_y_2[input_is_x],x_and_y_2[output_is_y], len(x_and_y_2[0])-1)) # model the upper line
+        intersect1 = model_1(input_pixel)  # prediction upper line
+        intersect2 = model_2(input_pixel)  # prediction lower line
+        interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+        output_pixel = round(interpolated)
+    pixel_limit = 2226
+    if output_pixel > pixel_limit:
+        output_pixel = pixel_limit
 
-            # # equation for 30C line (273.15K + 30K = 303.15K) line:
-            # y_pixel = m_0*x_pixel + b_0
+    PA_temp_pixel = output_pixel
 
-            # for each degree above 0K we move (3394 - 3218)/10 = 16.8px in the positive(+) pixel direction
-            change_per_degree = +(3440 - 3308)/10
-            absolute_zero = 273.15
-            # # equation for -273.15C (0 Kelvin) line:
-            # y_pixel = m_0*x_pixel + b_0 - (273.15 + 30)*change_per_degree
+    point_2 = (PA_temp_pixel, PA_pixel)
+    point_3 = (PA_temp_pixel, 3587)
 
-            # # equation for 'temp'C line ( 273.15K + 'temp'K)
-            # y_pixel = m_0*x_pixel + b_0 - (273.15 + 30)*change_per_degree + (273.15+temp)*change_per_degree
+    first_chart_pixel = input_pixel
 
-            # # solving for x_pixel:
-            # x_pixel =  (y_pixel - (b_0 - (273.15 + 30)*change_per_degree + (273.15+temp)*change_per_degree) )/m_0
+    # '''sanity plotting'''
+    # #  sanity check: plotting the model
+    # # define plot range
+    # input_is_x = 0 # set to 1 if input is x
+    # output_is_y = 1 # set to 0 if output is y
+    # chart_lower_value = 821 # choose x- or y- values
+    # chart_upper_value = 2000  # choose x- or y- values
+    # for key in dictionary.keys():
+    #     x_and_y = dictionary.get(key)
+    #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+    #     point_list = []
+    #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+    #         output_pixel = round(model(i))
+    #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+    #         point_list.append(point)
+    #     d.line(point_list, fill=line_color, width=10)
 
-            # # substituting the variables
-            PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
+    # output_pixel_middle = output_pixel
+    # point_3 = (output_pixel_middle, output_pixel_left)     # entry point in middle chart
+    # d.text((output_pixel_middle+40, output_pixel_left-80),str(gross_mass) + ' kg' ,(0,0,255),font=font) # point label
+
+    '''right part of manufacturers chart'''
+    #the separation line
+    input_pixel = output_pixel
+    chart_lower_value = 1943 # choose x- or y- values
+    chart_upper_value = 2020  # choose x- or y- values
+    x_s=[1943,1990]
+    y_s=[2599,3300]
+    point_list = []
+    model = np.poly1d(np.polyfit(x_s,y_s, len(x_s)-1))
+
+    # # sanity plotting
+    # for i in np.arange(chart_lower_value,chart_upper_value,10):
+    #     output_pixel = round(model(i))
+    #     point = (i, output_pixel)  # make sure x and y have correct position here!!
+    #     point_list.append(point)
+    # d.line(point_list, fill=line_color, width=10)
+
+    output_pixel = model(input_pixel)
 
 
-        # use different line if past the 4025kg-line on x-axis:
-        if PA_temp_pixel > 1818:
-            # we pick the -10C line
-            line = -10
+    if output_pixel > first_chart_pixel:
+        # pixel values on x- and y-axis
+        x_3=[1943,2068,2157] #-20
+        y_3=[2599,3050,3444]
+        x_4=[1951,2049,2127] #-10
+        y_4=[2760,3115,3445]
+        x_5=[1962,2031,2096] # 0
+        y_5=[2931,3181,3446]
+        x_6=[1974,2022,2065 ] # +10
+        y_6=[3102,3279,3445]
+        x_7=[1992,2030] # +20
+        y_7=[3301,3445]
+        x_8=[ 822,1216,1611,1931] # +30
+        y_8=[2654,2951,3231,3445]
+        x_9=[ 822,1216,1611] # +40
+        y_9=[2856,3152,3434]
+        x_10=[ 822,1138,1289] # +50
+        y_10=[3106,3327,3445]
 
-            # function 0 - temperature line at 30C
-            x_1,y_1 = 1818,3230          # about 4265kg, -10C
-            x_2,y_2 = 1864,3433          # about 4290kg, -10C
-            m_0 = (y_1 - y_2)/(x_1 - x_2) #slope
-            b_0 = -m_0*x_1 + y_1          #intercept
+        # dictionary for lines
+        dictionary ={-20:[x_3,y_3],
+                     -10:[x_4,y_4],
+                     0:[x_5,y_5],
+                     10:[x_6,y_6],
+                     20:[x_7,y_7],
+                     30:[x_8,y_8],
+                     40:[x_9,y_9],
+                     50:[x_10,y_10]}
 
-            change_per_degree = +(3433 - 3298)/10
+        # finding the output value by first defining which is input
+        input_real = temp
+        input_pixel = PA_pixel
 
-            PA_temp_pixel =  (PA_pixel - (b_0 - (absolute_zero + line)*change_per_degree + (absolute_zero+temp)*change_per_degree) )/m_0
+        # defining input and output variable
+        input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+        output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
 
-        PA_temp_pixel = round(PA_temp_pixel)
-
-        # convert pixel output to chart value
-        lower_pixel = 712   # here: 3400kg
-        upper_pixel = 2004  # here: 4400kg
-        diff_value_kg =  4400 - 3400
-        diff_value_pixel = upper_pixel  - lower_pixel
-
-        pixel_per_kg = diff_value_pixel / diff_value_kg
-
-        zero_wind_mass = 3400 + ( PA_temp_pixel - lower_pixel )/pixel_per_kg
-
-        divisor = 5
-        wind_mod = wind%divisor
-        wind_table ={0:0,
-                     5:62,
-                    10:218,
-                    15:398,
-                    20:618,
-                    25:849,
-                    30:1045,
-                    35:1259,
-                    40:1499,
-                    45:1723,
-                    50:1959}
-
-        if wind_mod == 0:
-            result = wind_table.get(wind)
-
+        if input_real in dictionary.keys():
+            x_and_y = dictionary.get(input_real)
+            model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+            # r2_score(x, model(y)) # r-score   # check the r2 score
+            output_pixel = round(model(input_pixel))   #  prediction
         else:
-            wind_floor = wind//divisor
-            wind_mod = wind%divisor
-            table_value = wind_floor * divisor
-            result1 = wind_table.get(table_value)
-            result2 = (wind_mod/divisor)*((wind_table.get(table_value+divisor))-wind_table.get(table_value))
-            result = round(result1 + result2)
+            lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+            upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+            x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+            x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+            model_1 = np.poly1d(np.polyfit(x_and_y_1[input_is_x],x_and_y_1[output_is_y], len(x_and_y_1[0])-1)) # model the lower line
+            model_2 = np.poly1d(np.polyfit(x_and_y_2[input_is_x],x_and_y_2[output_is_y], len(x_and_y_2[0])-1)) # model the upper line
+            intersect1 = model_1(input_pixel)  # prediction upper line
+            intersect2 = model_2(input_pixel)  # prediction lower line
+            interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+            output_pixel = round(interpolated)
+        pixel_limit = 2226
+        if output_pixel > pixel_limit:
+            output_pixel = pixel_limit
 
-        result_full_wind_mass = round (zero_wind_mass + result)
-        result_full_wind_mass_customer = result_full_wind_mass
-        if result_full_wind_mass > 4800:
-            result_full_wind_mass = 4800
-        result_zero_wind_mass = round(zero_wind_mass)
-        result_customer_mass = round(result_zero_wind_mass + (result_full_wind_mass_customer - result_zero_wind_mass)* perf_benefit/100)
-        if result_customer_mass > 4800:
-            result_customer_mass = 4800
-        result_useful_load = round(result_customer_mass - DOM)
-        result_payload = round(result_useful_load - fuel_at_hho)
+        PA_temp_pixel = output_pixel
+        point_2 = (PA_temp_pixel, PA_pixel)
+        point_3 = (PA_temp_pixel, 3587)
 
-# double, can be removed if block above work
-        # result_full_wind_mass = round (zero_wind_mass + result)
-        # if result_full_wind_mass > 4800:
-        #     result_full_wind_mass = 4800
-        # result_zero_wind_mass = round(zero_wind_mass)
-        # result_customer_mass = round(result_zero_wind_mass + (result_full_wind_mass - result_zero_wind_mass)* perf_benefit/100)
-        # if result_customer_mass > 4800:
-        #     result_customer_mass = 4800
-        # result_useful_load = round(result_customer_mass - DOM)
-        # result_payload = round(result_useful_load - fuel_at_hho)
+        # '''sanity plotting'''
+        # #  sanity check: plotting the model
+        # # define plot range
+        # input_is_x = 0 # set to 1 if input is x
+        # output_is_y = 1 # set to 0 if output is y
+        # chart_lower_value = 1940 # choose x- or y- values
+        # chart_upper_value = 2188  # choose x- or y- values
+        # for key in dictionary.keys():
+        #     x_and_y = dictionary.get(key)
+        #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+        #     point_list = []
+        #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+        #         output_pixel = round(model(i))
+        #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+        #         point_list.append(point)
+        #     d.line(point_list, fill=line_color, width=10)
 
-        QNH = int(QNH)
-        DOM = int(DOM)
-        hover_height = int(hover_height)
-        temp = int(temp)
-        wind = int(wind)
-        perf_benefit = int(perf_benefit)
-        fuel_at_hho = int(fuel_at_hho)
+    # drawing the lines between points:
+    d.line([point_1,point_2], fill=line_color, width=10)
+    d.line([point_2,point_3], fill=line_color, width=10)
 
+    # convert pixel output to chart value
+    lower_pixel = 822   # here: 3300kg
+    upper_pixel = 2926  # here: 4900kg
+    diff_value_kg =  4900 - 3300
+    diff_value_pixel = upper_pixel  - lower_pixel
 
-        # generating the image
-        d = ImageDraw.Draw(im)
-        line_color = (255, 0, 0)
+    pixel_per_kg = diff_value_pixel / diff_value_kg
 
-        # defining the points:
-        point_1 = (70, PA_pixel)           # pressure altitude on y-axis
-        point_2 = (PA_temp_pixel, PA_pixel) # pressure altitude intersect with temp line
-        point_3 = (PA_temp_pixel, 3520)     # zero wind mass on x-axis
+    zero_wind_mass = 3300 + ( PA_temp_pixel - lower_pixel )/pixel_per_kg
 
-        # drawing the lines between points:
-        d.line([point_1,point_2], fill=line_color, width=10)
-        d.line([point_2,point_3], fill=line_color, width=10)
+    divisor = 5
+    wind_mod = wind%divisor
+    wind_table ={0:0,
+                 5:62,
+                 10:219,
+                 15:400,
+                 20:623,
+                 25:850,
+                 30:1047,
+                 35:1263,
+                 40:1504,
+                 45:1728,
+                 50:1965}
 
-        # text on image:
-        vertical_align = 2931
-        horizontal_align = -730
-        d.text((vertical_align,580),"Date, Time (UTC)",(0,0,0),font=font)
-        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
-        d.text((vertical_align,650),str(time),(0,0,255),font=font)
-        d.text((vertical_align,800),"Flight ID:" ,(0,0,0),font=font)
-        d.text((vertical_align,870),str(flight_ID_input),(0,0,255),font=font)
-        d.text((vertical_align,1000),"PIC/SIC:" ,(0,0,0),font=font)
-        d.text((vertical_align,1070),str(PIC_input),(0,0,255),font=font)
-        d.text((vertical_align,2100+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
-        d.text((vertical_align,2200+horizontal_align),'Dry Ops Mass: ',(0,0,0),font=font)
-        d.text((vertical_align,2270+horizontal_align),str(DOM) + ' kg' ,(0,0,255),font=font)
-        d.text((vertical_align,2400+horizontal_align),"QNH:" ,(0,0,0),font=font)
-        d.text((vertical_align,2470+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
-        d.text((vertical_align,2600+horizontal_align),"Hover Height:" ,(0,0,0),font=font)
-        d.text((vertical_align,2670+horizontal_align),str(hover_height)+ ' ft' ,(0,0,255),font=font)
-        d.text((vertical_align,2800+horizontal_align),"Temperature:" ,(0,0,0),font=font)
-        d.text((vertical_align,2870+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
-        d.text((vertical_align,3000+horizontal_align),"Wind:" ,(0,0,0),font=font)
-        d.text((vertical_align,3070+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
-        d.text((vertical_align,3200+horizontal_align),"Wind benefit:" ,(0,0,0),font=font)
-        d.text((vertical_align,3270+horizontal_align),str(perf_benefit) + ' %' ,(0,0,255),font=font)
-        d.text((vertical_align,3400+horizontal_align),"Fuel at HHO:" ,(0,0,0),font=font)
-        d.text((vertical_align,3470+horizontal_align),str(fuel_at_hho) + ' kg' ,(0,0,255),font=font)
+    if wind_mod == 0:
+        result = wind_table.get(wind)
 
-        fontcolor = (255,0,0)
-        d.text((vertical_align,3900+horizontal_align),"RESULT:" ,(0,0,0),font=font)
-        d.text((vertical_align,4000+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
-        d.text((vertical_align,4070+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
+    else:
+        wind_floor = wind//divisor
+        wind_mod = wind%divisor
+        table_value = wind_floor * divisor
+        result1 = wind_table.get(table_value)
+        result2 = (wind_mod/divisor)*((wind_table.get(table_value+divisor))-wind_table.get(table_value))
+        result = round(result1 + result2)
 
-        d.text((vertical_align,4200+horizontal_align),"Mass, 0 kt Wind:" ,(0,0,0),font=font)
-        d.text((vertical_align,4270+horizontal_align),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
-        d.text((vertical_align,4400+horizontal_align),"Mass, "+str(wind) + ' kt Wind' ,(0,0,0),font=font)
-        d.text((vertical_align,4470+horizontal_align),str(result_full_wind_mass) + ' kg' , fontcolor,font=font)
-        d.text((vertical_align,4600+horizontal_align),"Mass, "+str(perf_benefit) + ' %'  " Wind:" ,(0,0,0),font=font)
-        d.text((vertical_align,4670+horizontal_align),str(result_customer_mass) + ' kg' , fontcolor,font=font)
-        d.text((vertical_align,4800+horizontal_align),"Useful Load at site:" ,(0,0,0),font=font)
-        d.text((vertical_align,4870+horizontal_align),str(result_useful_load) + ' kg' , fontcolor,font=font)
-        d.text((vertical_align,5000+horizontal_align),"Payload at site:" ,(0,0,0),font=font)
-        d.text((vertical_align,5070+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
+    result_full_wind_mass = round (zero_wind_mass + result)
+    result_full_wind_mass_customer = result_full_wind_mass
+    if result_full_wind_mass > 4800:
+        result_full_wind_mass = 4800
+    result_zero_wind_mass = round(zero_wind_mass)
+    result_customer_mass = round(result_zero_wind_mass + (result_full_wind_mass_customer - result_zero_wind_mass)* perf_benefit/100)
+    if result_customer_mass > 4800:
+        result_customer_mass = 4800
+    result_useful_load = round(result_customer_mass - DOM)
+    result_payload = round(result_useful_load - fuel_at_hho)
 
-        d.text((60, PA_pixel-80),str(result_PA) + ' ft' , fontcolor,font=font)
-        d.text((PA_temp_pixel, PA_pixel-80),str(temp) + ' C' ,(0,0,255),font=font)
-        d.text((PA_temp_pixel, 3520),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
-
-        # wind box
-        begin = 1050
-        end = 2732
-        fieldlength = (end - begin)/9
-        zeroknots = begin - fieldlength
-        pix_per_knot = fieldlength / 5
-        windpix = zeroknots + (pix_per_knot * wind)
-        top = 3724
-        bottom = 4288
-        linetop_pt = (windpix,top)
-        linebottom_pt = (windpix, bottom)
-        linetop_left = (windpix-50,top )
-        linetop_right = (windpix +50, top)
-        linebottom_left = (windpix-50,bottom )
-        linebottom_right = (windpix +50, bottom)
-        #draw lines
-        d.line([linetop_pt,linebottom_pt], fill=line_color, width=5)
-        d.line([linetop_left,linetop_right], fill=line_color, width=10)
-        d.line([linebottom_left,linebottom_right], fill=line_color, width=10)
-        #text
-        d.text((windpix-50,top -80),str(wind) + ' kt' ,(0,0,255),font=font)
-        d.text((windpix-80,bottom +10),str(result) + ' kg' ,(255,0,0),font=font)
-
-        # removing previously generated images
-        for filename in os.listdir('/home/gaviation/mysite/static/images/'):
-            if filename.startswith('AW169_HOGE_OEI_rendered'):  # not to remove other images
-                os.remove('/home/gaviation/mysite/static/images/' + filename)
-
-        # create png
-        graph_png = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
-        im.save(path_pycharm + "/static/images/" + graph_png)
-
-        # create pdf
-        graph_pdf = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
-        rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
-        rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
+    '''Preparing for print '''
+    QNH = int(QNH)
+    DOM = int(DOM)
+    height = int(height)
+    temp = int(temp)
+    wind = int(wind)
+    perf_benefit = int(perf_benefit)
+    fuel_at_hho = int(fuel_at_hho)
 
 
-        # returning the template (Flask-part)
-        return render_template(
-            'AW169_OGE_OEI.html',
-            QNH = QNH,
-            QNH_SV = session['QNH_SV'],
-            DOM = DOM,
-            DOM_SV = session['DOM_SV'],
-            hover_height = hover_height,
-            hover_height_SV = session['hover_height_SV'],
-            temp = temp,
-            temp_SV = session['temp_SV'],
-            wind = wind,
-            wind_SV = session['wind_SV'],
-            perf_benefit = perf_benefit,
-            perf_benefit_SV = session['perf_benefit_SV'],
-            fuel_at_hho = fuel_at_hho,
-            fuel_at_hho_SV = session['fuel_at_hho_SV'],
-            PIC = PIC,
-            PIC_SV = session['PIC_SV'],
-            flight_ID = flight_ID,
-            flight_ID_SV = session['flight_ID_SV'],
-            result_PA = result_PA,
-            result_zero_wind_mass = result_zero_wind_mass,
-            result_full_wind_mass = result_full_wind_mass,
-            result_customer_mass = result_customer_mass,
-            result_useful_load = result_useful_load,
-            result_payload = result_payload,
-            result_png = graph_png,
-            result_pdf = graph_pdf,
-            calculation_success = True,
-        )
+    # text on image:
+    vertical_align = 40
+    horizontal_align = -730
+    d.text((vertical_align,580),"Date, Time (UTC)",(0,0,0),font=font)
+    time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+    d.text((vertical_align,650),str(time),(0,0,255),font=font)
+    d.text((vertical_align,800),"Flight ID:" ,(0,0,0),font=font)
+    d.text((vertical_align,870),str(flight_ID_input),(0,0,255),font=font)
+    d.text((vertical_align,1000),"PIC/SIC:" ,(0,0,0),font=font)
+    d.text((vertical_align,1070),str(PIC_input),(0,0,255),font=font)
+    d.text((vertical_align,2100+horizontal_align),'USER INPUT: ',(0,0,0),font=font)
+    d.text((vertical_align,2200+horizontal_align),'Dry Ops Mass: ',(0,0,0),font=font)
+    d.text((vertical_align,2270+horizontal_align),str(DOM) + ' kg' ,(0,0,255),font=font)
+    d.text((vertical_align,2400+horizontal_align),"QNH:" ,(0,0,0),font=font)
+    d.text((vertical_align,2470+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
+    d.text((vertical_align,2600+horizontal_align),"Hover Height:" ,(0,0,0),font=font)
+    d.text((vertical_align,2670+horizontal_align),str(height)+ ' ft' ,(0,0,255),font=font)
+    d.text((vertical_align,2800+horizontal_align),"Temperature:" ,(0,0,0),font=font)
+    d.text((vertical_align,2870+horizontal_align),str(temp) + ' C' ,(0,0,255),font=font)
+    d.text((vertical_align,3000+horizontal_align),"Wind:" ,(0,0,0),font=font)
+    d.text((vertical_align,3070+horizontal_align),str(wind) + ' kt' ,(0,0,255),font=font)
+    d.text((vertical_align,3200+horizontal_align),"Wind benefit:" ,(0,0,0),font=font)
+    d.text((vertical_align,3270+horizontal_align),str(perf_benefit) + ' %' ,(0,0,255),font=font)
+    d.text((vertical_align,3400+horizontal_align),"Fuel at HHO:" ,(0,0,0),font=font)
+    d.text((vertical_align,3470+horizontal_align),str(fuel_at_hho) + ' kg' ,(0,0,255),font=font)
 
-    except ZeroDivisionError:
-        return render_template(
-            'index.html',
-            QNH = QNH,
-            DOM = DOM,
-            hover_height = hover_height,
-            temp = temp,
-            wind = wind,
-            perf_benefit = perf_benefit,
-            fuel_at_hho = fuel_at_hho,
-            result="Bad Input",
-            calculation_success = False,
-            error = "You cannot divide by zero"
-        )
+    fontcolor = (255,0,0)
+    d.text((vertical_align,3900+horizontal_align),"RESULT:" ,(0,0,0),font=font)
+    d.text((vertical_align,4000+horizontal_align),"Pressure Altitude:" ,(0,0,0),font=font)
+    d.text((vertical_align,4070+horizontal_align),str(result_PA) + ' ft' , fontcolor,font=font)
 
-    except ValueError:
-        return render_template(
-            'index.html',
-            QNH = QNH,
-            DOM = DOM,
-            hover_height = hover_height,
-            temp = temp,
-            wind = wind,
-            perf_benefit = perf_benefit,
-            fuel_at_hho = fuel_at_hho,
-            result="Bad Input",
-            calculation_success = False,
-            error = "Cannot perform numeric operations with provided input"
-        )
+    d.text((vertical_align,4200+horizontal_align),"Mass, 0 kt Wind:" ,(0,0,0),font=font)
+    d.text((vertical_align,4270+horizontal_align),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
+    d.text((vertical_align,4400+horizontal_align),"Mass, "+str(wind) + ' kt Wind' ,(0,0,0),font=font)
+    d.text((vertical_align,4470+horizontal_align),str(result_full_wind_mass) + ' kg' , fontcolor,font=font)
+    d.text((vertical_align,4600+horizontal_align),"Mass, "+str(perf_benefit) + ' %'  " Wind:" ,(0,0,0),font=font)
+    d.text((vertical_align,4670+horizontal_align),str(result_customer_mass) + ' kg' , fontcolor,font=font)
+    d.text((vertical_align,4800+horizontal_align),"Useful Load at site:" ,(0,0,0),font=font)
+    d.text((vertical_align,4870+horizontal_align),str(result_useful_load) + ' kg' , fontcolor,font=font)
+    d.text((vertical_align,5000+horizontal_align),"Payload at site:" ,(0,0,0),font=font)
+    d.text((vertical_align,5070+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
+
+    #d.text((60, PA_pixel-80),str(result_PA) + ' ft' , fontcolor,font=font)
+    d.text((PA_temp_pixel, PA_pixel-80),str(temp) + ' C' ,(0,0,255),font=font)
+    d.text((PA_temp_pixel+10, 3530),str(result_zero_wind_mass) + ' kg' , fontcolor,font=font)
+
+    # wind box
+    begin = 1329  # zero knots
+    end = 3093    # 50 knots
+    fieldlength = (end - begin)
+    pix_per_knot = fieldlength / 50
+    zeroknots = begin
+    windpix = zeroknots + (pix_per_knot * wind)
+    top = 3744
+    bottom = 4110
+    linetop_pt = (windpix,top)
+    linebottom_pt = (windpix, bottom)
+    linetop_left = (windpix-50,top )
+    linetop_right = (windpix +50, top)
+    linebottom_left = (windpix-50,bottom )
+    linebottom_right = (windpix +50, bottom)
+    #draw lines
+    d.line([linetop_pt,linebottom_pt], fill=line_color, width=5)
+    d.line([linetop_left,linetop_right], fill=line_color, width=10)
+    d.line([linebottom_left,linebottom_right], fill=line_color, width=10)
+    #text
+    d.text((windpix-50,top -80),str(wind) + ' kt' ,(0,0,255),font=font)
+    d.text((windpix-80,bottom +10),str(result) + ' kg' ,(255,0,0),font=font)
+
+    # flask
+    # removing previously generated images
+    for filename in os.listdir('/home/gaviation/mysite/static/images/'):
+        if filename.startswith('AW169_HOGE_OEI_rendered'):  # not to remove other images
+            os.remove('/home/gaviation/mysite/static/images/' + filename)
+
+    # create png
+    graph_png = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
+    im.save(path_pycharm + "/static/images/" + graph_png)
+
+    # create pdf
+    graph_pdf = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
+    rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+    rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+    rgb.save(path_pycharm + "/static/images/" + graph_pdf)
+
+    # returning the template (Flask-part)
+    return render_template(
+        'AW169_OGE_OEI.html',
+        QNH = QNH,
+        QNH_SV = session['QNH_SV'],
+        DOM = DOM,
+        DOM_SV = session['DOM_SV'],
+        height = height,
+        height_SV = session['height_SV'],
+        temp = temp,
+        temp_SV = session['temp_SV'],
+        wind = wind,
+        wind_SV = session['wind_SV'],
+        perf_benefit = perf_benefit,
+        perf_benefit_SV = session['perf_benefit_SV'],
+        fuel_at_hho = fuel_at_hho,
+        fuel_at_hho_SV = session['fuel_at_hho_SV'],
+        PIC = PIC,
+        PIC_SV = session['PIC_SV'],
+        flight_ID = flight_ID,
+        flight_ID_SV = session['flight_ID_SV'],
+        result_PA = result_PA,
+        result_zero_wind_mass = result_zero_wind_mass,
+        result_full_wind_mass = result_full_wind_mass,
+        result_customer_mass = result_customer_mass,
+        result_useful_load = result_useful_load,
+        result_payload = result_payload,
+        result_png = graph_png,
+        result_pdf = graph_pdf,
+        calculation_success = True,
+    )
+
 
 @app.route('/AW169_dropdown_4200', methods=['GET', 'POST'])
 def AW169_dropdown_4200():
@@ -2788,7 +2832,6 @@ def AW139_rejected_tod_clear_area_result():
         # result_total_dropdown = result_total_dropdown,
         #perf_benefit = perf_benefit,
         #perf_benefit_SV = session['perf_benefit_SV'],
-
         calculation_success = True,
     )
 
