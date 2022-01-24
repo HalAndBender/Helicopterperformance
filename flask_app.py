@@ -1532,6 +1532,11 @@ def AW169_OGE_OEI_new_result():
     wind = int(wind)
     perf_benefit = int(perf_benefit)
     fuel_at_hho = int(fuel_at_hho)
+    result_zero_wind_mass = int(result_zero_wind_mass)
+    result_full_wind_mass = int(result_full_wind_mass)
+    result_full_wind_mass_customer = int(result_full_wind_mass_customer)
+    result_payload = int(result_payload)
+    result_useful_load = int(result_useful_load)
 
 
     # text on image:
@@ -1574,7 +1579,7 @@ def AW169_OGE_OEI_new_result():
     d.text((vertical_align,4800+horizontal_align),"Useful Load at site:" ,(0,0,0),font=font)
     d.text((vertical_align,4870+horizontal_align),str(result_useful_load) + ' kg' , fontcolor,font=font)
     d.text((vertical_align,5000+horizontal_align),"Payload at site:" ,(0,0,0),font=font)
-    d.text((vertical_align,5070+horizontal_align),str(int(result_payload)) + ' kg' , fontcolor,font=font)
+    d.text((vertical_align,5070+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
 
     #d.text((60, PA_pixel-80),str(result_PA) + ' ft' , fontcolor,font=font)
     d.text((PA_temp_pixel, PA_pixel-80),str(temp) + ' C' ,(0,0,255),font=font)
