@@ -1574,7 +1574,7 @@ def AW169_OGE_OEI_new_result():
     d.text((vertical_align,4800+horizontal_align),"Useful Load at site:" ,(0,0,0),font=font)
     d.text((vertical_align,4870+horizontal_align),str(result_useful_load) + ' kg' , fontcolor,font=font)
     d.text((vertical_align,5000+horizontal_align),"Payload at site:" ,(0,0,0),font=font)
-    d.text((vertical_align,5070+horizontal_align),str(result_payload) + ' kg' , fontcolor,font=font)
+    d.text((vertical_align,5070+horizontal_align),str(int(result_payload)) + ' kg' , fontcolor,font=font)
 
     #d.text((60, PA_pixel-80),str(result_PA) + ' ft' , fontcolor,font=font)
     d.text((PA_temp_pixel, PA_pixel-80),str(temp) + ' C' ,(0,0,255),font=font)
