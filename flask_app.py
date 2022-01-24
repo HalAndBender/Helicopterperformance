@@ -1184,7 +1184,7 @@ def AW169_OGE_OEI_result():
         )
 
 @app.route('/AW169_OGE_OEI_new', methods=['GET', 'POST'])
-def AW169_OGE_OEI():
+def AW169_OGE_OEI_new():
     if request.method == 'POST':
         # do stuff when the form is submitted
 
@@ -1193,7 +1193,7 @@ def AW169_OGE_OEI():
         return redirect(url_for('index.html'))
 
     # show the form, it wasn't submitted
-    return render_template('AW169_OGE_OEI.html')
+    return render_template('AW169_OGE_OEI_new.html')
 
 @app.route('/AW169_OGE_OEI_new_result/', methods=['POST', 'GET'])
 def AW169_OGE_OEI_new_result():
