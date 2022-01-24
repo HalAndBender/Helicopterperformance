@@ -1534,7 +1534,7 @@ def AW169_OGE_OEI_new_result():
     fuel_at_hho = int(fuel_at_hho)
     result_zero_wind_mass = int(result_zero_wind_mass)
     result_full_wind_mass = int(result_full_wind_mass)
-    result_full_wind_mass_customer = int(result_full_wind_mass_customer)
+    result_customer_mass = int(result_customer_mass)
     result_payload = int(result_payload)
     result_useful_load = int(result_useful_load)
 
