@@ -1553,7 +1553,7 @@ def AW169_OGE_OEI_new_result():
     d.text((vertical_align,2200+horizontal_align),'Dry Ops Mass: ',(0,0,0),font=font)
     d.text((vertical_align,2270+horizontal_align),str(DOM) + ' kg' ,(0,0,255),font=font)
     d.text((vertical_align,2400+horizontal_align),"QNH:" ,(0,0,0),font=font)
-    d.text((vertical_align,2470+horizontal_align),str(QNH) + ' mb' ,(0,0,255),font=font)
+    d.text((vertical_align,2470+horizontal_align),str(QNH) + ' hPa' ,(0,0,255),font=font)
     d.text((vertical_align,2600+horizontal_align),"Hover Height:" ,(0,0,0),font=font)
     d.text((vertical_align,2670+horizontal_align),str(height)+ ' ft' ,(0,0,255),font=font)
     d.text((vertical_align,2800+horizontal_align),"Temperature:" ,(0,0,0),font=font)
