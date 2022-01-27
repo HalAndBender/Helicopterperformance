@@ -757,8 +757,8 @@ def AW139_dropdown_6800_result():
             error = "Cannot perform numeric operations with provided input"
         )
 
-@app.route('/AW169_OGE_OEI', methods=['GET', 'POST'])
-def AW169_OGE_OEI():
+@app.route('/AW169_OGE_OEI_old', methods=['GET', 'POST'])
+def AW169_OGE_OEI_old():
     if request.method == 'POST':
         # do stuff when the form is submitted
 
@@ -767,10 +767,10 @@ def AW169_OGE_OEI():
         return redirect(url_for('index.html'))
 
     # show the form, it wasn't submitted
-    return render_template('AW169_OGE_OEI.html')
+    return render_template('AW169_OGE_OEI_old.html')
 
-@app.route('/AW169_OGE_OEI_result/', methods=['POST', 'GET'])
-def AW169_OGE_OEI_result():
+@app.route('/AW169_OGE_OEI_old_result/', methods=['POST', 'GET'])
+def AW169_OGE_OEI_old_result():
 
     # changes here #
     a = 23
@@ -1123,7 +1123,7 @@ def AW169_OGE_OEI_result():
 
         # returning the template (Flask-part)
         return render_template(
-            'AW169_OGE_OEI.html',
+            'AW169_OGE_OEI_old.html',
             QNH = QNH,
             QNH_SV = session['QNH_SV'],
             DOM = DOM,
@@ -1183,8 +1183,8 @@ def AW169_OGE_OEI_result():
             error = "Cannot perform numeric operations with provided input"
         )
 
-@app.route('/AW169_OGE_OEI_new', methods=['GET', 'POST'])
-def AW169_OGE_OEI_new():
+@app.route('/AW169_OGE_OEI', methods=['GET', 'POST'])
+def AW169_OGE_OEI():
     if request.method == 'POST':
         # do stuff when the form is submitted
 
@@ -1193,10 +1193,10 @@ def AW169_OGE_OEI_new():
         return redirect(url_for('index.html'))
 
     # show the form, it wasn't submitted
-    return render_template('AW169_OGE_OEI_new.html')
+    return render_template('AW169_OGE_OEI.html')
 
-@app.route('/AW169_OGE_OEI_new_result/', methods=['POST', 'GET'])
-def AW169_OGE_OEI_new_result():
+@app.route('/AW169_OGE_OEI_result/', methods=['POST', 'GET'])
+def AW169_OGE_OEI_result():
 
     error = None
     result = None
@@ -1626,7 +1626,7 @@ def AW169_OGE_OEI_new_result():
 
     # returning the template (Flask-part)
     return render_template(
-        'AW169_OGE_OEI_new.html',
+        'AW169_OGE_OEI.html',
         QNH = QNH,
         QNH_SV = session['QNH_SV'],
         DOM = DOM,

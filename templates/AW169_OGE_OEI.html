@@ -4,7 +4,7 @@
     <!-- Required meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!--  Essential META Tags -->
+    <!--  Essential META Tags -->
     <meta property="og:title" content="Helicopter Performance Calculator">
     <meta property="og:description" content="Assess the performance of your helicopter.">
     <meta property="og:image" content="https://www.helicopterperformance.com/static/meta.jpg">
@@ -26,52 +26,52 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-info">
-      <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}" width="160" height="40" alt="HelicopterPerformance.com" border=0 style="border:0; margin-top:0"></a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg navbar-light bg-info">
+    <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo.jpg' ) }}" width="160" height="40" alt="HelicopterPerformance.com" border=0 style="border:0; margin-top:0"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
-      </button>
+    </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
-          </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
+            </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('AW139') }}">AW139</a>
-          </li>
-                <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('AW169') }}">AW169</a>
-          </li>
-                <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('about') }}">About</a>
-          </li>
-          <!--li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Dropdown
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-          </li>
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form-->
-      </div>
-    </nav>
+                <a class="nav-link" href="{{ url_for('AW139') }}">AW139</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('AW169') }}">AW169</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('about') }}">About</a>
+            </li>
+            <!--li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dropdown
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Something else here</a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form-->
+    </div>
+</nav>
 
-    <div class="content">
+<div class="content">
     <p class="h3" style="text-align:center" >Maximum Payload Calculator AW169 OEI HOGE </p>
     <p style="text-align:center">Calculate the maximum payload and mass of the AW169 helicopter that allows maintaining an out of ground effect hover for 2.5 minutes in case of a single engine failure.</br>
-    Please find the instructions <a href="{{ url_for('about') }}">here</a>.
+        Please find the instructions <a href="{{ url_for('about') }}">here</a>.
     </p>
     <form method="post" action="{{ url_for('AW169_OGE_OEI_result') }}" id="calculator_form">
         <div class="form-group">
@@ -85,18 +85,18 @@
         </div>
 
         <div class="form-group">
-            <label for="hover_height">Hover Height above MSL (ft):</label>
-            <input class="form-control input-sm" type="number" name="hover_height" id="hover_height" value="{{hover_height_SV}}" placeholder="0 to 2000" min="0" max="2000">
+            <label for="height">Hover Height above MSL (ft):</label>
+            <input class="form-control input-sm" type="number" name="height" id="height" value="{{height_SV}}" placeholder="0 to 9000" min="0" max="9000">
         </div>
 
         <div class="form-group">
             <label for="QNH">QNH (hPa):</label>
-            <input class="form-control input-sm" type="number" name="QNH" id="QNH" value="{{QNH_SV}}" placeholder="970 to 1050" min="970" max="1050">
+            <input class="form-control input-sm" type="number" name="QNH" id="QNH" value="{{QNH_SV}}" placeholder="970 to 1085" min="970" max="1085">
         </div>
 
         <div class="form-group">
             <label for="temp">Temperature (C):</label>
-            <input class="form-control input-sm" type="number" name="temp" id="temp" value="{{temp_SV}}" placeholder="-10 to 40" min="-10" max="40">
+            <input class="form-control input-sm" type="number" name="temp" id="temp" value="{{temp_SV}}" placeholder="-20 to 50" min="-20" max="50">
         </div>
 
         <div class="form-group">
@@ -117,7 +117,7 @@
             <input class="form-control input-sm" type="text" name="PIC" id="PIC" value="{{PIC_SV}}" placeholder="example: JDO or Joe Doe">
         </div>
         <a href="#anchor">
-        <input class="btn btn-primary" type="submit" value="Calculate" />
+            <input class="btn btn-primary" type="submit" value="Calculate" />
         </a>
         <br/>
         <br/>
@@ -128,40 +128,40 @@
 
     </form>
     {% if calculation_success == True %}
-        <h5 id="anchor" style="color:red;">Result:</h5>
-        <table>
-            <tr><td >Pressure Altitude:</td><td style="color:red;">{{result_PA}} ft</td></tr>
-            <tr><td >Mass, 0 kt Wind:</td><td style="color:red;">{{result_zero_wind_mass}} kg</td></tr>
-            <tr><td >Mass, full wind:</td><td style="color:red;">{{result_full_wind_mass}} kg</td></tr>
-            <tr><td >Mass, limited Wind-benefit :</td><td style="color:red;">{{result_customer_mass}} kg</td></tr>
-            <tr><td >Useful Load at site:</td><td style="color:red;">{{result_useful_load}} kg</td></tr>
-            <tr><td >Payload at site: </td><td style="color:red;">{{result_payload}} kg</td></tr>
-        </table>
-        <br/>
-        <div class="content">
+    <h5 id="anchor" style="color:red;">Result:</h5>
+    <table>
+        <tr><td >Pressure Altitude:</td><td style="color:red;">{{result_PA}} ft</td></tr>
+        <tr><td >Mass, 0 kt Wind:</td><td style="color:red;">{{result_zero_wind_mass}} kg</td></tr>
+        <tr><td >Mass, full wind:</td><td style="color:red;">{{result_full_wind_mass}} kg</td></tr>
+        <tr><td >Mass, limited Wind-benefit :</td><td style="color:red;">{{result_customer_mass}} kg</td></tr>
+        <tr><td >Useful Load at site:</td><td style="color:red;">{{result_useful_load}} kg</td></tr>
+        <tr><td >Payload at site: </td><td style="color:red;">{{result_payload}} kg</td></tr>
+    </table>
+    <br/>
+    <div class="content">
         <p style="text-align: left"><b>Preview:</b></p>
         <img id="output_image" align="left" style= "margin-bottom: 25px; margin-top: 0px" src="{{ url_for('static', filename=result_png )}}" style="border:0; margin-top:0">
-        </div>
-        <br/>
-        <div class="content">
+    </div>
+    <br/>
+    <div class="content">
         <embed src="{{ url_for('static', filename=result_pdf )}}" type="application/pdf" width="100%" height="600px" />
         <br/>
         <br/>
         <p><a class="btn btn-primary" type="submit" value="Download" href="{{ url_for('static', filename=result_pdf) }}" download rel="noopener noreferrer" target="_blank">Download PDF</a></p>
-        </div>
-        <br/>
+    </div>
+    <br/>
     {% endif %}
 
     {% if calculation_success == False %}
-        <br/>
-        <p>{{error}}</p>
-        <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
+    <br/>
+    <p>{{error}}</p>
+    <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
     {% endif %}
 
     {% if calculation_only_success == False %}
-        <br/>
-        <p>{{error}}</p>
-        <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
+    <br/>
+    <p>{{error}}</p>
+    <p>{{QNH}}  {{DOM}} = "{{result}}"</p>
     {% endif %}
 
     <script>
@@ -172,7 +172,7 @@
 
         }, false);
     </script>
-    </div>
+</div>
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
