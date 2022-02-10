@@ -1540,7 +1540,7 @@ def AW169_OGE_OEI_result():
 
 
     # text on image:
-    vertical_align = 40
+    vertical_align = 40+25 #change here
     horizontal_align = -730
     d.text((vertical_align,580),"Date, Time (UTC)",(0,0,0),font=font)
     time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
