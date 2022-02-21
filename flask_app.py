@@ -665,7 +665,7 @@ def AW139_dropdown_6800_result():
         vertical_align = 100
         horizontal_align = -730
         d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
-        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+        time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
         d.text((vertical_align,580),str(time),(0,0,255),font=font)
 
         d.text((vertical_align,700),"Flight ID:" ,(0,0,0),font=font)
@@ -1040,7 +1040,7 @@ def AW169_OGE_OEI_old_result():
         vertical_align = 2931
         horizontal_align = -730
         d.text((vertical_align,580),"Date, Time (UTC)",(0,0,0),font=font)
-        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+        time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
         d.text((vertical_align,650),str(time),(0,0,255),font=font)
         d.text((vertical_align,800),"Flight ID:" ,(0,0,0),font=font)
         d.text((vertical_align,870),str(flight_ID_input),(0,0,255),font=font)
@@ -1543,7 +1543,7 @@ def AW169_OGE_OEI_result():
     vertical_align = 40+25 #change here
     horizontal_align = -730
     d.text((vertical_align,580),"Date, Time (UTC)",(0,0,0),font=font)
-    time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+    time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
     d.text((vertical_align,650),str(time),(0,0,255),font=font)
     d.text((vertical_align,800),"Flight ID:" ,(0,0,0),font=font)
     d.text((vertical_align,870),str(flight_ID_input),(0,0,255),font=font)
@@ -1840,7 +1840,7 @@ def AW169_dropdown_4200_result():
         vertical_align = 2931
         horizontal_align = -730
         d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
-        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+        time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
         d.text((vertical_align,580),str(time),(0,0,255),font=font)
 
         d.text((vertical_align,700),"Flight ID:" ,(0,0,0),font=font)
@@ -2262,7 +2262,7 @@ def AW139_dropdown_enhanced_result():
         vertical_align = 100
         horizontal_align = -730
         d.text((vertical_align,500),"Date, Time (UTC)",(0,0,0),font=font)
-        time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+        time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
         d.text((vertical_align,600),str(time),(0,0,255),font=font)
 
         d.text((vertical_align,750),"Flight ID:" ,(0,0,0),font=font)
@@ -3181,7 +3181,7 @@ def AW139_rejected_tod_clear_area_result():
     vertical_align = 100
     horizontal_align = -730
     d.text((vertical_align,400),"Date, Time (UTC)",(0,0,0),font=font)
-    time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+    time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
     d.text((vertical_align,500),str(time),(0,0,255),font=font)
 
     d.text((vertical_align,750),"Flight ID:" ,(0,0,0),font=font)
