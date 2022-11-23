@@ -17,19 +17,22 @@
     <!--  Non-Essential, But Required for Analytics -->
     <!--meta property="fb:app_id" content="your_app_id" />
     <meta name="twitter:site" content="@website-username"-->
-
-
     <title>Helicopter Performance Calculator</title>
-
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <!-- Own CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
-
 </head>
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N8B9631KV8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-N8B9631KV8');
+</script>
 
 <body>
 

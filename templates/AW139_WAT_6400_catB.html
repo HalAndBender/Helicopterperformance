@@ -16,7 +16,7 @@
     <!--  Non-Essential, But Required for Analytics -->
     <!--meta property="fb:app_id" content="your_app_id" />
     <meta name="twitter:site" content="@website-username"-->
-    <title>Rejected Takeoff Distance Calculator for AW139 with Clear Area Takeoff.</title>
+    <title>Weight-Altitude-Temperature (WAT) Calculator for AW139, CAT B, 6400kg.</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
@@ -86,49 +86,44 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 
-    <p class="h3" style="text-align:center" >Clear-Area Rejected Takeoff-Distance Calculator for AW139</p>
-    <p style="text-align:center">Calculate the rejected takeoff distance of the AW139 helicopter in case of a single engine failure at TDP during a clear area takeoff.
+
+
+
+
+    <p class="h3" style="text-align:center" >Weight-Altitude-Temperature (WAT) Calculator for AW139, CAT B, 6400kg </p>
+    <p style="text-align:center">Calculate the maximum mass for the AW139 helicopter, CAT B, 6400kg.
         <br/>
         Please find the instructions <a href="{{ url_for('about') }}">here</a>.
     </p>
     <!--<div class="alert alert-warning" role="alert">
     This tool is for informational purpose only. It is an uncontrolled copy. For actual planning the pilot must use the current RFM.
     </div>-->
-    <form method="post" action="{{ url_for('AW139_rejected_tod_clear_area_result') }}" id="calculator_form">
+    <form method="post" action="{{ url_for('AW139_WAT_6400_catB_result') }}" id="calculator_form">
+
 
         <div class="form-group">
-            <label for="gross_mass">Gross Mass (kg):</label>
-            <input class="form-control input-sm" type="number" name="gross_mass" id="gross_mass" value="{{gross_mass_SV}}" placeholder="4400 to 7000" min="4400" max="7000">
-        </div>
-
-        <div class="form-group">
-            <label for="height">Height at TDP above MSL (ft):</label>
-            <input class="form-control input-sm" type="number" name="height" id="height" value="{{height_SV}}" placeholder="0 to 8000" min="0" max="8000">
-        </div>
-
-        <div class="form-group">
-            <label for="QNH">QNH (hPa):</label>
-            <input class="form-control input-sm" type="number" name="QNH" id="QNH" value="{{QNH_SV}}" placeholder="970 to 1050" min="970" max="1050">
+            <label for="pressure_altitude">Pressure Altitude (ft):</label>
+            <input class="form-control input-sm" type="number" name="pressure_altitude" id="pressure_altitude" value="{{pressure_altitude_SV}}" placeholder="-1000 to 14000" min="-1000" max="14000">
         </div>
 
         <div class="form-group">
             <label for="temp">Temperature (C):</label>
-            <input class="form-control input-sm" type="number" name="temp" id="temp" value="{{temp_SV}}" placeholder="-30 to 50" min="-30" max="50">
+            <input class="form-control input-sm" type="number" name="temp" id="temp" value="{{temp_SV}}" placeholder="-40 to 50" min="-40" max="50">
         </div>
 
         <div class="form-group">
-            <label for="wind">Headwind component (kt):</label>
-            <input class="form-control input-sm" type="number" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 60" min="0" max="60">
+            <label for="temp">Wind (kt):</label>
+            <input class="form-control input-sm" type="number" name="wind" id="wind" value="{{wind_SV}}" placeholder="0 to 45" min="0" max="45">
         </div>
 
         <div class="form-group">
             <label for="flight_ID">Flight ID:</label>
-            <input class="form-control input-sm" type="text" name="flight_ID" id="flight_ID" value="{{flight_ID_SV}}" placeholder="example: HSO41A or D-HHMH">
+            <input class="form-control input-sm" type="text" name="flight_ID" id="flight_ID" value="{{flight_ID_SV}}" placeholder="(optional)">
         </div>
 
         <div class="form-group">
             <label for="PIC">PIC/SIC:</label>
-            <input class="form-control input-sm" type="text" name="PIC" id="PIC" value="{{PIC_SV}}" placeholder="example: JDO or Joe Doe">
+            <input class="form-control input-sm" type="text" name="PIC" id="PIC" value="{{PIC_SV}}" placeholder="(optional)">
         </div>
         <a href="#anchor">
             <input class="btn btn-primary" type="submit" value="Calculate" />
@@ -141,8 +136,7 @@
     {% if calculation_success == True %}
     <h5 id="anchor" style="color:red;font-size:4vw;">Result:</h5>
     <table>
-        <tr><td >Pressure Altitude:</td><td style="color:red;">{{result_PA}} ft</td></tr>
-        <tr><td >Rejected Takeoff Distance: </td><td style="color:red;">{{result_rejected_takeoff_distance}} m</td></tr>
+        <tr><td >Max Gross Mass:</td><td style="color:red;">{{result_gross_weight}} kg</td></tr>
     </table>
     <br/>
     <div class="content">

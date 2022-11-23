@@ -23,7 +23,15 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
 </head>
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N8B9631KV8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-N8B9631KV8');
+</script>
 
 <body>
 
@@ -107,6 +115,19 @@
         <img border="0" alt="AW139_rejected_tod_clear_area" src="{{ url_for('static', filename='AW139_rejected_tod_clear_area.png' ) }}" width="282" height="200" title="AW139 rejected takeoff distance clear area">
         </a>
         <p>AW139 rejected takeoff distance </br> after engine failure  </br>during clear area takeoff (up to 7000kg)</p>
+
+        <div class="img-with-text">
+        <a href="{{ url_for('AW139_HOGE_AT_TOP_CLEAN') }}">
+        <img border="0" alt="AW139_HOGE_AT_TOP_CLEAN_6400" src="{{ url_for('static', filename='AW139_HOGE_AT_TOP_CLEAN.png' ) }}" width="200" height="283" title="AW139 HOGE at TOP, Clean, 6400kg">
+        </a>
+        <p>Maximum Mass for Hover </br> Out of Ground Effect,</br> no EAPS installed, up to 6400kg</p>
+
+        <div class="img-with-text">
+        <a href="{{ url_for('AW139_WAT_6400_catB') }}">
+        <img border="0" alt="AW139_WAT_6400_catB" src="{{ url_for('static', filename='images/link_images/AW139_WAT_CATB_6400.png') }}" width="282" height="200" title="AW139 WAT CAT B, 6400kg">
+        </a>
+        <p>Maximum Mass for Takeoff and Landing (WAT) </br> in of Ground Effect,</br> CAT B, up to 6400kg</p>
+
 
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

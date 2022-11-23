@@ -16,13 +16,23 @@
     <!--  Non-Essential, But Required for Analytics -->
     <!--meta property="fb:app_id" content="your_app_id" />
     <meta name="twitter:site" content="@website-username"-->
-    <title>Maximum Mass Calculator for HOGE at TOP, AW139 (clean).</title>
+    <title>Maximum Mass Calculator for HOGE at TOP, AW139 (clean), 6400kg.</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <!-- Own CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
 </head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N8B9631KV8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-N8B9631KV8');
+</script>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-info">
@@ -77,7 +87,7 @@
 
 
     <p class="h3" style="text-align:center" >Maximum Mass Calculator for HOGE at TOP, AW139 (clean)</p>
-    <p style="text-align:center">Calculate the maximum mass for the AW139 helicopter (clean configuration) for a hover out of ground effect at takeoff-power.
+    <p style="text-align:center">Calculate the maximum mass for the AW139 helicopter (max 6400kg, clean configuration) for a hover out of ground effect at takeoff-power.
         <br/>
         Please find the instructions <a href="{{ url_for('about') }}">here</a>.
     </p>
@@ -99,12 +109,12 @@
 
         <div class="form-group">
             <label for="flight_ID">Flight ID:</label>
-            <input class="form-control input-sm" type="text" name="flight_ID" id="flight_ID" value="{{flight_ID_SV}}" placeholder="example: HSO41A or D-HHMH">
+            <input class="form-control input-sm" type="text" name="flight_ID" id="flight_ID" value="{{flight_ID_SV}}" placeholder="(optional)">
         </div>
 
         <div class="form-group">
             <label for="PIC">PIC/SIC:</label>
-            <input class="form-control input-sm" type="text" name="PIC" id="PIC" value="{{PIC_SV}}" placeholder="example: JDO or Joe Doe">
+            <input class="form-control input-sm" type="text" name="PIC" id="PIC" value="{{PIC_SV}}" placeholder="(optional)">
         </div>
         <a href="#anchor">
             <input class="btn btn-primary" type="submit" value="Calculate" />
@@ -149,8 +159,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let img = document.getElementById('output_image');
-            img.style.height = '233px';
-            img.style.width = '330px';
+            img.style.height = '330px';
+            img.style.width = '233px';
 
         }, false);
     </script>
