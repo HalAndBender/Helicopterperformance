@@ -7,6 +7,7 @@ import os
 # test written in Pycharm
 # second test written in Pycharm
 
+
 app = Flask(__name__) # Creating our Flask Instance
 app.secret_key = "randomly543tert443434"
 
@@ -14,6 +15,79 @@ app.secret_key = "randomly543tert443434"
 
 path_pycharm = "/home/gaviation/mysite" # path for pythonanywere
 #path_pycharm = ""                      # path for pycharm
+
+
+def value_to_pixel(nominal_value, low_end_pixel, high_end_pixel, nominal_difference):
+    """converts a nominal input value into a chart pixel value.
+    nominal_value = input variable which is read off from the chart
+    low_end_pixel = pixel value on one end of the axis.
+    high_end_pixel = pixel value on the other end of the axis.
+    nominal_difference = difference between nominal values on chart"""
+    pixel_per_unit_value = (high_end_pixel - low_end_pixel) / nominal_difference
+    pixel_value = low_end_pixel + (nominal_value * pixel_per_unit_value)
+    return pixel_value
+
+
+def pixel_to_value(pixel_value, low_end_pixel, high_end_pixel, low_end_nominal_value, nominal_difference):
+    """converts a pixel value into a nominal chart value.
+    pixel_value = pixel value produced by a pixel calculation
+    low_end_pixel = pixel value on one end of the axis.
+    high_end_pixel = pixel value on the other end of the axis.
+    low_end_nominal_value = lowest value on axis.
+    nominal_difference = difference between nominal values on chart"""
+    pixel_per_unit_value = (high_end_pixel - low_end_pixel) / nominal_difference
+    nominal_value = low_end_nominal_value + (pixel_value - low_end_pixel) / pixel_per_unit_value
+    return nominal_value
+
+
+def find_intersection(nominal_input, pixel_input, points_dict, input_is_x=1):
+    """ creates from each series of points a polynomial function and evaluates the function,
+     solving either of x or for y at the pixel_input variable.
+     Should the polynomial equation be solved for y, then input_is_x = 1,
+     Should the polynomial equation be solved for x, then input_is_x = 0,
+     The nominal_input is used to select the right series of points in the dictionary,
+     The pixel_limit indicates a limit, beyond which the function should no longer be
+     evaluated."""
+    if input_is_x == 0:
+        input_is_y = 1
+    else:
+        input_is_y = 0
+    if nominal_input in points_dict.keys():
+        x_and_y = points_dict.get(nominal_input)
+        # polynomial regression of degree (len(x_y[0])-1)
+        model = np.poly1d(np.polyfit(x_and_y[input_is_y], x_and_y[input_is_x], len(x_and_y[0]) - 1))
+        # r2_score(x, model(y)) # r-score   # check the r2 score
+        output_pixel = round(model(pixel_input))  # prediction
+    else:
+        # finding the adjacent lower value in the dictionary
+        lower_key = max(k for k in points_dict if k <= nominal_input)
+        # finding the adjacent higher value in the dictionary
+        upper_key = min(k for k in points_dict if k >= nominal_input)
+        x_and_y_1 = points_dict.get(lower_key)  # getting the pixel table for the lower line
+        x_and_y_2 = points_dict.get(upper_key)  # getting the pixel table for the upper line
+        model_1 = np.poly1d(
+            np.polyfit(x_and_y_1[input_is_y], x_and_y_1[input_is_x], len(x_and_y_1[0]) - 1))  # model the lower line
+        model_2 = np.poly1d(
+            np.polyfit(x_and_y_2[input_is_y], x_and_y_2[input_is_x], len(x_and_y_2[0]) - 1))  # model the upper line
+        intersect1 = model_1(pixel_input)  # prediction upper line
+        intersect2 = model_2(pixel_input)  # prediction lower line
+        # interpolate between lower and upper line
+        interpolated = intersect1 + ((nominal_input - lower_key) / (upper_key - lower_key) * (intersect2 - intersect1))
+        output_pixel = round(interpolated)
+    return output_pixel
+
+
+def line_from_two_points_y_to_x(x1, y1, x2, y2, variable, solve_for="y"):
+    """takes two points (x1, y1) and (x2, y2) to obtain the function of a
+    straight line, then evaluates the function, solving either for x or for y with the variable provided. """
+    slope = (y1 - y2) / (x1 - x2)
+    intercept = -slope * x1 + y1
+    if solve_for == "y":
+        y = slope * variable + intercept
+        return y
+    else:
+        x = (variable - intercept) / slope
+        return x
 
 
 '''Database'''
@@ -70,7 +144,6 @@ def AW139():
     return render_template('AW139.html')
 
 
-
 @app.route('/AW169', methods=['GET', 'POST'])
 def AW169():
     if request.method == 'POST':
@@ -95,6 +168,7 @@ def AW139_OGE_OEI():
 
     # show the form, it wasn't submitted
     return render_template('AW139_OGE_OEI.html')
+
 
 @app.route('/operation_result/', methods=['POST', 'GET'])
 def operation_result():
@@ -490,6 +564,7 @@ def operation_result():
             error = "Cannot perform numeric operations with provided input"
         )
 
+
 @app.route('/AW139_dropdown_6800', methods=['GET', 'POST'])
 def AW139_dropdown_6800():
     if request.method == 'POST':
@@ -501,6 +576,7 @@ def AW139_dropdown_6800():
 
     # show the form, it wasn't submitted
     return render_template('AW139_dropdown_6800.html')
+
 
 @app.route('/AW139_dropdown_6800_result/', methods=['POST', 'GET'])
 def AW139_dropdown_6800_result():
@@ -757,6 +833,7 @@ def AW139_dropdown_6800_result():
             error = "Cannot perform numeric operations with provided input"
         )
 
+
 @app.route('/AW169_OGE_OEI_old', methods=['GET', 'POST'])
 def AW169_OGE_OEI_old():
     if request.method == 'POST':
@@ -768,6 +845,7 @@ def AW169_OGE_OEI_old():
 
     # show the form, it wasn't submitted
     return render_template('AW169_OGE_OEI_old.html')
+
 
 @app.route('/AW169_OGE_OEI_old_result/', methods=['POST', 'GET'])
 def AW169_OGE_OEI_old_result():
@@ -1183,6 +1261,7 @@ def AW169_OGE_OEI_old_result():
             error = "Cannot perform numeric operations with provided input"
         )
 
+
 @app.route('/AW169_OGE_OEI', methods=['GET', 'POST'])
 def AW169_OGE_OEI():
     if request.method == 'POST':
@@ -1194,6 +1273,7 @@ def AW169_OGE_OEI():
 
     # show the form, it wasn't submitted
     return render_template('AW169_OGE_OEI.html')
+
 
 @app.route('/AW169_OGE_OEI_result/', methods=['POST', 'GET'])
 def AW169_OGE_OEI_result():
@@ -1669,6 +1749,7 @@ def AW169_dropdown_4200():
     # show the form, it wasn't submitted
     return render_template('AW169_dropdown_4200.html')
 
+
 @app.route('/AW169_dropdown_4200_result/', methods=['POST', 'GET'])
 def AW169_dropdown_4200_result():
 
@@ -1956,6 +2037,7 @@ def AW169_dropdown_4200_result():
             calculation_success = False,
             error = "Cannot perform numeric operations with provided input"
         )
+
 
 @app.route('/AW139_dropdown_enhanced', methods=['GET', 'POST'])
 def AW139_dropdown_enhanced():
@@ -2379,6 +2461,7 @@ def AW139_dropdown_enhanced_result():
             calculation_success = False,
             error = "Cannot perform numeric operations with provided input"
         )
+
 
 @app.route('/AW139_rejected_tod_clear_area', methods=['GET', 'POST'])
 def AW139_rejected_tod_clear_area():
@@ -3266,6 +3349,507 @@ def AW139_rejected_tod_clear_area_result():
         calculation_success = True,
     )
 
+
+@app.route('/AW139_HOGE_AT_TOP_CLEAN', methods=['GET', 'POST'])
+def AW139_HOGE_AT_TOP_CLEAN():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_HOGE_AT_TOP_CLEAN.html')
+
+@app.route('/AW139_HOGE_AT_TOP_CLEAN_result/', methods=['POST', 'GET'])
+def AW139_HOGE_AT_TOP_CLEAN_result():
+
+    error = None
+    result = None
+
+    fontcolor = (255,  0,  0)
+    line_color = (255,  0,  0)
+
+
+    #flask
+    PA_input = request.form['PA']
+    session['PA_SV'] = PA_input
+    temp_input = request.form['temp']
+    session['temp_SV'] = temp_input
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
+
+    # flask
+    PA = int(PA_input)
+    temp = int(temp_input)
+    PIC = PIC_input
+    flight_ID = flight_ID_input
+
+
+    # # jupyter
+    # from PIL import Image, ImageDraw, ImageFont
+    # import numpy as np
+    # import matplotlib.pyplot as plt
+    # im = Image.open("AW139_HOGE_AT_TOP_CLEAN.png")
+    # from datetime import date, datetime
+
+    # flask
+    # request.form looks for:
+    # html tags with matching "name= "
+
+
+    #
+    # # jupyter
+    # # User input:
+    # PA = 16000
+    # temp = 12
+    # flight_ID = 'HSO41A'
+    # PIC =  'SGO'
+    #
+
+    # # jupyter
+    # font = ImageFont.truetype("SFNS.ttf", 25)
+    # im = Image.open("AW139_HOGE_AT_TOP_CLEAN.png")
+
+
+
+    # flask
+    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 25)
+    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_HOGE_AT_TOP_CLEAN.png")
+
+    d = ImageDraw.Draw(im)
+
+    result_PA = round(PA)
+
+    # scaling the PA axis
+    min_chart_value = -1000
+    max_chart_value = 18000
+    min_chart_value_pixel= 1357  # here: -1000 feet
+    max_chart_value_pixel = 533  # here 18000 feet
+    diff_feet = max_chart_value - (min_chart_value)
+    # input PA_pixel (horizontal line)
+    PA_pixel = round(min_chart_value_pixel + (PA - min_chart_value) * ((max_chart_value_pixel - min_chart_value_pixel) / diff_feet))
+
+
+    def Listmaker(x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4, steps):
+        x_points_decimal_1 = list(np.linspace(x_1, x_2, steps))
+        x_points_1 = [round(num) for num in x_points_decimal_1]
+        x_points_decimal_2 = list(np.linspace(x_2, x_3, steps))
+        x_points_2 = [round(num) for num in x_points_decimal_2]
+        x_points_decimal_3 = list(np.linspace(x_3, x_4, steps))
+        x_points_3 = [round(num) for num in x_points_decimal_3]
+        x_points = x_points_1 + x_points_2 + x_points_3
+        x_points = list(dict.fromkeys(x_points))
+
+        y_points_decimal_1 = list(np.linspace(y_1, y_2, steps))
+        y_points_1 = [round(num) for num in y_points_decimal_1]
+        y_points_decimal_2 = list(np.linspace(y_2, y_3, steps))
+        y_points_2 = [round(num) for num in y_points_decimal_2]
+        y_points_decimal_3 = list(np.linspace(y_3, y_4, steps))
+        y_points_3 = [round(num) for num in y_points_decimal_3]
+        y_points = y_points_1 + y_points_2 + y_points_3
+        y_points = list(dict.fromkeys(y_points))
+        return x_points, y_points
+
+
+
+    dictionary = {  -40:Listmaker(749,808,689,648,552,533,235,291,10),
+                    -30:Listmaker(750,858,687,691,503,533,235,291,10),
+                    -20:Listmaker(747,894,688,734,467,542,160,434,10),
+                    -10:Listmaker(747,939,688,778,457,577,160,434,10),
+                      0:Listmaker(749,985,693,832,444,616,160,434,20),
+                     10:Listmaker(747,1021,698,889,584,798,265,516,20),
+                     20:Listmaker(748,1063,709,955,565,838,263,576,10),
+                     30:Listmaker(748,1101,726,1040,532,880,266,704,10),
+                     40:Listmaker(741,1138,686,1095,265,880,238,866,10)}
+
+    # finding the output value by first defining which is input
+    input_real = temp
+    input_pixel = PA_pixel
+
+    # defining input and output variable
+    input_is_x = 1 # set to 1 if input is x, set to 0 if input is y
+    output_is_y = 0 # set to 0 if output is y, set to 1 if output is x
+
+    if input_real in dictionary.keys():
+        x_and_y = dictionary.get(input_real)
+        model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1)) # polynomial regression of degree (len(x_y[0])-1)
+        # r2_score(x, model(y)) # r-score   # check the r2 score
+        output_pixel = round(model(input_pixel))   #  prediction
+    else:
+        lower_key = max(k for k in dictionary if k <= input_real) # finding the adjacent lower value in the dictionary
+        upper_key = min(k for k in dictionary if k >= input_real) # finding the adjacent higher value in the dictionary
+        x_and_y_1 = dictionary.get(lower_key)  # getting the pixel table for the lower line
+        x_and_y_2 = dictionary.get(upper_key)  # getting the pixel table for the upper line
+        model_1 = np.poly1d(np.polyfit(x_and_y_1[input_is_x],x_and_y_1[output_is_y], len(x_and_y_1[0])-1)) # model the lower line
+        model_2 = np.poly1d(np.polyfit(x_and_y_2[input_is_x],x_and_y_2[output_is_y], len(x_and_y_2[0])-1)) # model the upper line
+        intersect1 = model_1(input_pixel)  # prediction upper line
+        intersect2 = model_2(input_pixel)  # prediction lower line
+        interpolated = intersect1 + ((input_real-lower_key)/(upper_key - lower_key)*(intersect2-intersect1)) # interpolate between lower and upper line
+        output_pixel = round(interpolated)
+
+    pixel_limit = 742
+
+
+    max_oat_limit = Listmaker(532,880, 616,999,687,1095, 741,1185,2)
+    max_oat_model = np.poly1d(np.polyfit(max_oat_limit[1], max_oat_limit[0], len(max_oat_limit[0])-1))
+    output_pixel_oat = int(max_oat_model(input_pixel))
+
+    # to be continued
+    if output_pixel_oat > output_pixel:
+        pass
+
+
+    if (output_pixel > pixel_limit) or (PA < 4050):
+            output_pixel = pixel_limit
+
+
+
+    PA_temp_pixel = output_pixel
+
+    point_1 = (100, PA_pixel)
+    point_2 = (PA_temp_pixel, PA_pixel)
+    point_3 = (PA_temp_pixel, 1481)
+
+
+
+    # convert pixel output to chart value on mass axis
+    min_chart_value = 4200
+    max_chart_value = 6600
+    min_chart_value_pixel = 266
+    max_chart_value_pixel = 785
+    diff_chart_value = max_chart_value - min_chart_value
+    diff_chart_value_pixel = max_chart_value_pixel - min_chart_value_pixel
+    pixel_per_unit = diff_chart_value_pixel / diff_chart_value
+    result_mass = min_chart_value + (PA_temp_pixel - min_chart_value_pixel) / pixel_per_unit
+    if result_mass > 6400:
+        result_mass = 6400
+
+    # '''Jupyter sanity plotting'''
+    # # define plot range
+    # input_is_x = 0 # set to 1 if input is x
+    # output_is_y = 1 # set to 0 if output is y
+    # chart_lower_value = 268 # choose x- or y- values
+    # chart_upper_value = 739  # choose x- or y- values
+    # for key in dictionary.keys():
+    #     x_and_y = dictionary.get(key)
+    #     model = np.poly1d(np.polyfit(x_and_y[input_is_x], x_and_y[output_is_y], len(x_and_y[0])-1))
+    #     point_list = []
+    #     for i in np.arange(chart_lower_value,chart_upper_value,10):
+    #         output_pixel = round(model(i))
+    #         point = (i, output_pixel)  # make sure x and y have correct position here!!
+    #         point_list.append(point)
+    #     d.line(point_list, fill=line_color, width=5)
+
+    '''Preparing for print '''
+    temp = int(temp)
+    PA = int(PA)
+    result_mass = int(result_mass)
+
+    d.text((80, PA_pixel-35),str(PA) + ' ft' ,(0,0,255),font=font) # point label
+    d.text((PA_temp_pixel+10, PA_pixel-35),str(temp) + ' C' ,(0,0,255),font=font) # point label
+    d.text((output_pixel+10, 1460),str(result_mass) + ' kg' ,fontcolor,font=font) # point label
+
+    # drawing the lines between points:
+    d.line([point_1,point_2,point_3], fill=line_color, width=3)
+
+    # adding text to chart:
+    vertical_align = 893
+    d.text((vertical_align,540),"Date, Time (UTC)",(0,0,0),font=font)
+    time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
+    d.text((vertical_align,580),str(time),(0,0,255),font=font)
+    d.text((vertical_align,630),"Flight ID:" ,(0,0,0),font=font)
+    d.text((vertical_align,670),str(flight_ID),(0,0,255),font=font)
+    d.text((vertical_align,720),"PIC/SIC:" ,(0,0,0),font=font)
+    d.text((vertical_align,760),str(PIC),(0,0,255),font=font)
+    d.text((vertical_align,810),"Pressure Altitude:" ,(0,0,0),font=font)
+    d.text((vertical_align,850),str(PA)+ ' ft' ,(0,0,255),font=font)
+    d.text((vertical_align,900),"Temperature:" ,(0,0,0),font=font)
+    d.text((vertical_align,940),str(temp) + ' C' ,(0,0,255),font=font)
+    d.text((vertical_align,1280),"RESULT:" ,(255,0,0),font=font)
+    d.text((vertical_align,1320),"Maximum Gross Mass:" ,(255,0,0),font=font)
+    d.text((vertical_align,1360),str(result_mass) + ' kg' ,(255,0,0),font=font)
+
+    # # jupyter
+    # plt.figure(figsize=(40,20))
+    # imgplot = plt.imshow(im)
+    # plt.show()
+
+    # flask
+    # removing previously generated images
+    for filename in os.listdir(path_pycharm + '/static/images/'):
+        if filename.startswith('AW139_HOGE_AT_TOP_CLEAN_rendered'):  # not to remove other images
+            os.remove(path_pycharm + '/static/images/' + filename)
+
+    # create png
+    graph_png = "AW139_HOGE_AT_TOP_CLEAN_rendered " + str(time) + " UTC.png"
+    im.save(path_pycharm + '/static/images/' + graph_png)
+
+    # create pdf
+    graph_pdf = "AW139_HOGE_AT_TOP_CLEAN_rendered " + str(time) + " UTC.pdf"
+    rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+    rgb.paste(im)
+    rgb.save(path_pycharm + '/static/images/' + graph_pdf)
+
+
+    # returning the html template with filled values(Flask-part)
+    return render_template(
+        'AW139_HOGE_AT_TOP_CLEAN.html',
+        PA = PA,
+        PA_SV = session['PA_SV'],
+        temp = temp,
+        temp_SV = session['temp_SV'],
+        PIC = PIC,
+        PIC_SV = session['PIC_SV'],
+        flight_ID = flight_ID,
+        flight_ID_SV = session['flight_ID_SV'],
+        result_png = graph_png,
+        result_pdf = graph_pdf,
+        result_PA = result_PA,
+        result_mass = result_mass,
+        calculation_success = True,
+    )
+
+
+
+@app.route('/AW139_WAT_6400_catB', methods=['GET', 'POST'])
+def AW139_WAT_6400_catB():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_WAT_6400_catB.html')
+
+
+@app.route('/AW139_WAT_6400_catB_result/', methods=['POST', 'GET'])
+def AW139_WAT_6400_catB_result():
+
+    error = None
+    result = None
+
+    fontcolor = (255,0,0)
+    line_color = (255, 0, 0)
+
+    #flask
+    pressure_altitude_input = request.form['pressure_altitude']
+    session['pressure_altitude_SV'] = pressure_altitude_input
+
+    temp_input = request.form['temp']
+    session['temp_SV'] = temp_input
+
+    wind_input = request.form['wind']
+    session['wind_SV'] = wind_input
+
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
+
+    # flask
+    pressure_altitude = int(pressure_altitude_input)
+    temp = int(temp_input)
+    wind = int(wind_input)
+    PIC = PIC_input
+    flight_ID = flight_ID_input
+
+    # flask
+    # request.form looks for:
+    # html tags with matching "name= "
+
+
+    # flask
+    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 30)
+    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_WAT_CATB_6400.png")
+
+    d = ImageDraw.Draw(im) # generating the image
+
+    # function call
+    PA_pixel = value_to_pixel(pressure_altitude, 390, 1272, 14000)
+
+    # pixel values on x- and y-axis on left chart
+    x_1 = [703, 1272]  # -40
+    y_1 = [1158, 564]
+    x_2 = [632, 1272]  # -30
+    y_2 = [1158, 496]
+    x_3 = [563, 1272]  # -20
+    y_3 = [1158, 431]
+    x_4 = [496, 1256]  # -10
+    y_4 = [1158, 386]
+    x_5 = [432, 1196]  # 0
+    y_5 = [1158, 386]
+    x_6 = [ 370, 1139]  # +10
+    y_6 = [1158, 386]
+    x_7 = [ 327, 1083]  # +20
+    y_7 = [1139, 386]
+    x_8 = [327, 1030]  # +30
+    y_8 = [1080, 386]
+    x_9 = [327, 701]  # +40
+    y_9 = [1024, 654]
+    x_10 = [327, 397]  # +50
+    y_10 = [969, 901]
+
+    # dictionary for lines
+    temp_dictionary ={-40: [x_1, y_1],
+                 -30: [x_2, y_2],
+                 -20: [x_3, y_3],
+                 -10: [x_4, y_4],
+                   0: [x_5, y_5],
+                  10: [x_6, y_6],
+                  20: [x_7, y_7],
+                  30: [x_8, y_8],
+                  40: [x_9, y_9],
+                  50: [x_10, y_10]}
+
+
+    # function call
+    output_pixel_left = find_intersection(temp, PA_pixel, temp_dictionary, input_is_x=1)
+
+    # restricting the chart output
+    pixel_limit = 10000
+    if output_pixel_left > pixel_limit:
+        output_pixel_left = pixel_limit
+
+
+    # pixel values on x- and y-axis on right chart
+    x_1 = [1414, 1551]  # 45
+    y_1 = [386, 593]
+    x_2 = [1453, 1599]  # 40
+    y_2 = [386, 598]
+    x_3 = [1492, 1648]  # 35
+    y_3 = [386, 605]
+    x_4 = [1530, 1696]  # 30
+    y_4 = [386, 611]
+    x_5 = [1569, 1744]  # 25
+    y_5 = [386, 616]
+    x_6 = [1607, 1796]  # 20
+    y_6 = [386, 623]
+
+    # dictionary for lines
+    wind_dictionary = {
+        45: [x_1, y_1],
+        40: [x_2, y_2],
+        35: [x_3, y_3],
+        30: [x_4, y_4],
+        25: [x_5, y_5],
+        20: [x_6, y_6]
+    }
+    output_pixel_right = find_intersection(wind,output_pixel_left,wind_dictionary,input_is_x=0)
+
+    # point which is edge of wind-window on chart
+    wind_edge_point = line_from_two_points_y_to_x(1551, 592, 1797, 623, output_pixel_left, "x")
+
+    if output_pixel_left >= 624:
+        output_pixel_right = 1797
+        gross_weight = 6400
+    else:
+        if 624 > output_pixel_left >= 592 and wind_edge_point > output_pixel_right:
+            output_pixel_right = wind_edge_point
+            gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
+        gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
+
+    # endresult
+    #gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
+
+
+    '''Preparing for print '''
+    pressure_altitude = int(pressure_altitude)
+    temp = int(temp)
+    wind = int(wind)
+
+    result_gross_weight = int(gross_weight)
+
+    # defining and labelling starting point on chart
+    input_output_row_pixel = 1238
+    point_1 = (int(PA_pixel), input_output_row_pixel)
+    d.text((int(PA_pixel)+20, input_output_row_pixel-20),str(pressure_altitude) + ' ft' , (0,0,255),font=font)
+
+    # defining and labelling second point
+    point_2 = (int(PA_pixel), int(output_pixel_left))
+    d.text((int(PA_pixel)-75, int(output_pixel_left)-40),str(temp) + ' C' ,(0,0,255),font=font)
+
+    # defining and labelling thrid point
+    point_3 = (int(output_pixel_right), int(output_pixel_left))
+    #d.text((int(output_pixel_right)+40, int(output_pixel_left)-40),str(wind) + ' kt' ,(0,0,255),font=font)
+
+    # defining and labelling fourth point
+    point_4 = (int(output_pixel_right), input_output_row_pixel)
+    d.text((int(output_pixel_right)+20, input_output_row_pixel-40),str(result_gross_weight) + ' kg' , fontcolor ,font=font)
+
+    d.line([point_1,point_2,point_3, point_4], fill=line_color, width=3)
+
+
+    # adding text to chart:
+    vertical_align = 1841
+    horizontal_align = -730
+    d.text((vertical_align-200,200),"Date, Time (UTC)",(0,0,0),font=font)
+    time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+    d.text((vertical_align-200,230),str(time),(0,0,255),font=font)
+
+    d.text((vertical_align,300),"Flight ID:" ,(0,0,0),font=font)
+    d.text((vertical_align,330),str(flight_ID),(0,0,255),font=font)
+
+    d.text((vertical_align,400),"PIC/SIC:" ,(0,0,0),font=font)
+    d.text((vertical_align,430),str(PIC),(0,0,255),font=font)
+
+    d.text((vertical_align,500),"P.A.:" ,(0,0,0),font=font)
+    d.text((vertical_align,530),str(pressure_altitude)+ ' ft' ,(0,0,255),font=font)
+    d.text((vertical_align,600),"Temp.:" ,(0,0,0),font=font)
+    d.text((vertical_align,630),str(temp) + ' C' ,(0,0,255),font=font)
+    d.text((vertical_align,700),"Wind:" ,(0,0,0),font=font)
+    d.text((vertical_align,730),str(wind) + ' kt' ,(0,0,255),font=font)
+
+    d.text((vertical_align,900),"RESULT:" ,(0,0,0),font=font)
+    d.text((vertical_align,950),"Max G.W.:" ,(0,0,0),font=font)
+    d.text((vertical_align,1000),str(result_gross_weight) + ' kg', fontcolor,font=font)
+
+    # # jupyter
+    # plt.figure(figsize=(160,80))
+    # imgplot = plt.imshow(im)
+    # plt.show()
+
+    # flask
+    # removing previously generated images
+    for filename in os.listdir(path_pycharm + '/static/images/'):
+        if filename.startswith('AW139_WAT_6400_catB_rendered'):  # not to remove other images
+            os.remove(path_pycharm + '/static/images/' + filename)
+
+    # create png
+    graph_png = "AW139_WAT_6400_catB_rendered " + str(time) + " UTC.png"
+    im.save(path_pycharm + '/static/images/' + graph_png)
+
+    # create pdf
+    graph_pdf = "AW139_WAT_6400_catB_rendered " + str(time) + " UTC.pdf"
+    rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+    rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+    rgb.save(path_pycharm + '/static/images/' + graph_pdf)
+
+
+    # returning the html template with filled values(Flask-part)
+    return render_template(
+        'AW139_WAT_6400_catB.html',
+        pressure_altitude = pressure_altitude,
+        pressure_altitude_SV = session['pressure_altitude_SV'],
+        temp = temp,
+        temp_SV = session['temp_SV'],
+        wind = wind,
+        wind_SV = session['wind_SV'],
+        PIC = PIC,
+        PIC_SV = session['PIC_SV'],
+        flight_ID = flight_ID,
+        flight_ID_SV = session['flight_ID_SV'],
+        result_png = graph_png,
+        result_pdf = graph_pdf,
+        result_gross_weight = result_gross_weight,
+        calculation_success = True,
+    )
 
 
 if __name__ == '__main__':
