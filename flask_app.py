@@ -88,7 +88,9 @@ def line_from_two_points_y_to_x(x1, y1, x2, y2, variable, solve_for="y"):
         return x
 
 
-'''Database'''
+''' 
+TODO Database to be implemented in the future.
+'''
 # from flask_sqlalchemy import SQLAlchemy
 # SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
 #     username="gaviation",
@@ -110,7 +112,236 @@ def line_from_two_points_y_to_x(x1, y1, x2, y2, variable, solve_for="y"):
 #     content = db.Column(db.String(4096))
 
 
-'''Sites'''
+@app.route('/AW139_WAT_6400_catB', methods=['GET', 'POST'])
+def AW139_WAT_6400_catB():
+    if request.method == 'POST':
+        # do stuff when the form is submitted
+
+        # redirect to end the POST handling
+        # the redirect can be to the same route or somewhere else
+        return redirect(url_for('index.html'))
+
+    # show the form, it wasn't submitted
+    return render_template('AW139_WAT_6400_catB.html')
+
+
+@app.route('/AW139_WAT_6400_catB_result/', methods=['POST', 'GET'])
+def AW139_WAT_6400_catB_result():
+
+    error = None
+    result = None
+
+    fontcolor = (255,0,0)
+    line_color = (255, 0, 0)
+
+    #flask
+    pressure_altitude_input = request.form['pressure_altitude']
+    session['pressure_altitude_SV'] = pressure_altitude_input
+
+    temp_input = request.form['temp']
+    session['temp_SV'] = temp_input
+
+    wind_input = request.form['wind']
+    session['wind_SV'] = wind_input
+
+    PIC_input = request.form['PIC']
+    session['PIC_SV'] = PIC_input
+
+    flight_ID_input = request.form['flight_ID']
+    session['flight_ID_SV'] = flight_ID_input
+
+    # flask
+    pressure_altitude = int(pressure_altitude_input)
+    temp = int(temp_input)
+    wind = int(wind_input)
+    PIC = PIC_input
+    flight_ID = flight_ID_input
+
+    # flask
+    # request.form looks for:
+    # html tags with matching "name= "
+
+    # flask
+    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 30)
+    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_WAT_CATB_6400.png")
+
+    d = ImageDraw.Draw(im) # generating the image
+
+    # function call
+    PA_pixel = value_to_pixel(pressure_altitude, 390, 1272, 14000)
+
+    # pixel values on x- and y-axis on left chart
+    x_1 = [703, 1272]  # -40
+    y_1 = [1158, 564]
+    x_2 = [632, 1272]  # -30
+    y_2 = [1158, 496]
+    x_3 = [563, 1272]  # -20
+    y_3 = [1158, 431]
+    x_4 = [496, 1256]  # -10
+    y_4 = [1158, 386]
+    x_5 = [432, 1196]  # 0
+    y_5 = [1158, 386]
+    x_6 = [ 370, 1139]  # +10
+    y_6 = [1158, 386]
+    x_7 = [ 327, 1083]  # +20
+    y_7 = [1139, 386]
+    x_8 = [327, 1030]  # +30
+    y_8 = [1080, 386]
+    x_9 = [327, 701]  # +40
+    y_9 = [1024, 654]
+    x_10 = [327, 397]  # +50
+    y_10 = [969, 901]
+
+    # dictionary for lines
+    temp_dictionary ={-40: [x_1, y_1],
+                 -30: [x_2, y_2],
+                 -20: [x_3, y_3],
+                 -10: [x_4, y_4],
+                   0: [x_5, y_5],
+                  10: [x_6, y_6],
+                  20: [x_7, y_7],
+                  30: [x_8, y_8],
+                  40: [x_9, y_9],
+                  50: [x_10, y_10]}
+
+    # function call
+    output_pixel_left = find_intersection(temp, PA_pixel, temp_dictionary, input_is_x=1)
+
+    # restricting the chart output
+    pixel_limit = 10000
+    if output_pixel_left > pixel_limit:
+        output_pixel_left = pixel_limit
+
+    # pixel values on x- and y-axis on right chart
+    x_1 = [1414, 1551]  # 45
+    y_1 = [386, 593]
+    x_2 = [1453, 1599]  # 40
+    y_2 = [386, 598]
+    x_3 = [1492, 1648]  # 35
+    y_3 = [386, 605]
+    x_4 = [1530, 1696]  # 30
+    y_4 = [386, 611]
+    x_5 = [1569, 1744]  # 25
+    y_5 = [386, 616]
+    x_6 = [1607, 1796]  # 20
+    y_6 = [386, 623]
+
+    # dictionary for lines
+    wind_dictionary = {
+        45: [x_1, y_1],
+        40: [x_2, y_2],
+        35: [x_3, y_3],
+        30: [x_4, y_4],
+        25: [x_5, y_5],
+        20: [x_6, y_6]
+    }
+    output_pixel_right = find_intersection(wind,output_pixel_left,wind_dictionary,input_is_x=0)
+
+    # point which is edge of wind-window on chart
+    wind_edge_point = line_from_two_points_y_to_x(1551, 592, 1797, 623, output_pixel_left, "x")
+
+    if output_pixel_left >= 624:
+        output_pixel_right = 1797
+        gross_weight = 6400
+    else:
+        if 624 > output_pixel_left >= 592 and wind_edge_point > output_pixel_right:
+            output_pixel_right = wind_edge_point
+            gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
+        gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
+
+
+    '''Preparing for print '''
+    pressure_altitude = int(pressure_altitude)
+    temp = int(temp)
+    wind = int(wind)
+
+    result_gross_weight = int(gross_weight)
+
+    # defining and labelling starting point on chart
+    input_output_row_pixel = 1238
+    point_1 = (int(PA_pixel), input_output_row_pixel)
+    d.text((int(PA_pixel)+20, input_output_row_pixel-20),str(pressure_altitude) + ' ft' , (0,0,255),font=font)
+
+    # defining and labelling second point
+    point_2 = (int(PA_pixel), int(output_pixel_left))
+    d.text((int(PA_pixel)-75, int(output_pixel_left)-40),str(temp) + ' C' ,(0,0,255),font=font)
+
+    # defining and labelling thrid point
+    point_3 = (int(output_pixel_right), int(output_pixel_left))
+    #d.text((int(output_pixel_right)+40, int(output_pixel_left)-40),str(wind) + ' kt' ,(0,0,255),font=font)
+
+    # defining and labelling fourth point
+    point_4 = (int(output_pixel_right), input_output_row_pixel)
+    d.text((int(output_pixel_right)+20, input_output_row_pixel-40),str(result_gross_weight) + ' kg' , fontcolor ,font=font)
+
+    d.line([point_1,point_2,point_3, point_4], fill=line_color, width=3)
+
+    # adding text to chart:
+    vertical_align = 1841
+    horizontal_align = -730
+    d.text((vertical_align-200,200),"Date, Time (UTC)",(0,0,0),font=font)
+    time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+    d.text((vertical_align-200,230),str(time),(0,0,255),font=font)
+
+    d.text((vertical_align,300),"Flight ID:" ,(0,0,0),font=font)
+    d.text((vertical_align,330),str(flight_ID),(0,0,255),font=font)
+
+    d.text((vertical_align,400),"PIC/SIC:" ,(0,0,0),font=font)
+    d.text((vertical_align,430),str(PIC),(0,0,255),font=font)
+
+    d.text((vertical_align,500),"P.A.:" ,(0,0,0),font=font)
+    d.text((vertical_align,530),str(pressure_altitude)+ ' ft' ,(0,0,255),font=font)
+    d.text((vertical_align,600),"Temp.:" ,(0,0,0),font=font)
+    d.text((vertical_align,630),str(temp) + ' C' ,(0,0,255),font=font)
+    d.text((vertical_align,700),"Wind:" ,(0,0,0),font=font)
+    d.text((vertical_align,730),str(wind) + ' kt' ,(0,0,255),font=font)
+
+    d.text((vertical_align,900),"RESULT:" ,(0,0,0),font=font)
+    d.text((vertical_align,950),"Max G.W.:" ,(0,0,0),font=font)
+    d.text((vertical_align,1000),str(result_gross_weight) + ' kg', fontcolor,font=font)
+
+    # # jupyter
+    # plt.figure(figsize=(160,80))
+    # imgplot = plt.imshow(im)
+    # plt.show()
+
+    # flask
+    # removing previously generated images
+    for filename in os.listdir(path_pycharm + '/static/images/'):
+        if filename.startswith('AW139_WAT_6400_catB_rendered'):  # not to remove other images
+            os.remove(path_pycharm + '/static/images/' + filename)
+
+    # create png
+    graph_png = "AW139_WAT_6400_catB_rendered " + str(time) + " UTC.png"
+    im.save(path_pycharm + '/static/images/' + graph_png)
+
+    # create pdf
+    graph_pdf = "AW139_WAT_6400_catB_rendered " + str(time) + " UTC.pdf"
+    rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
+    rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
+    rgb.save(path_pycharm + '/static/images/' + graph_pdf)
+
+    # returning the html template with filled values(Flask-part)
+    return render_template(
+        'AW139_WAT_6400_catB.html',
+        pressure_altitude = pressure_altitude,
+        pressure_altitude_SV = session['pressure_altitude_SV'],
+        temp = temp,
+        temp_SV = session['temp_SV'],
+        wind = wind,
+        wind_SV = session['wind_SV'],
+        PIC = PIC,
+        PIC_SV = session['PIC_SV'],
+        flight_ID = flight_ID,
+        flight_ID_SV = session['flight_ID_SV'],
+        result_png = graph_png,
+        result_pdf = graph_pdf,
+        result_gross_weight = result_gross_weight,
+        calculation_success = True,
+    )
+
+'''Legacy Sites:
+TODO Legacy code. These sites need to be updated in the future.'''
 @app.route('/', methods=['GET'])
 def index():
     """ Displays the index page accessible at '/' """
@@ -128,7 +359,6 @@ def about():
     # show the form, it wasn't submitted
     return render_template('about.html')
 
-
 @app.route('/AW139', methods=['GET', 'POST'])
 def AW139():
     if request.method == 'POST':
@@ -140,7 +370,6 @@ def AW139():
 
     # show the form, it wasn't submitted
     return render_template('AW139.html')
-
 
 @app.route('/AW169', methods=['GET', 'POST'])
 def AW169():
@@ -154,7 +383,6 @@ def AW169():
     # show the form, it wasn't submitted
     return render_template('AW169.html')
 
-
 @app.route('/AW139_OGE_OEI', methods=['GET', 'POST'])
 def AW139_OGE_OEI():
     if request.method == 'POST':
@@ -166,7 +394,6 @@ def AW139_OGE_OEI():
 
     # show the form, it wasn't submitted
     return render_template('AW139_OGE_OEI.html')
-
 
 @app.route('/operation_result/', methods=['POST', 'GET'])
 def operation_result():
@@ -448,8 +675,6 @@ def operation_result():
         d.text((5840,4850),"Fuel at site:" ,(0,0,0),font=font)
         d.text((5840,5000),str(fuel_at_hho) + ' kg',(0,0,255),font=font)
 
-
-
         fontcolor = (255,0,0)
         d.text((5800,6150),"RESULT:" ,(0,0,0),font=font)
         d.text((5800,6350),"Pressure Altitude:" ,(0,0,0),font=font)
@@ -464,7 +689,6 @@ def operation_result():
         d.text((5800,7900),str(result_useful_load) + ' kg' ,fontcolor,font=font)
         d.text((5800,8150),"Payload:" ,(0,0,0),font=font)
         d.text((5800,8300),str(result_payload) + ' kg' ,fontcolor,font=font)
-
 
         # figures on chart margin
         d.text((120, PA_pixel-160),str(result_PA) + ' ft' ,fontcolor,font=font)
@@ -487,8 +711,6 @@ def operation_result():
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
         rgb.save(path_pycharm + "/static/images/" + graph_pdf)
-
-
 
         # returning the template (Flask-part)
         return render_template(
@@ -561,7 +783,6 @@ def operation_result():
             calculation_success = False,
             error = "Cannot perform numeric operations with provided input"
         )
-
 
 @app.route('/AW139_dropdown_6800', methods=['GET', 'POST'])
 def AW139_dropdown_6800():
@@ -648,7 +869,6 @@ def AW139_dropdown_6800_result():
 
         # substituting x_pixel for PA_pixel we obtain the equation for y_pixel value
         PA_temp_pixel = m_0 * PA_pixel + b_0 + (283.15+10)*15 - (283.15+temp)*15
-
 
         # # finding the equation for 6400kg line
         # we reverse x and y, because y is the input and x is the output here
@@ -2334,8 +2554,6 @@ def AW139_dropdown_enhanced_result():
         d.line([point_4_zero,point_5_zero], fill=line_color, width=10)
         d.line([point_5_zero,point_6_zero], fill=line_color, width=10)
         d.line([point_6_zero,point_7_zero], fill=line_color, width=10)
-        # zero wind curve
-
 
 
         # text on image:
@@ -3505,13 +3723,11 @@ def AW139_HOGE_AT_TOP_CLEAN_result():
             output_pixel = pixel_limit
 
 
-
     PA_temp_pixel = output_pixel
 
     point_1 = (100, PA_pixel)
     point_2 = (PA_temp_pixel, PA_pixel)
     point_3 = (PA_temp_pixel, 1481)
-
 
 
     # convert pixel output to chart value on mass axis
@@ -3608,244 +3824,6 @@ def AW139_HOGE_AT_TOP_CLEAN_result():
         result_pdf = graph_pdf,
         result_PA = result_PA,
         result_mass = result_mass,
-        calculation_success = True,
-    )
-
-
-
-@app.route('/AW139_WAT_6400_catB', methods=['GET', 'POST'])
-def AW139_WAT_6400_catB():
-    if request.method == 'POST':
-        # do stuff when the form is submitted
-
-        # redirect to end the POST handling
-        # the redirect can be to the same route or somewhere else
-        return redirect(url_for('index.html'))
-
-    # show the form, it wasn't submitted
-    return render_template('AW139_WAT_6400_catB.html')
-
-
-@app.route('/AW139_WAT_6400_catB_result/', methods=['POST', 'GET'])
-def AW139_WAT_6400_catB_result():
-
-    error = None
-    result = None
-
-    fontcolor = (255,0,0)
-    line_color = (255, 0, 0)
-
-    #flask
-    pressure_altitude_input = request.form['pressure_altitude']
-    session['pressure_altitude_SV'] = pressure_altitude_input
-
-    temp_input = request.form['temp']
-    session['temp_SV'] = temp_input
-
-    wind_input = request.form['wind']
-    session['wind_SV'] = wind_input
-
-    PIC_input = request.form['PIC']
-    session['PIC_SV'] = PIC_input
-
-    flight_ID_input = request.form['flight_ID']
-    session['flight_ID_SV'] = flight_ID_input
-
-    # flask
-    pressure_altitude = int(pressure_altitude_input)
-    temp = int(temp_input)
-    wind = int(wind_input)
-    PIC = PIC_input
-    flight_ID = flight_ID_input
-
-    # flask
-    # request.form looks for:
-    # html tags with matching "name= "
-
-
-    # flask
-    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 30)
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_WAT_CATB_6400.png")
-
-    d = ImageDraw.Draw(im) # generating the image
-
-    # function call
-    PA_pixel = value_to_pixel(pressure_altitude, 390, 1272, 14000)
-
-    # pixel values on x- and y-axis on left chart
-    x_1 = [703, 1272]  # -40
-    y_1 = [1158, 564]
-    x_2 = [632, 1272]  # -30
-    y_2 = [1158, 496]
-    x_3 = [563, 1272]  # -20
-    y_3 = [1158, 431]
-    x_4 = [496, 1256]  # -10
-    y_4 = [1158, 386]
-    x_5 = [432, 1196]  # 0
-    y_5 = [1158, 386]
-    x_6 = [ 370, 1139]  # +10
-    y_6 = [1158, 386]
-    x_7 = [ 327, 1083]  # +20
-    y_7 = [1139, 386]
-    x_8 = [327, 1030]  # +30
-    y_8 = [1080, 386]
-    x_9 = [327, 701]  # +40
-    y_9 = [1024, 654]
-    x_10 = [327, 397]  # +50
-    y_10 = [969, 901]
-
-    # dictionary for lines
-    temp_dictionary ={-40: [x_1, y_1],
-                 -30: [x_2, y_2],
-                 -20: [x_3, y_3],
-                 -10: [x_4, y_4],
-                   0: [x_5, y_5],
-                  10: [x_6, y_6],
-                  20: [x_7, y_7],
-                  30: [x_8, y_8],
-                  40: [x_9, y_9],
-                  50: [x_10, y_10]}
-
-
-    # function call
-    output_pixel_left = find_intersection(temp, PA_pixel, temp_dictionary, input_is_x=1)
-
-    # restricting the chart output
-    pixel_limit = 10000
-    if output_pixel_left > pixel_limit:
-        output_pixel_left = pixel_limit
-
-
-    # pixel values on x- and y-axis on right chart
-    x_1 = [1414, 1551]  # 45
-    y_1 = [386, 593]
-    x_2 = [1453, 1599]  # 40
-    y_2 = [386, 598]
-    x_3 = [1492, 1648]  # 35
-    y_3 = [386, 605]
-    x_4 = [1530, 1696]  # 30
-    y_4 = [386, 611]
-    x_5 = [1569, 1744]  # 25
-    y_5 = [386, 616]
-    x_6 = [1607, 1796]  # 20
-    y_6 = [386, 623]
-
-    # dictionary for lines
-    wind_dictionary = {
-        45: [x_1, y_1],
-        40: [x_2, y_2],
-        35: [x_3, y_3],
-        30: [x_4, y_4],
-        25: [x_5, y_5],
-        20: [x_6, y_6]
-    }
-    output_pixel_right = find_intersection(wind,output_pixel_left,wind_dictionary,input_is_x=0)
-
-    # point which is edge of wind-window on chart
-    wind_edge_point = line_from_two_points_y_to_x(1551, 592, 1797, 623, output_pixel_left, "x")
-
-    if output_pixel_left >= 624:
-        output_pixel_right = 1797
-        gross_weight = 6400
-    else:
-        if 624 > output_pixel_left >= 592 and wind_edge_point > output_pixel_right:
-            output_pixel_right = wind_edge_point
-            gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
-        gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
-
-    # endresult
-    #gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
-
-
-    '''Preparing for print '''
-    pressure_altitude = int(pressure_altitude)
-    temp = int(temp)
-    wind = int(wind)
-
-    result_gross_weight = int(gross_weight)
-
-    # defining and labelling starting point on chart
-    input_output_row_pixel = 1238
-    point_1 = (int(PA_pixel), input_output_row_pixel)
-    d.text((int(PA_pixel)+20, input_output_row_pixel-20),str(pressure_altitude) + ' ft' , (0,0,255),font=font)
-
-    # defining and labelling second point
-    point_2 = (int(PA_pixel), int(output_pixel_left))
-    d.text((int(PA_pixel)-75, int(output_pixel_left)-40),str(temp) + ' C' ,(0,0,255),font=font)
-
-    # defining and labelling thrid point
-    point_3 = (int(output_pixel_right), int(output_pixel_left))
-    #d.text((int(output_pixel_right)+40, int(output_pixel_left)-40),str(wind) + ' kt' ,(0,0,255),font=font)
-
-    # defining and labelling fourth point
-    point_4 = (int(output_pixel_right), input_output_row_pixel)
-    d.text((int(output_pixel_right)+20, input_output_row_pixel-40),str(result_gross_weight) + ' kg' , fontcolor ,font=font)
-
-    d.line([point_1,point_2,point_3, point_4], fill=line_color, width=3)
-
-
-    # adding text to chart:
-    vertical_align = 1841
-    horizontal_align = -730
-    d.text((vertical_align-200,200),"Date, Time (UTC)",(0,0,0),font=font)
-    time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
-    d.text((vertical_align-200,230),str(time),(0,0,255),font=font)
-
-    d.text((vertical_align,300),"Flight ID:" ,(0,0,0),font=font)
-    d.text((vertical_align,330),str(flight_ID),(0,0,255),font=font)
-
-    d.text((vertical_align,400),"PIC/SIC:" ,(0,0,0),font=font)
-    d.text((vertical_align,430),str(PIC),(0,0,255),font=font)
-
-    d.text((vertical_align,500),"P.A.:" ,(0,0,0),font=font)
-    d.text((vertical_align,530),str(pressure_altitude)+ ' ft' ,(0,0,255),font=font)
-    d.text((vertical_align,600),"Temp.:" ,(0,0,0),font=font)
-    d.text((vertical_align,630),str(temp) + ' C' ,(0,0,255),font=font)
-    d.text((vertical_align,700),"Wind:" ,(0,0,0),font=font)
-    d.text((vertical_align,730),str(wind) + ' kt' ,(0,0,255),font=font)
-
-    d.text((vertical_align,900),"RESULT:" ,(0,0,0),font=font)
-    d.text((vertical_align,950),"Max G.W.:" ,(0,0,0),font=font)
-    d.text((vertical_align,1000),str(result_gross_weight) + ' kg', fontcolor,font=font)
-
-    # # jupyter
-    # plt.figure(figsize=(160,80))
-    # imgplot = plt.imshow(im)
-    # plt.show()
-
-    # flask
-    # removing previously generated images
-    for filename in os.listdir(path_pycharm + '/static/images/'):
-        if filename.startswith('AW139_WAT_6400_catB_rendered'):  # not to remove other images
-            os.remove(path_pycharm + '/static/images/' + filename)
-
-    # create png
-    graph_png = "AW139_WAT_6400_catB_rendered " + str(time) + " UTC.png"
-    im.save(path_pycharm + '/static/images/' + graph_png)
-
-    # create pdf
-    graph_pdf = "AW139_WAT_6400_catB_rendered " + str(time) + " UTC.pdf"
-    rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
-    rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-    rgb.save(path_pycharm + '/static/images/' + graph_pdf)
-
-
-    # returning the html template with filled values(Flask-part)
-    return render_template(
-        'AW139_WAT_6400_catB.html',
-        pressure_altitude = pressure_altitude,
-        pressure_altitude_SV = session['pressure_altitude_SV'],
-        temp = temp,
-        temp_SV = session['temp_SV'],
-        wind = wind,
-        wind_SV = session['wind_SV'],
-        PIC = PIC,
-        PIC_SV = session['PIC_SV'],
-        flight_ID = flight_ID,
-        flight_ID_SV = session['flight_ID_SV'],
-        result_png = graph_png,
-        result_pdf = graph_pdf,
-        result_gross_weight = result_gross_weight,
         calculation_success = True,
     )
 
