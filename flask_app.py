@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, session, redirect, url_for
 # import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
+from pathlib import Path
 import numpy as np
 import os
 
@@ -11,8 +12,8 @@ app.secret_key = "randomly543tert443434"
 
 '''Paths for switching between Pycharm and Pythonanywere'''
 
-path_pycharm = "/home/gaviation/mysite" # path for pythonanywere
-#path_pycharm = ""                      # path for pycharm
+#path_pycharm = "/home/gaviation/mysite" # path for pythonanywere
+path_pycharm = ""                      # path for pycharm
 
 
 def value_to_pixel(nominal_value, low_end_pixel, high_end_pixel, nominal_difference):
@@ -111,8 +112,8 @@ TODO Database to be implemented in the future.
 #     id = db.Column(db.Integer, primary_key=True)
 #     content = db.Column(db.String(4096))
 
-
-@app.route('/AW139_WAT_6400_catB', methods=['GET', 'POST'])
+chart_name = 'AW139_WAT_6400_catB'
+@app.route(f'/{chart_name}' , methods=['GET', 'POST'])
 def AW139_WAT_6400_catB():
     if request.method == 'POST':
         # do stuff when the form is submitted
@@ -122,10 +123,10 @@ def AW139_WAT_6400_catB():
         return redirect(url_for('index.html'))
 
     # show the form, it wasn't submitted
-    return render_template('AW139_WAT_6400_catB.html')
+    return render_template(f'{chart_name}.html')
 
 
-@app.route('/AW139_WAT_6400_catB_result/', methods=['POST', 'GET'])
+@app.route(f'/{chart_name}_result/', methods=['POST', 'GET'])
 def AW139_WAT_6400_catB_result():
 
     error = None
@@ -134,7 +135,6 @@ def AW139_WAT_6400_catB_result():
     fontcolor = (255,0,0)
     line_color = (255, 0, 0)
 
-    #flask
     pressure_altitude_input = request.form['pressure_altitude']
     session['pressure_altitude_SV'] = pressure_altitude_input
 
@@ -150,24 +150,21 @@ def AW139_WAT_6400_catB_result():
     flight_ID_input = request.form['flight_ID']
     session['flight_ID_SV'] = flight_ID_input
 
-    # flask
+
     pressure_altitude = int(pressure_altitude_input)
     temp = int(temp_input)
     wind = int(wind_input)
     PIC = PIC_input
     flight_ID = flight_ID_input
 
-    # flask
-    # request.form looks for:
-    # html tags with matching "name= "
-
-    # flask
-    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 30)
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_WAT_CATB_6400.png")
-
+    
+    data_folder = Path("static/images/baseline_images/")
+    font = ImageFont.truetype("static/fonts/SFNS.ttf", 30)
+    image_name = chart_name + ".png"
+    im = Image.open(data_folder / image_name)
     d = ImageDraw.Draw(im) # generating the image
 
-    # function call
+    "Calculating lines"
     PA_pixel = value_to_pixel(pressure_altitude, 390, 1272, 14000)
 
     # pixel values on x- and y-axis on left chart
@@ -254,7 +251,6 @@ def AW139_WAT_6400_catB_result():
     pressure_altitude = int(pressure_altitude)
     temp = int(temp)
     wind = int(wind)
-
     result_gross_weight = int(gross_weight)
 
     # defining and labelling starting point on chart
@@ -278,52 +274,43 @@ def AW139_WAT_6400_catB_result():
 
     # adding text to chart:
     vertical_align = 1841
-    horizontal_align = -730
     d.text((vertical_align-200,200),"Date, Time (UTC)",(0,0,0),font=font)
-    time = datetime.utcnow().strftime("%Y-%m-%d, %H:%M")
+    time = datetime.utcnow().strftime("%Y-%m-%d, %H%M")
     d.text((vertical_align-200,230),str(time),(0,0,255),font=font)
-
     d.text((vertical_align,300),"Flight ID:" ,(0,0,0),font=font)
     d.text((vertical_align,330),str(flight_ID),(0,0,255),font=font)
-
     d.text((vertical_align,400),"PIC/SIC:" ,(0,0,0),font=font)
     d.text((vertical_align,430),str(PIC),(0,0,255),font=font)
-
     d.text((vertical_align,500),"P.A.:" ,(0,0,0),font=font)
     d.text((vertical_align,530),str(pressure_altitude)+ ' ft' ,(0,0,255),font=font)
     d.text((vertical_align,600),"Temp.:" ,(0,0,0),font=font)
     d.text((vertical_align,630),str(temp) + ' C' ,(0,0,255),font=font)
     d.text((vertical_align,700),"Wind:" ,(0,0,0),font=font)
     d.text((vertical_align,730),str(wind) + ' kt' ,(0,0,255),font=font)
-
     d.text((vertical_align,900),"RESULT:" ,(0,0,0),font=font)
     d.text((vertical_align,950),"Max G.W.:" ,(0,0,0),font=font)
     d.text((vertical_align,1000),str(result_gross_weight) + ' kg', fontcolor,font=font)
 
-    # # jupyter
-    # plt.figure(figsize=(160,80))
-    # imgplot = plt.imshow(im)
-    # plt.show()
-
-    # flask
     # removing previously generated images
-    for filename in os.listdir(path_pycharm + '/static/images/'):
-        if filename.startswith('AW139_WAT_6400_catB_rendered'):  # not to remove other images
-            os.remove(path_pycharm + '/static/images/' + filename)
+    rendered_images = Path("static/images/rendered_images/")
+
+    for filename in os.listdir(rendered_images):
+        if filename.startswith(f'{chart_name}_rendered'):  # not to remove other images
+            os.remove(path_pycharm / rendered_images / filename)
 
     # create png
-    graph_png = "AW139_WAT_6400_catB_rendered " + str(time) + " UTC.png"
-    im.save(path_pycharm + '/static/images/' + graph_png)
+    graph_png = chart_name + "_rendered " + str(time) + " UTC.png"
+    im.save(rendered_images / graph_png)
 
     # create pdf
-    graph_pdf = "AW139_WAT_6400_catB_rendered " + str(time) + " UTC.pdf"
+    graph_pdf = chart_name + "_rendered " + str(time) + " UTC.pdf"
     rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
     rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-    rgb.save(path_pycharm + '/static/images/' + graph_pdf)
+    rgb.save(rendered_images / graph_pdf)
 
-    # returning the html template with filled values(Flask-part)
+    # returning the html template with filled values
     return render_template(
-        'AW139_WAT_6400_catB.html',
+        chart_name + '.html',
         pressure_altitude = pressure_altitude,
         pressure_altitude_SV = session['pressure_altitude_SV'],
         temp = temp,
@@ -337,7 +324,7 @@ def AW139_WAT_6400_catB_result():
         result_png = graph_png,
         result_pdf = graph_pdf,
         result_gross_weight = result_gross_weight,
-        calculation_success = True,
+        calculation_success = True
     )
 
 '''Legacy Sites:
@@ -351,7 +338,6 @@ def index():
 def about():
     if request.method == 'POST':
         # do stuff when the form is submitted
-
         # redirect to end the POST handling
         # the redirect can be to the same route or somewhere else
         return redirect(url_for('index.html'))
