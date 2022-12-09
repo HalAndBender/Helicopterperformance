@@ -12,8 +12,8 @@ app.secret_key = "randomly543tert443434"
 
 '''Paths for switching between Pycharm and Pythonanywere'''
 
-#path_pycharm = "/home/gaviation/mysite" # path for pythonanywere
-path_pycharm = ""                      # path for pycharm
+path_main = "/home/gaviation/mysite" # path for pythonanywere
+#path_main = ""                      # path for pycharm
 
 
 def value_to_pixel(nominal_value, low_end_pixel, high_end_pixel, nominal_difference):
@@ -157,11 +157,15 @@ def AW139_WAT_6400_catB_result():
     PIC = PIC_input
     flight_ID = flight_ID_input
 
-    
-    data_folder = Path("static/images/baseline_images/")
-    font = ImageFont.truetype("static/fonts/SFNS.ttf", 30)
+    #path_main = "."
+    #path_main = "/home/gaviation/mysite" # path for pythonanywere
+    baseline_image_folder = "/static/images/baseline_images/"
+    font_folder = "/static/fonts/SFNS.ttf"
+    rendered_image_path = "/static/images/rendered_images/"
+
+    font = ImageFont.truetype(path_main + font_folder, 30)
     image_name = chart_name + ".png"
-    im = Image.open(data_folder / image_name)
+    im = Image.open(path_main + baseline_image_folder + image_name)
     d = ImageDraw.Draw(im) # generating the image
 
     "Calculating lines"
@@ -292,21 +296,22 @@ def AW139_WAT_6400_catB_result():
     d.text((vertical_align,1000),str(result_gross_weight) + ' kg', fontcolor,font=font)
 
     # removing previously generated images
-    rendered_images = Path("static/images/rendered_images/")
 
-    for filename in os.listdir(rendered_images):
+
+    #for filename in os.listdir(path_main + rendered_image_path):
+    for filename in os.listdir(path_main + rendered_image_path):
         if filename.startswith(f'{chart_name}_rendered'):  # not to remove other images
-            os.remove(path_pycharm / rendered_images / filename)
+            os.remove("./static/images/rendered_images/" + filename)
 
     # create png
     graph_png = chart_name + "_rendered " + str(time) + " UTC.png"
-    im.save(rendered_images / graph_png)
+    im.save(path_main + rendered_image_path +  graph_png)
 
     # create pdf
     graph_pdf = chart_name + "_rendered " + str(time) + " UTC.pdf"
     rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
     rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-    rgb.save(rendered_images / graph_pdf)
+    rgb.save(path_main + rendered_image_path + graph_pdf)
 
     # returning the html template with filled values
     return render_template(
@@ -547,7 +552,7 @@ def operation_result():
         result_payload = round(performance_limited_mass - DOM - fuel_at_hho)
 
         # drawing the new image
-        im = Image.open(path_pycharm + "/static/images/Hover_ceiling_OGE_orig.png")
+        im = Image.open(path_main + "/static/images/Hover_ceiling_OGE_orig.png")
         d = ImageDraw.Draw(im)
         line_color = (255,0,0)
 
@@ -623,7 +628,7 @@ def operation_result():
 
         # generate the image
         # printing the text on the image:
-        font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 130)
+        font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 130)
 
         #d.text((2860,3050),"Calculations provided by Stephan Goldberg",(255,0,0),font=font)
 
@@ -690,13 +695,13 @@ def operation_result():
 
         # create png
         graph_png = "139_HOGE_OEI_rendered " + str(time) + " UTC.png"
-        im.save(path_pycharm + "/static/images/" + graph_png)
+        im.save(path_main + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "139_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
+        rgb.save(path_main + "/static/images/" + graph_pdf)
 
         # returning the template (Flask-part)
         return render_template(
@@ -790,8 +795,8 @@ def AW139_dropdown_6800_result():
     result = None
 
     # paths
-    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 80)
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_dropdown_6800.png")
+    font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 80)
+    im = Image.open(path_main + "/static/images/baseline_images/AW139_dropdown_6800.png")
 
     # request.form looks for:
     # html tags with matching "name= "
@@ -913,7 +918,7 @@ def AW139_dropdown_6800_result():
         wind = int(wind)
 
         # generating the image
-        #im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_dropdown_6800.png")
+        #im = Image.open(path_main + "/static/images/baseline_images/AW139_dropdown_6800.png")
         d = ImageDraw.Draw(im)
         line_color = (255, 0, 0)
 
@@ -929,7 +934,7 @@ def AW139_dropdown_6800_result():
         d.line([point_2,point_3], fill=line_color, width=10)
         d.line([point_3,point_4], fill=line_color, width=10)
         d.line([point_4,point_5], fill=line_color, width=10)
-        #font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 80)
+        #font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 80)
         d.text((3820,height_loss_pixel-40),str(result_height_loss_feet) + ' ft' ,(255,0,0),font=font)
 
         # #testbed to draw functions on graph
@@ -979,13 +984,13 @@ def AW139_dropdown_6800_result():
 
         # create png
         graph_png = "AW139_dropdown_6800_rendered " + str(time) + " UTC.png"
-        im.save(path_pycharm + "/static/images/" + graph_png)
+        im.save(path_main + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "AW139_dropdown_6800_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
+        rgb.save(path_main + "/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -1062,8 +1067,8 @@ def AW169_OGE_OEI_old_result():
     result = None
 
     # flask
-    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW169_HOGE_OEI_600.png")
+    font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 60)
+    im = Image.open(path_main + "/static/images/baseline_images/AW169_HOGE_OEI_600.png")
 
 
     # # jupyter
@@ -1394,13 +1399,13 @@ def AW169_OGE_OEI_old_result():
 
         # create png
         graph_png = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
-        im.save(path_pycharm + "/static/images/" + graph_png)
+        im.save(path_main + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
+        rgb.save(path_main + "/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -1489,8 +1494,8 @@ def AW169_OGE_OEI_result():
     fontcolor = (255,0,0)
     line_color = (255, 0, 0)
 
-    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW169_HOGE_OEI_600_new.png")
+    font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 60)
+    im = Image.open(path_main + "/static/images/baseline_images/AW169_HOGE_OEI_600_new.png")
 
 
     # # jupyter
@@ -1900,13 +1905,13 @@ def AW169_OGE_OEI_result():
 
     # create png
     graph_png = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.png"
-    im.save(path_pycharm + "/static/images/" + graph_png)
+    im.save(path_main + "/static/images/" + graph_png)
 
     # create pdf
     graph_pdf = "AW169_HOGE_OEI_rendered " + str(time) + " UTC.pdf"
     rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
     rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-    rgb.save(path_pycharm + "/static/images/" + graph_pdf)
+    rgb.save(path_main + "/static/images/" + graph_pdf)
 
     # returning the template (Flask-part)
     return render_template(
@@ -1961,8 +1966,8 @@ def AW169_dropdown_4200_result():
     result = None
 
     # flask
-    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 50)
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW169_drowdown_4200_600.png")
+    font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 50)
+    im = Image.open(path_main + "/static/images/baseline_images/AW169_drowdown_4200_600.png")
 
 
     # # jupyter
@@ -2185,13 +2190,13 @@ def AW169_dropdown_4200_result():
 
         # create png
         graph_png = "AW169_dropdown_4200_rendered " + str(time) + " UTC.png"
-        im.save(path_pycharm + "/static/images/" + graph_png)
+        im.save(path_main + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "AW169_dropdown_4200_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
+        rgb.save(path_main + "/static/images/" + graph_pdf)
 
 
         # returning the template (Flask-part)
@@ -2262,8 +2267,8 @@ def AW139_dropdown_enhanced_result():
     result = None
 
     # flask
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_dropdown_enhanced.png")
-    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 70)
+    im = Image.open(path_main + "/static/images/baseline_images/AW139_dropdown_enhanced.png")
+    font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 70)
 
 
 
@@ -2596,13 +2601,13 @@ def AW139_dropdown_enhanced_result():
 
         # create png
         graph_png = "AW139_dropdown_enhanced_rendered " + str(time) + " UTC.png"
-        im.save(path_pycharm + "/static/images/" + graph_png)
+        im.save(path_main + "/static/images/" + graph_png)
 
         # create pdf
         graph_pdf = "AW139_dropdown_enhanced_rendered " + str(time) + " UTC.pdf"
         rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
         rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-        rgb.save(path_pycharm + "/static/images/" + graph_pdf)
+        rgb.save(path_main + "/static/images/" + graph_pdf)
 
         # likely nothing
         # im.save("AW139_dropdown_enhanced_rendered.png")
@@ -2749,8 +2754,8 @@ def AW139_rejected_tod_clear_area_result():
         # im = Image.open("charts/AW139/rejected_tod_clear_area/modified/AW139_rejected_tod_clear_area_6400.png")
 
         # flask
-        font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
-        im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_rejected_tod_clear_area_6400.png")
+        font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 60)
+        im = Image.open(path_main + "/static/images/baseline_images/AW139_rejected_tod_clear_area_6400.png")
 
         d = ImageDraw.Draw(im) # generating the image
 
@@ -2775,7 +2780,7 @@ def AW139_rejected_tod_clear_area_result():
         y_2=[1622,1823,2039,2270,2516]
         x_3=[ 555, 792,1028,1265,1502] #-20
         y_3=[1528,1722,1929,2151,2386]
-        x_4=[ 555, 792,1028,1265,1502,1738] #-10
+        x_4=[ 555, 792,1028,1265,1502,1738] #-10 
         y_4=[1443,1628,1827,2043,2271,2511]
         x_5=[ 555, 792,1028,1265,1502,1738] # 0
         y_5=[1359,1539,1731,1937,2157,2388]
@@ -2985,8 +2990,8 @@ def AW139_rejected_tod_clear_area_result():
         # im = Image.open("charts/AW139/rejected_tod_clear_area/modified/AW139_rejected_tod_clear_area_6800.png")
 
         # flask
-        font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
-        im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_rejected_tod_clear_area_6800.png")
+        font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 60)
+        im = Image.open(path_main + "/static/images/baseline_images/AW139_rejected_tod_clear_area_6800.png")
 
         d = ImageDraw.Draw(im) # generating the image
 
@@ -3214,8 +3219,8 @@ def AW139_rejected_tod_clear_area_result():
         # im = Image.open("charts/AW139/rejected_tod_clear_area/modified/AW139_rejected_tod_clear_area_7000.png")
 
         # flask
-        font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 60)
-        im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_rejected_tod_clear_area_7000.png")
+        font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 60)
+        im = Image.open(path_main + "/static/images/baseline_images/AW139_rejected_tod_clear_area_7000.png")
 
         d = ImageDraw.Draw(im) # generating the image
 
@@ -3502,19 +3507,19 @@ def AW139_rejected_tod_clear_area_result():
 
     # flask
     # removing previously generated images
-    for filename in os.listdir(path_pycharm + '/static/images/'):
+    for filename in os.listdir(path_main + '/static/images/'):
         if filename.startswith('AW139_rejected_tod_clear_area_rendered'):  # not to remove other images
-            os.remove(path_pycharm + '/static/images/' + filename)
+            os.remove(path_main + '/static/images/' + filename)
 
     # create png
     graph_png = "AW139_rejected_tod_clear_area_rendered " + str(time) + " UTC.png"
-    im.save(path_pycharm + '/static/images/' + graph_png)
+    im.save(path_main + '/static/images/' + graph_png)
 
     # create pdf
     graph_pdf = "AW139_rejected_tod_clear_area_rendered " + str(time) + " UTC.pdf"
     rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
     rgb.paste(im, mask=im.split()[3])                 # paste using alpha channel as mask
-    rgb.save(path_pycharm + '/static/images/' + graph_pdf)
+    rgb.save(path_main + '/static/images/' + graph_pdf)
 
 
     # returning the html template with filled values(Flask-part)
@@ -3619,8 +3624,8 @@ def AW139_HOGE_AT_TOP_CLEAN_result():
 
 
     # flask
-    font = ImageFont.truetype(path_pycharm + "/static/fonts/SFNS.ttf", 25)
-    im = Image.open(path_pycharm + "/static/images/baseline_images/AW139_HOGE_AT_TOP_CLEAN.png")
+    font = ImageFont.truetype(path_main + "/static/fonts/SFNS.ttf", 25)
+    im = Image.open(path_main + "/static/images/baseline_images/AW139_HOGE_AT_TOP_CLEAN.png")
 
     d = ImageDraw.Draw(im)
 
@@ -3780,19 +3785,19 @@ def AW139_HOGE_AT_TOP_CLEAN_result():
 
     # flask
     # removing previously generated images
-    for filename in os.listdir(path_pycharm + '/static/images/'):
+    for filename in os.listdir(path_main + '/static/images/'):
         if filename.startswith('AW139_HOGE_AT_TOP_CLEAN_rendered'):  # not to remove other images
-            os.remove(path_pycharm + '/static/images/' + filename)
+            os.remove(path_main + '/static/images/' + filename)
 
     # create png
     graph_png = "AW139_HOGE_AT_TOP_CLEAN_rendered " + str(time) + " UTC.png"
-    im.save(path_pycharm + '/static/images/' + graph_png)
+    im.save(path_main + '/static/images/' + graph_png)
 
     # create pdf
     graph_pdf = "AW139_HOGE_AT_TOP_CLEAN_rendered " + str(time) + " UTC.pdf"
     rgb = Image.new('RGB', im.size, (255, 255, 255))  # white background
     rgb.paste(im)
-    rgb.save(path_pycharm + '/static/images/' + graph_pdf)
+    rgb.save(path_main + '/static/images/' + graph_pdf)
 
 
     # returning the html template with filled values(Flask-part)
