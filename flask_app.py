@@ -10,10 +10,17 @@ import os
 app = Flask(__name__) # Creating our Flask Instance
 app.secret_key = "randomly543tert443434"
 
-'''Paths for switching between Pycharm and Pythonanywere'''
+# server path (path where the website is hosted)
+path_main = "/home/gaviation/mysite"
+# local path (to be used in local development area)
+#path_main = ""
+# or:
+#path_main = "."
 
-path_main = "/home/gaviation/mysite" # path for pythonanywere
-#path_main = ""                      # path for pycharm
+# other paths
+baseline_image_folder = "/static/images/baseline_images/"
+font_folder = "/static/fonts/SFNS.ttf"
+rendered_image_path = "/static/images/rendered_images/"
 
 
 def value_to_pixel(nominal_value, low_end_pixel, high_end_pixel, nominal_difference):
@@ -89,7 +96,7 @@ def line_from_two_points_y_to_x(x1, y1, x2, y2, variable, solve_for="y"):
         return x
 
 
-''' 
+'''
 TODO Database to be implemented in the future.
 '''
 # from flask_sqlalchemy import SQLAlchemy
@@ -156,12 +163,6 @@ def AW139_WAT_6400_catB_result():
     wind = int(wind_input)
     PIC = PIC_input
     flight_ID = flight_ID_input
-
-    #path_main = "."
-    #path_main = "/home/gaviation/mysite" # path for pythonanywere
-    baseline_image_folder = "/static/images/baseline_images/"
-    font_folder = "/static/fonts/SFNS.ttf"
-    rendered_image_path = "/static/images/rendered_images/"
 
     font = ImageFont.truetype(path_main + font_folder, 30)
     image_name = chart_name + ".png"
@@ -250,7 +251,6 @@ def AW139_WAT_6400_catB_result():
             gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
         gross_weight = int(pixel_to_value(output_pixel_right, 1279, 1819, 4000, 2500))
 
-
     '''Preparing for print '''
     pressure_altitude = int(pressure_altitude)
     temp = int(temp)
@@ -296,12 +296,9 @@ def AW139_WAT_6400_catB_result():
     d.text((vertical_align,1000),str(result_gross_weight) + ' kg', fontcolor,font=font)
 
     # removing previously generated images
-
-
-    #for filename in os.listdir(path_main + rendered_image_path):
     for filename in os.listdir(path_main + rendered_image_path):
         if filename.startswith(f'{chart_name}_rendered'):  # not to remove other images
-            os.remove("./static/images/rendered_images/" + filename)
+            os.remove(path_main + rendered_image_path + filename)
 
     # create png
     graph_png = chart_name + "_rendered " + str(time) + " UTC.png"
@@ -2780,7 +2777,7 @@ def AW139_rejected_tod_clear_area_result():
         y_2=[1622,1823,2039,2270,2516]
         x_3=[ 555, 792,1028,1265,1502] #-20
         y_3=[1528,1722,1929,2151,2386]
-        x_4=[ 555, 792,1028,1265,1502,1738] #-10 
+        x_4=[ 555, 792,1028,1265,1502,1738] #-10
         y_4=[1443,1628,1827,2043,2271,2511]
         x_5=[ 555, 792,1028,1265,1502,1738] # 0
         y_5=[1359,1539,1731,1937,2157,2388]
